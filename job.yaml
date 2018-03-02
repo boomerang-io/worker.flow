@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bmrg-worker-docker
+  namespace: default
+  labels:
+    org: Boomerang
+    version: "0.1"
+spec:
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        type: docker
+        tier: worker
+        env: ci
+    spec:
+      hostAliases:
+      - ip: "9.42.40.105"
+        hostnames:
+        - "ucd-server"
+      containers:
+      - image: tools.boomerangplatform.net:8500/boomerang/bmrg-worker-docker:1.0.0
+        imagePullPolicy: Always
+        name: bmrg-worker-docker
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /var/run/docker.sock
+          name: docker-sock
+      volumes:
+      - name: docker-sock
+        hostPath:
+          # directory location on host
+          path: /var/run/docker.sock
+          # this field is optional
+          type: Socket
+      imagePullSecrets:
+      - name: boomerang.registrykey
+      restartPolicy: Never
