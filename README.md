@@ -5,7 +5,7 @@ The purpose of this image is to provide a base foundation for Boomerang CI with 
 ## How to use
 
 *Build Image Locally*
-`docker build -t bmrg-worker-worker .`
+`docker build -t bmrg-worker-worker  --build-arg ucdInstallImageUrl=https://ucd.boomerangplatform.net:8443 --build-arg ucdCredentials='<user>:<password>' .`
 
 *Run Image Locally*
 `docker run --add-host="ucd-server:ucd.boomerangplatform.net" -v /var/run/docker.sock:/var/run/docker.sock -ti bmrg-worker-docker`
