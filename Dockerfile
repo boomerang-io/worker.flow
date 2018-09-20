@@ -2,5 +2,8 @@
 FROM alpine:3.8 
 
 #Add Packages
-RUN apk add --no-cache git openssh-client bash sed grep coreutils 
+RUN apk add --no-cache git openssh-client bash sed grep coreutils openjdk8 maven
 
+WORKDIR /plugins
+
+ADD ./plugins .

@@ -1,14 +1,12 @@
-# Boomerang Docker Worker
+# Boomerang Flow Worker
 
-The purpose of this image is to provide a base foundation for Boomerang CI with the ability to produce other Docker images, run UrbanCode processes, etc
+The purpose of this image is to provide a base foundation for Boomerang Flow with the ability to execute the workflow steps
 
-## How to use
+## How to Build
 
-*Build Image Locally*
-`docker build -t bmrg-worker-worker  --build-arg ucdInstallImageUrl=https://ucd.boomerangplatform.net:8443 --build-arg ucdCredentials='<user>:<password>' .`
+`docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:0.0.1 .`
 
-*Run Image Locally*
-`docker run --add-host="ucd-server:ucd.boomerangplatform.net" -v /var/run/docker.sock:/var/run/docker.sock -ti bmrg-worker-docker`
+`docker push tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:0.0.1`
 
 ## References
 
