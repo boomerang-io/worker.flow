@@ -1,0 +1,16 @@
+{
+  "name": "bmrg-flow-cli",
+  "version": "0.1.0",
+  "description": "Boomerang Flow Worker CLI",
+  "main": "cli.js",
+  "repository": "git@github.ibm.com:Boomerang/boomerang.worker.flow.git",
+  "author": "Tyson Lawrie <twlawrie@us.ibm.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@slack/client": "^4.8.0",
+    "commander": "^2.19.0",
+    "inquirer": "^6.2.0"
+  },
+  "preferGlobal": true,
+  "bin": "./cli.js"
+}

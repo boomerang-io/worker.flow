@@ -2,8 +2,11 @@
 FROM alpine:3.8 
 
 #Add Packages
-RUN apk add --no-cache git openssh-client bash sed grep coreutils openjdk8 maven
+RUN apk add --no-cache bash sed grep coreutils nodejs yarn
 
-WORKDIR /plugins
+WORKDIR /cli
+ADD ./cli.js .
+ADD ./package.json .
+RUN yarn install && yarn link
 
-ADD ./plugins .
+CMD [ "node", "cli.js", "--help" ]
