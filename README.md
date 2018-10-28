@@ -26,3 +26,7 @@ We add in a git dependency
 - *UrbanCode*
 URL: https://github.com/IBM-UrbanCode/UCD-Docker-Images
 Install the UrbanCode Agent. The scripts and installers are borrowed from the official UrbanCode Agent Image
+
+## Node Reference
+
+- Initial Starter: https://scotch.io/tutorials/build-an-interactive-command-line-application-with-nodejs
