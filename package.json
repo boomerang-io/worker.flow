@@ -9,7 +9,8 @@
   "dependencies": {
     "@slack/client": "^4.8.0",
     "commander": "^2.19.0",
-    "inquirer": "^6.2.0"
+    "inquirer": "^6.2.0",
+    "require-all": "^3.0.0"
   },
   "preferGlobal": true,
   "bin": "./cli.js"

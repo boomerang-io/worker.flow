@@ -6,7 +6,9 @@ RUN apk add --no-cache bash sed grep coreutils nodejs yarn
 
 WORKDIR /cli
 ADD ./cli.js .
+ADD ./log.js .
+ADD ./commands ./commands
 ADD ./package.json .
 RUN yarn install && yarn link
 
-CMD [ "node", "cli.js", "--help" ]
+ENTRYPOINT [ "node", "cli.js" ]
