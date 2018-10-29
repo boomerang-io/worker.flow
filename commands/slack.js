@@ -3,7 +3,7 @@ const log = require("./../log.js");
 
 module.exports = {
   sendWebhook (req) {
-    log.out('Inside Send Slack Webhook Plugin');
+    log.debug('Inside Send Slack Webhook Plugin');
     
     const url = 'https://hooks.slack.com/services/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';
     const webhook = new IncomingWebhook(url);
@@ -29,7 +29,7 @@ module.exports = {
         if (err) {
           log.err(err);
         } else {
-          log.out("Message sent: " + res.text);
+          log.good("Message sent: " + res.text);
         }
     });
   }

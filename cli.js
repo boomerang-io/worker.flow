@@ -2,6 +2,7 @@
 
 const program = require('commander');
 const log = require("./log.js");
+//const sleep = require('system-sleep');
 
 //Import all Command Modules
 var commands = require('require-all')({
@@ -27,7 +28,10 @@ program
   .command('sendSlackMessage <channel> <title> <message>')
   .description('Send Slack Webhook')
   .action((channel, title, message) => {
-    log.sys("Initializing the Slack plugin");
+    // log.debug("sleeping...")
+    // sleep(30000);
+    // log.debug("finished sleeping")
+    log.sys("sendSlackMessage " + channel + " " + title + " " + message);
     commands.slack.sendWebhook({channel, title, message});
   });
 
