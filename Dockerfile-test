@@ -6,7 +6,7 @@ RUN apk add --no-cache bash sed grep coreutils nodejs yarn
 
 WORKDIR /data
 WORKDIR /props
-ADD ./input.properties /props/
+ADD ./test/input.properties /props/
 WORKDIR /cli
 ADD ./cli.js .
 ADD ./log.js .
