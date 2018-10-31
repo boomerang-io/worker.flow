@@ -79,6 +79,12 @@
     "@types/events" "*"
     "@types/node" "*"
 
+agent-base@^4.1.0:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/agent-base/-/agent-base-4.2.1.tgz#d89e5999f797875674c07d87f260fc41e83e8ca9"
+  dependencies:
+    es6-promisify "^5.0.0"
+
 ansi-escapes@^3.0.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/ansi-escapes/-/ansi-escapes-3.1.0.tgz#f73207bb81207d75fd6c83f125af26eea378ca30"
@@ -107,6 +113,10 @@ axios@^0.18.0:
   dependencies:
     follow-redirects "^1.3.0"
     is-buffer "^1.1.5"
+
+bindings@~1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.2.1.tgz#14ad6113812d2d37d72e67b4cacb4bb726505f11"
 
 chalk@^2.0.0:
   version "2.4.1"
@@ -150,11 +160,30 @@ commander@^2.19.0:
   version "2.19.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
 
+deasync-promise@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/deasync-promise/-/deasync-promise-1.0.1.tgz#2b27de478167af4ef34ba99879c52ec0cedd61c2"
+  dependencies:
+    deasync "^0.1.7"
+
+deasync@^0.1.7:
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/deasync/-/deasync-0.1.13.tgz#815c2b69bbd1117cae570152cd895661c09f20ea"
+  dependencies:
+    bindings "~1.2.1"
+    nan "^2.0.7"
+
 debug@=3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
   dependencies:
     ms "2.0.0"
+
+debug@^3.1.0:
+  version "3.2.6"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-3.2.6.tgz#e83d17de16d8a7efb7717edbe5fb10135eee629b"
+  dependencies:
+    ms "^2.1.1"
 
 define-properties@^1.1.2:
   version "1.1.3"
@@ -183,6 +212,16 @@ es-to-primitive@^1.1.1:
     is-callable "^1.1.4"
     is-date-object "^1.0.1"
     is-symbol "^1.0.2"
+
+es6-promise@^4.0.3:
+  version "4.2.5"
+  resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-4.2.5.tgz#da6d0d5692efb461e082c14817fe2427d8f5d054"
+
+es6-promisify@^5.0.0:
+  version "5.0.0"
+  resolved "http://registry.npmjs.org/es6-promisify/-/es6-promisify-5.0.0.tgz#5109d62f3e56ea967c4b63505aef08291c8a5203"
+  dependencies:
+    es6-promise "^4.0.3"
 
 escape-string-regexp@^1.0.5:
   version "1.0.5"
@@ -241,6 +280,13 @@ has@^1.0.1:
   resolved "https://registry.yarnpkg.com/has/-/has-1.0.3.tgz#722d7cbfc1f6aa8241f16dd814e011e1f41e8796"
   dependencies:
     function-bind "^1.1.1"
+
+https-proxy-agent@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-2.2.1.tgz#51552970fa04d723e04c56d04178c3f92592bbc0"
+  dependencies:
+    agent-base "^4.1.0"
+    debug "^3.1.0"
 
 iconv-lite@^0.4.24:
   version "0.4.24"
@@ -328,9 +374,25 @@ ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
 
+ms@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.1.tgz#30a5864eb3ebb0a66f2ebe6d727af06a09d86e0a"
+
 mute-stream@0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.7.tgz#3075ce93bc21b8fab43e1bc4da7e8115ed1e7bab"
+
+nan@^2.0.7:
+  version "2.11.1"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.11.1.tgz#90e22bccb8ca57ea4cd37cc83d3819b52eea6766"
+
+node-datetime@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/node-datetime/-/node-datetime-2.1.2.tgz#657962039f88a87a94e26c2f65c88f278953f697"
+
+node-fetch@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.2.0.tgz#4ee79bde909262f9775f731e3656d0db55ced5b5"
 
 object-keys@^1.0.12:
   version "1.0.12"
@@ -385,6 +447,10 @@ p-retry@^2.0.0:
   dependencies:
     retry "^0.12.0"
 
+properties@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/properties/-/properties-1.2.1.tgz#0ee97a7fc020b1a2a55b8659eda4aa8d869094bd"
+
 require-all@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/require-all/-/require-all-3.0.0.tgz#473d49704be310115ce124f77383b1ebd8671312"
@@ -438,6 +504,12 @@ supports-color@^5.3.0:
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-5.5.0.tgz#e2e69a44ac8772f78a1ec0b35b689df6530efc8f"
   dependencies:
     has-flag "^3.0.0"
+
+system-sleep@^1.3.6:
+  version "1.3.6"
+  resolved "https://registry.yarnpkg.com/system-sleep/-/system-sleep-1.3.6.tgz#ed9b698ae991f3e6cee85aa0083c9a06a9b6bc03"
+  dependencies:
+    deasync-promise "1.0.1"
 
 through@^2.3.6:
   version "2.3.8"

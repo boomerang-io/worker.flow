@@ -1,0 +1,79 @@
+apps:
+  flow:
+    image:
+      repository: /ise/bmrg-app-flow
+      tag: 0.2.0-27
+    replicaCount: 1
+    service:
+      nodePort: 31010
+      type: ClusterIP
+core:
+  chart: bmrg-core
+  services:
+  - admin
+  - auth
+  - jira
+  - launchpad
+  - mail
+  - slack
+  - status
+  - settings
+  - audit
+database:
+  mongodb:
+    host: bmrg-mdb003-ibm-mongodb-dev
+    password: XhfYtyeQ!
+    port: 27017
+    user: boomerang
+general:
+  nameOverride: null
+image:
+  pullPolicy: IfNotPresent
+  registry: tools.boomerangplatform.net:8500
+ingress:
+  auth:
+    enabled: true
+    url:
+      external: https://$host/dev/oauth/start?rd=$uri
+      internal: http://bmrg-auth-proxy.bmrg-dev.svc.cluster.local/dev/oauth/auth
+  enabled: true
+  hosts:
+  - wdc1.cloud.boomerangplatform.net
+  root: /dev
+  tls:
+    host: wdc1.cloud.boomerangplatform.net
+    secretName: bmrg-tls-cloud
+job:
+  data:
+    enabled: false
+    image:
+      repository: /ise/bmrg-util-mongo
+      tag: 0.0.27
+    javaprofile: flow
+logging:
+  enableDebug: true
+monitoring:
+  newrelic:
+    appName: Boomerang Private
+    licenseKey: null
+proxy:
+  enable: true
+  host: 10.190.20.135
+  port: 1080
+services:
+  flow:
+    image:
+      repository: /ise/bmrg-service-flow
+      tag: 0.0.8-7
+    replicaCount: 1
+    service:
+      nodePort: 1
+      type: ClusterIP
+  controller:
+    replicaCount: 1
+    image:
+      repository: /ise/bmrg-service-controller
+      tag: 0.0.1-0
+    service:
+      type: ClusterIP
+      nodePort: 31010

@@ -1,38 +1,68 @@
 #!/usr/bin/env node
 
-const program = require('commander');
+const program = require("commander");
 const log = require("./log.js");
-//const sleep = require('system-sleep');
+const props = require("./props.js");
 
-//Import all Command Modules
-var commands = require('require-all')({
-  dirname     :  __dirname + '/commands',
-  filter      :  /(.+)\.js$/,
-  excludeDirs :  /^\.(git|svn)$/,
-  recursive   : true
-});
+async function cli() {
+  let inputProps;
+  try {
+    inputProps = await props.input();
+    log.debug("Reading input props", inputProps);
+  } catch (e) {
+    log.warn(e);
+  }
 
-// var glob = require( 'glob' )
-//   , path = require( 'path' );
-
-// glob.sync( './commands/**/*.js' ).forEach( function( file ) {
-//   require( path.resolve( file ) );
-// });
-
-//CLI Commands
-program
-  .version('0.1.0')
-  .description('Boomerang Flow Worker CLI');
-
-  program
-  .command('sendSlackMessage <channel> <title> <message>')
-  .description('Send Slack Webhook')
-  .action((channel, title, message) => {
-    // log.debug("sleeping...")
-    // sleep(30000);
-    // log.debug("finished sleeping")
-    log.sys("sendSlackMessage " + channel + " " + title + " " + message);
-    commands.slack.sendWebhook({channel, title, message});
+  //Import all Command Modules
+  var commands = require("require-all")({
+    dirname: __dirname + "/commands",
+    filter: /(.+)\.js$/,
+    excludeDirs: /^\.(git|svn)$/,
+    recursive: true
   });
 
+  //CLI Commands
+  log.debug("Start of CLI commands");
+  program.version("0.1.0").description("Boomerang Flow Worker CLI");
+
+  program
+    .command("sendSlackMessage <channel> <title> <message>")
+    .description("Send Slack Webhook")
+    .action((channel, title, message) => {
+      log.sys("sendSlackMessage", channel, title, message);
+      commands.slack.sendWebhook({ channel, title, message });
+    });
+
+  program
+    .command("sendMailToMember <to> <subject> <message>")
+    .description("Send Email to Member with Subject and Message")
+    .action((to, subject, message) => {
+      log.sys("sendMailToMember ", to, subject, message);
+      commands.mail.sendMailToMember({ to, subject, message });
+    });
+
+  program
+    .command("sleep <duration>")
+    .description("Sleep for specified duration in milliseconds")
+    .action(duration => {
+      log.sys("sleep ", duration);
+      commands.sleep.sleep({ duration });
+    });
+
+  program
+    .command("artDownload ")
+    .description("Download file from Artifactory")
+    .action((toList, subject, message) => {
+      log.sys("artDownload", toList, subject, message);
+      commands.artifactory.downloadFile(
+        { toList, subject, message },
+        inputProps
+      );
+    });
+
   program.parse(process.argv);
+}
+
+cli();
+
+//TODO: Write out to props
