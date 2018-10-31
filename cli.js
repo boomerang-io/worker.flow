@@ -50,14 +50,19 @@ async function cli() {
     });
 
   program
-    .command("artDownload ")
+    .command("artifactoryDownload ")
     .description("Download file from Artifactory")
-    .action((toList, subject, message) => {
-      log.sys("artDownload", toList, subject, message);
-      commands.artifactory.downloadFile(
-        { toList, subject, message },
-        inputProps
-      );
+    .action(() => {
+      log.sys("artifactoryDownload");
+      commands.artifactory.downloadFile({}, inputProps);
+    });
+
+  program
+    .command("createFile <filePath> <fileContent>")
+    .description("Download file from Artifactory")
+    .action((filePath, fileContent) => {
+      log.sys("createFile", filePath, fileContent);
+      commands.file.createFile({ filePath, fileContent }, inputProps);
     });
 
   program.parse(process.argv);
