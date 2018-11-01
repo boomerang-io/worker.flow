@@ -1,6 +1,7 @@
 const log = require("../log.js");
 const fetch = require("node-fetch");
 var fs = require("fs");
+var shell = require('shelljs');
 
 module.exports = {
   downloadFile(req, inputProps) {
@@ -19,7 +20,7 @@ module.exports = {
       return new Promise((resolve, reject) => {
         const dest = fs.createWriteStream("file");
         res.body.pipe(dest);
-        fs.rename("file", "/data/file", function(err) {
+        fs.rename("file", "/data/file", function (err) {
           if (err) throw err;
           console.log("Successfully renamed - AKA moved!");
         });
@@ -38,6 +39,10 @@ module.exports = {
     log.debug("Finished Artifactory Download File Plugin");
   },
   uploadFile(req, inputProps) {
-    log.debug("Inside Artifactory Upload File Plugin");
+    log.debug("Started Artifactory Upload File Plugin");
+
+    shell.exec('curl -T ' + req.filePath + ' https://tools.boomerangplatform.net/artifactory/boomerang/test' + req.filePath + ' --insecure -u admin:WwwWulaWwHH!');
+
+    log.debug("Finished Artifactory Upload File Plugin");
   }
 };

@@ -2,11 +2,12 @@
 FROM alpine:3.8 
 
 #Add Packages
-RUN apk add --no-cache bash sed grep coreutils nodejs yarn
+RUN apk add --no-cache bash sed grep curl coreutils nodejs yarn
 
 WORKDIR /data
 WORKDIR /props
 ADD ./test/input.properties /props/
+ADD ./test/uploadfile.txt /data/
 WORKDIR /cli
 ADD ./cli.js .
 ADD ./log.js .
@@ -15,5 +16,6 @@ ADD ./commands ./commands
 ADD ./package.json .
 RUN ls -ltr
 RUN yarn install && yarn link
+RUN curl --version
 
 ENTRYPOINT [ "node", "cli.js" ]
