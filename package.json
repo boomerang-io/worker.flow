@@ -15,6 +15,7 @@
     "node-fetch": "^2.2.0",
     "properties": "^1.2.1",
     "require-all": "^3.0.0",
+    "shelljs": "^0.8.2",
     "system-sleep": "^1.3.6"
   },
   "preferGlobal": true,

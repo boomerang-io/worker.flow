@@ -2,7 +2,7 @@
 FROM alpine:3.8 
 
 #Add Packages
-RUN apk add --no-cache bash sed grep coreutils nodejs yarn
+RUN apk add --no-cache bash sed grep curl coreutils nodejs yarn
 
 WORKDIR /cli
 ADD ./cli.js .

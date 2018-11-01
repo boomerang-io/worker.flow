@@ -50,7 +50,7 @@ async function cli() {
     });
 
   program
-    .command("artifactoryDownload ")
+    .command("artifactoryDownload")
     .description("Download file from Artifactory")
     .action(() => {
       log.sys("artifactoryDownload");
@@ -58,8 +58,16 @@ async function cli() {
     });
 
   program
+    .command("artifactoryUpload <filePath>")
+    .description("Upload file from Artifactory")
+    .action((filePath) => {
+      log.sys("artifactoryUpload", filePath);
+      commands.artifactory.uploadFile({ filePath }, inputProps);
+    });
+
+  program
     .command("createFile <filePath> <fileContent>")
-    .description("Download file from Artifactory")
+    .description("Create File")
     .action((filePath, fileContent) => {
       log.sys("createFile", filePath, fileContent);
       commands.file.createFile({ filePath, fileContent }, inputProps);
