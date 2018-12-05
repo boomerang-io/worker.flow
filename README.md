@@ -8,6 +8,12 @@ The purpose of this image is to provide a base foundation for Boomerang Flow wit
 
 `docker push tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:0.0.1`
 
+## Update Version of CLI
+
+In the cli.js there is a version string for printing out. If you update the tag of the worker, please update this version string.
+
+*TODO:* update how this works.
+
 ## How to Test locally
 
 1. Build with the Dockerfile-test
