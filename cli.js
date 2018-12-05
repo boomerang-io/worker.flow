@@ -21,9 +21,15 @@ async function cli() {
     recursive: true
   });
 
+  //Env Variables
+  //TODO: change implement to pull from inputs.props or some file on load
+  log.debug("Environment Variables: ");
+  //TODO: update log to be able to handle process.env
+  console.log(process.env);
+
   //CLI Commands
   log.debug("Start of CLI commands");
-  program.version("0.1.0").description("Boomerang Flow Worker CLI");
+  program.version("0.1.7").description("Boomerang Flow Worker CLI");
 
   program
     .command("sendSlackMessage <channel> <title> <message>")
