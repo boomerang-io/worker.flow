@@ -16,8 +16,8 @@ In the cli.js there is a version string for printing out. If you update the tag 
 
 ## How to Test locally
 
-1. Build with the Dockerfile-test
-2. Run and pass in required commander parameters
+1. Build with the Dockerfile-test by passing in `-f Dockerfile-test` to the docker build command
+2. Run and pass in required commander parameters `docker run -i -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:0.0.1 --  sendSlackMessage twlawrie Test Test`
 
 *Note 1:* This requires developers to have kept this dockerfile up to date
 *Note 2:* The test Dockerfile will try to immitate the peices that Kubernetes Controller takes care of such as mounting a `/data` directory and `/props/input.properties`

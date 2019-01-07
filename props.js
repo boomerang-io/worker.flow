@@ -11,8 +11,8 @@ var options = {
 
 module.exports = {
   input() {
-    return new Promise(function(resolve, reject) {
-      properties.parse("/props/input.properties", options, function(err, obj) {
+    return new Promise(function (resolve, reject) {
+      properties.parse("/props/input.properties", options, function (err, obj) {
         if (err) {
           reject(err);
         }
