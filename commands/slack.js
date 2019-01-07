@@ -20,6 +20,13 @@ module.exports = {
       });
     }
 
+
+    //TODO: Finish variable check
+    if (req.channel === '') {
+      log.err("Channel or user has not been set");
+      process.exit(1);
+    }
+
     // Send simple text to the webhook channel
     webhook.send(
       {
@@ -38,7 +45,7 @@ module.exports = {
           }
         ]
       },
-      function(err, res) {
+      function (err, res) {
         if (err) {
           //TODO: Catch HTTP error for timeout so we can return better exits
           log.err(err);
