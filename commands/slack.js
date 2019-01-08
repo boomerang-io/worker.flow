@@ -3,6 +3,7 @@ const { IncomingWebhook } = require("@slack/client");
 const https = require("https");
 const datetime = require("node-datetime");
 const log = require("./../log.js");
+const propsUtil = require("./../props.js");
 
 module.exports = {
   sendWebhook(req) {
@@ -24,8 +25,9 @@ module.exports = {
     //TODO: Finish variable check
     if (req.channel === '') {
       log.err("Channel or user has not been set");
-      //process.exit(1);
-      process.env.BMRG_FLOW_OUTPUTS_EXITCODE = "1";
+      process.env.OUTPUTS_PROPS_EXITCODE = "1";
+      propsUtil.exitCode(1);
+      process.exit(0);
     }
 
     // Send simple text to the webhook channel
