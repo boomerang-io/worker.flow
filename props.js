@@ -1,7 +1,7 @@
 const log = require("./log.js");
 const properties = require("properties");
 
-var options = {
+var inputOptions = {
   path: true,
   namespaces: false,
   sections: false,
@@ -9,10 +9,15 @@ var options = {
   include: false
 };
 
+var outputOptions = {
+  path: "/props/output.properties",
+  unicode: true
+};
+
 module.exports = {
   input() {
     return new Promise(function (resolve, reject) {
-      properties.parse("/props/input.properties", options, function (err, obj) {
+      properties.parse("/props/input.properties", inputOptions, function (err, obj) {
         if (err) {
           reject(err);
         }
@@ -22,5 +27,13 @@ module.exports = {
   },
   output(props) {
     log.debug("Inside Properties Output Utility");
+  },
+  exitCode(code) {
+    log.debug("Inside Properties ExitCode Utility");
+    properties.stringify({ "exitCode": code }, outputOptions, function (error, obj) {
+      if (err) {
+        reject(err);
+      }
+    });
   }
 };
