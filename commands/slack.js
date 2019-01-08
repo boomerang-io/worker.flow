@@ -24,7 +24,8 @@ module.exports = {
     //TODO: Finish variable check
     if (req.channel === '') {
       log.err("Channel or user has not been set");
-      process.exit(1);
+      //process.exit(1);
+      process.env.BMRG_FLOW_OUTPUTS_EXITCODE = "1";
     }
 
     // Send simple text to the webhook channel
