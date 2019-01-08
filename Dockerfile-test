@@ -4,18 +4,13 @@ FROM alpine:3.8
 #Add Packages
 RUN apk add --no-cache bash sed grep curl coreutils nodejs yarn
 
-WORKDIR /data
 WORKDIR /props
-ADD ./test/input.properties /props/
-ADD ./test/uploadfile.txt /data/
+COPY ./test/input.properties ./test/output.properties ./
+WORKDIR /data
+COPY ./test/uploadfile.txt ./
 WORKDIR /cli
-ADD ./cli.js .
-ADD ./log.js .
-ADD ./props.js .
-ADD ./commands ./commands
-ADD ./package.json .
-RUN ls -ltr
-RUN yarn install && yarn link
-RUN curl --version
+ADD ./cli.js ./log.js ./props.js ./package.json ./commands ./
+RUN ls -ltr && yarn install && yarn link
+RUN curl --version && less /props/output.properties
 
 ENTRYPOINT [ "node", "cli.js" ]
