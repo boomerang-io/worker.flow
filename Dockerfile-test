@@ -9,8 +9,9 @@ COPY ./test/input.properties ./test/output.properties ./
 WORKDIR /data
 COPY ./test/uploadfile.txt ./
 WORKDIR /cli
-ADD ./cli.js ./log.js ./props.js ./package.json ./commands ./
+ADD ./cli.js ./log.js ./props.js ./package.json ./
+ADD ./commands ./commands
 RUN ls -ltr && yarn install && yarn link
-RUN curl --version && less /props/output.properties
+RUN curl --version && less /props/output.properties && ls -ltr /cli/commands
 
 ENTRYPOINT [ "node", "cli.js" ]

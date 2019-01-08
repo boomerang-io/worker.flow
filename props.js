@@ -1,5 +1,6 @@
 const log = require("./log.js");
 const properties = require("properties");
+var fs = require("fs");
 
 var inputOptions = {
   path: true,
@@ -30,8 +31,10 @@ module.exports = {
   },
   exitCode(code) {
     log.debug("Inside Properties ExitCode Utility");
-    properties.stringify({ "exitCode": code }, outputOptions, function (error, obj) {
+    //process.env.OUTPUTS_PROPS_EXITCODE = code;
+    properties.stringify({ "exitCode": code }, outputOptions, function (err, obj) {
       if (err) {
+        log.err(err);
         reject(err);
       }
     });

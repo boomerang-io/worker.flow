@@ -25,7 +25,6 @@ module.exports = {
     //TODO: Finish variable check
     if (req.channel === '') {
       log.err("Channel or user has not been set");
-      process.env.OUTPUTS_PROPS_EXITCODE = "1";
       propsUtil.exitCode(1);
       process.exit(0);
     }
@@ -52,9 +51,11 @@ module.exports = {
         if (err) {
           //TODO: Catch HTTP error for timeout so we can return better exits
           log.err(err);
+          propsUtil.exitCode(1);
           process.exit(1);
         } else {
           log.good("Message sent: " + res.text);
+          propsUtil.exitCode(0);
         }
       }
     );
