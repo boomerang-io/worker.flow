@@ -2,6 +2,10 @@ const log = require("./log.js");
 const properties = require("properties");
 var fs = require("fs");
 
+const WF_PROPS_PATH = "./props/"
+const WF_PROPS_PREFIX = "WF_PROPS_";
+const WF_PROPS_PATTERN = /\$\{p:(.+)\}/;
+
 var inputOptions = {
   path: true,
   namespaces: false,
@@ -11,16 +15,13 @@ var inputOptions = {
 };
 
 var outputOptions = {
-  path: "./props/output.properties",
+  path: WF_PROPS_PATH + "output.properties",
   unicode: true
 };
 
-const WF_PROPS_PREFIX = "WFINPUTS_PROPS_";
-const WF_PROPS_PATTERN = /\$\{p:(.+)\}/;
-
 module.exports = {
   //TODO: implement
-  substituteTaskInputValueForWFInputsPropertie(taskProp) {},
+  substituteTaskInputValueForWFInputsPropertie(taskProp) { },
   async substituteTaskInputsValuesForWFInputsProperties() {
     let inputProps;
     try {
@@ -46,8 +47,8 @@ module.exports = {
     return newProps;
   },
   getInputProps() {
-    return new Promise(function(resolve, reject) {
-      properties.parse("./props/input.properties", inputOptions, function(err, obj) {
+    return new Promise(function (resolve, reject) {
+      properties.parse(WF_PROPS_PATH + "input.properties", inputOptions, function (err, obj) {
         if (err) {
           reject(err);
         }
@@ -61,7 +62,7 @@ module.exports = {
   exitCode(code) {
     log.debug("Inside Properties ExitCode Utility");
     //process.env.OUTPUTS_PROPS_EXITCODE = code;
-    properties.stringify({ exitCode: code }, outputOptions, function(err, obj) {
+    properties.stringify({ SYS_EXITCODE: code }, outputOptions, function (err, obj) {
       if (err) {
         log.err(err);
         reject(err);

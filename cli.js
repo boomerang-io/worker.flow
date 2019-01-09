@@ -31,13 +31,13 @@ async function cli() {
 
   //CLI Commands
   log.debug("Start of CLI commands");
-  program.version("0.1.7").description("Boomerang Flow Worker CLI");
+  program.version("0.1.8").description("Boomerang Flow Worker CLI");
 
   program
     .arguments("<cmd> <method>")
     .description("Send Slack Webhook")
     .action((cmd, method) => {
-      log.sys(cmd);
+      log.sys(cmd, method);
       commands[cmd][method]();
     });
 
