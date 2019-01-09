@@ -17,6 +17,4 @@ const outputOptions = {
   unicode: true
 };
 
-module.exports.inputOptions = inputOptions;
-module.exports.workflowProps = workflowProps;
-module.exports.outputOptions = outputOptions;
+module.exports = { inputOptions, workflowProps, outputOptions };
