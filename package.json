@@ -9,6 +9,7 @@
   "dependencies": {
     "@slack/client": "^4.8.0",
     "commander": "^2.19.0",
+    "dotenv": "^6.2.0",
     "https-proxy-agent": "^2.2.1",
     "inquirer": "^6.2.0",
     "node-datetime": "^2.1.2",

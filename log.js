@@ -4,28 +4,22 @@ const chalk = require("chalk");
 const datetime = require("node-datetime");
 
 module.exports = {
-  out(...message) {
-    console.log(chalk.white("  ", ...message));
+  out(...args) {
+    console.log(chalk.white("  ", args[1]));
   },
-  debug(...message) {
-    console.log(
-      chalk.gray.italic(
-        datetime.create().format("m/d/y H:M:S"),
-        "- debug:",
-        ...message
-      )
-    );
+  debug(...args) {
+    console.log(chalk.gray(`${datetime.create().format("m/d/y H:M:S")} "- debug:"`), ...args);
   },
-  sys(...message) {
-    console.log(chalk.white("🤖 ", ...message));
+  sys(...args) {
+    console.log(chalk.white("🤖 ", ...args));
   },
-  good(...message) {
-    console.log(chalk.green("✅ ", ...message));
+  good(...args) {
+    console.log(chalk.green("✅ ", ...args));
   },
-  warn(...message) {
-    console.log(chalk.yellow("⚠️ ", ...message));
+  warn(...args) {
+    console.log(chalk.yellow("⚠️ ", ...args));
   },
-  err(...message) {
-    console.log(chalk.red("❗ ", ...message));
+  err(...args) {
+    console.log(chalk.red("❗ ", ...args));
   }
 };
