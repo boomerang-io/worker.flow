@@ -1,23 +1,7 @@
 const log = require("./log.js");
 const properties = require("properties");
-//const config = require("./config"); TODO
-
-const WF_PROPS_PATH = "/props";
-const WF_PROPS_PREFIX = "WFINPUTS_PROPS_";
-const WF_PROPS_PATTERN = /\$\{p:(.+)\}/;
-
-var inputOptions = {
-  path: true,
-  namespaces: false,
-  sections: false,
-  variables: false,
-  include: false
-};
-
-var outputOptions = {
-  path: WF_PROPS_PATH + "output.properties",
-  unicode: true
-};
+const config = require("./config");
+const { workflowProps, inputOptions, outputOptions } = config;
 
 module.exports = {
   //TODO: implement
@@ -32,11 +16,14 @@ module.exports = {
     }
 
     const substitutedTaskInputs = Object.entries(inputProps)
-      .filter(taskInputEntry => WF_PROPS_PATTERN.test(taskInputEntry[1])) //Test the value, and return arrays that match pattern
+      .filter(taskInputEntry => workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])) //Test the value, and return arrays that match pattern
       .map(match => {
-        const property = match[1].match(WF_PROPS_PATTERN)[1]; //Get value from entries array, find match for our property pattern, pull out first matching group
+        const property = match[1].match(workflowProps.WF_PROPS_PATTERN)[1]; //Get value from entries array, find match for our property pattern, pull out first matching group
         console.log(property);
-        match[1] = match[1].replace(WF_PROPS_PATTERN, inputProps[`${WF_PROPS_PREFIX}${property}`]);
+        match[1] = match[1].replace(
+          workflowProps.WF_PROPS_PATTERN,
+          inputProps[`${workflowProps.WF_PROPS_PREFIX}${property}`]
+        );
         return match;
       })
       .reduce((accum, [k, v]) => {
@@ -51,7 +38,7 @@ module.exports = {
   getInputProps() {
     log.debug("Inside getInputProps Utility");
     return new Promise(function(resolve, reject) {
-      properties.parse(`${WF_PROPS_PATH}/input.properties`, inputOptions, function(err, obj) {
+      properties.parse(`${workflowProps.WF_PROPS_PATH}/input.properties`, inputOptions, function(err, obj) {
         if (err) {
           reject(err);
         }
