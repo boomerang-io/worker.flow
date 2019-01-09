@@ -5,7 +5,7 @@ FROM alpine:3.8
 RUN apk add --no-cache bash sed grep curl coreutils nodejs yarn
 
 WORKDIR /cli
-ADD ./cli.js ./log.js ./utils.js ./package.json ./
+ADD ./cli.js ./log.js ./utils.js ./config.js ./package.json ./
 ADD ./commands ./commands
 RUN yarn install && yarn link
 
