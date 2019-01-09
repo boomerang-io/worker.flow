@@ -2,7 +2,7 @@ const log = require("./log.js");
 const properties = require("properties");
 var fs = require("fs");
 
-const WF_PROPS_PATH = "./props/"
+const WF_PROPS_PATH = "/props/"
 const WF_PROPS_PREFIX = "WF_PROPS_";
 const WF_PROPS_PATTERN = /\$\{p:(.+)\}/;
 
