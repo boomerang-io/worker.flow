@@ -19,7 +19,6 @@ module.exports = {
       .filter(taskInputEntry => workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])) //Test the value, and return arrays that match pattern
       .map(match => {
         const property = match[1].match(workflowProps.WF_PROPS_PATTERN)[1]; //Get value from entries array, find match for our property pattern, pull out first matching group
-        console.log(property);
         match[1] = match[1].replace(
           workflowProps.WF_PROPS_PATTERN,
           inputProps[`${workflowProps.WF_PROPS_PREFIX}${property}`]
@@ -32,7 +31,6 @@ module.exports = {
       }, {});
 
     const substitutedProps = { ...inputProps, ...substitutedTaskInputs }; //Combine both w/ new values overwriting old ones
-    log.debug(substitutedProps);
     return substitutedProps;
   },
   getInputProps() {

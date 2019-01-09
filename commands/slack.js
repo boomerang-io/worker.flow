@@ -5,10 +5,6 @@ const datetime = require("node-datetime");
 const log = require("./../log.js");
 const utils = require("../utils.js");
 
-// TODO:
-// get properties, validation, etc.
-//const properties = utils.getProperties({key: "channel", validation: validator.isEmail, "message", "title");
-
 module.exports = {
   async sendWebhook() {
     log.debug("Inside Send Slack Webhook Plugin");
@@ -63,7 +59,7 @@ module.exports = {
       function(err, res) {
         if (err) {
           //TODO: Catch HTTP error for timeout so we can return better exits
-          log.err(err);
+          log.err("Slack sendWebhook error", err);
           utils.exitCode(1); //send error to output props
           process.exit(0); //container exits okay
         } else {
