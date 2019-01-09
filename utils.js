@@ -1,16 +1,16 @@
 const log = require("./log.js");
 const properties = require("properties");
-var fs = require("fs");
+//const config = require("./config"); TODO
 
-const WF_PROPS_PATH = "/props/"
-const WF_PROPS_PREFIX = "WF_PROPS_";
+const WF_PROPS_PATH = "/props";
+const WF_PROPS_PREFIX = "WFINPUTS_PROPS_";
 const WF_PROPS_PATTERN = /\$\{p:(.+)\}/;
 
 var inputOptions = {
   path: true,
   namespaces: false,
   sections: false,
-  variables: true,
+  variables: false,
   include: false
 };
 
@@ -21,19 +21,21 @@ var outputOptions = {
 
 module.exports = {
   //TODO: implement
-  substituteTaskInputValueForWFInputsPropertie(taskProp) { },
-  async substituteTaskInputsValuesForWFInputsProperties() {
+  substituteTaskInputValueForWFInputsPropertie(taskProp) {},
+  async substituteTaskInputValuesForWFInputProperties() {
+    log.debug("Inside substituteTaskInputValuesForWFInputProperties Utility");
     let inputProps;
     try {
       inputProps = await this.getInputProps();
     } catch (e) {
       log.warn(e);
     }
-    console.log(inputProps);
-    const substitutedTaskInputs = Object.entries(process.env)
+
+    const substitutedTaskInputs = Object.entries(inputProps)
       .filter(taskInputEntry => WF_PROPS_PATTERN.test(taskInputEntry[1])) //Test the value, and return arrays that match pattern
       .map(match => {
         const property = match[1].match(WF_PROPS_PATTERN)[1]; //Get value from entries array, find match for our property pattern, pull out first matching group
+        console.log(property);
         match[1] = match[1].replace(WF_PROPS_PATTERN, inputProps[`${WF_PROPS_PREFIX}${property}`]);
         return match;
       })
@@ -42,13 +44,14 @@ module.exports = {
         return accum;
       }, {});
 
-    const newProps = { ...process.env, ...substitutedTaskInputs }; //Combine both w/ new values overwriting old ones
-    console.log(newProps);
-    return newProps;
+    const substitutedProps = { ...inputProps, ...substitutedTaskInputs }; //Combine both w/ new values overwriting old ones
+    log.debug(substitutedProps);
+    return substitutedProps;
   },
   getInputProps() {
-    return new Promise(function (resolve, reject) {
-      properties.parse(WF_PROPS_PATH + "input.properties", inputOptions, function (err, obj) {
+    log.debug("Inside getInputProps Utility");
+    return new Promise(function(resolve, reject) {
+      properties.parse(`${WF_PROPS_PATH}/input.properties`, inputOptions, function(err, obj) {
         if (err) {
           reject(err);
         }
@@ -57,12 +60,12 @@ module.exports = {
     });
   },
   output(props) {
-    log.debug("Inside Properties Output Utility");
+    log.debug("Inside output Utility");
   },
   exitCode(code) {
-    log.debug("Inside Properties ExitCode Utility");
+    log.debug("Inside exitCode Utility");
     //process.env.OUTPUTS_PROPS_EXITCODE = code;
-    properties.stringify({ SYS_EXITCODE: code }, outputOptions, function (err, obj) {
+    properties.stringify({ SYS_EXITCODE: code }, outputOptions, function(err, obj) {
       if (err) {
         log.err(err);
         reject(err);

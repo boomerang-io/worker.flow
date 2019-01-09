@@ -15,17 +15,13 @@ module.exports = {
 
     let stepProps;
     try {
-      stepProps = await utils.substituteTaskInputsValuesForWFInputsProperties();
+      stepProps = await utils.substituteTaskInputValuesForWFInputProperties();
     } catch (e) {
-      log.error(e);
+      log.err(e);
     }
 
     //Destructure and rename stepProps
-    const {
-      TASK_PROPS_CHANNEL: channel,
-      TASK_PROPS_TITLE: title,
-      TASK_PROPS_MESSAGE: message
-    } = stepProps;
+    const { TASK_PROPS_CHANNEL: channel, TASK_PROPS_TITLE: title, TASK_PROPS_MESSAGE: message } = stepProps;
 
     const url = "***REMOVED***";
     const webhook = new IncomingWebhook(url);
@@ -64,7 +60,7 @@ module.exports = {
           }
         ]
       },
-      function (err, res) {
+      function(err, res) {
         if (err) {
           //TODO: Catch HTTP error for timeout so we can return better exits
           log.err(err);
