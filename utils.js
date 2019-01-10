@@ -3,6 +3,9 @@ const properties = require("properties");
 const config = require("./config");
 const { workflowProps, inputOptions, outputOptions } = config;
 
+//TODO Read in the 4 property files workflow.input workflow.system task.input and task.system
+//Go through all task.input properties and resolve any <taskName.output.properties> by accessing the file
+
 module.exports = {
   //TODO: implement
   substituteTaskInputValueForWFInputsPropertie(taskProp) { },
@@ -44,18 +47,30 @@ module.exports = {
    * @returns Promise
    */
   getInputProps() {
-    log.debug("Inside getInputProps Utility");
-    return new Promise(function (resolve, reject) {
-      properties.parse(`${workflowProps.WF_PROPS_PATH}/input.properties`, inputOptions, function (err, obj) {
-        if (err) {
-          reject(err);
-        }
-        resolve(obj);
-      });
-    });
+    // log.debug("Inside getInputProps Utility");
+    // return new Promise(function (resolve, reject) {
+    //   properties.parse(`${workflowProps.WF_PROPS_PATH}/input.properties`, inputOptions, function (err, obj) {
+    //     if (err) {
+    //       reject(err);
+    //     }
+    //     resolve(obj);
+    //   });
+    // });
+
+    //TODO return an object with the workflow and task properties
+
   },
-  output(props) {
-    log.debug("Inside output Utility");
+  setOutputProperty(key, value) {
+    log.debug("Inside setOutputProperty Utility");
+
+    //TODO access the workflow and task system properties to build up a fetch
+
+    fetch(
+      "http://<properties.workflow.system.controllerUrl>/<properties.task.system.id>/property/set?key=<key>&value=<value>",
+      {
+        method: "PUT"
+      }
+    )
   },
   /**
    * Write exit code to properties file
