@@ -6,6 +6,11 @@ const { workflowProps, inputOptions, outputOptions } = config;
 module.exports = {
   //TODO: implement
   substituteTaskInputValueForWFInputsPropertie(taskProp) {},
+
+  /**
+   * Substitute task props that have workflow property notation with corrsponding workflow props
+   * @returns Object
+   */
   async substituteTaskInputValuesForWFInputProperties() {
     log.debug("Inside substituteTaskInputValuesForWFInputProperties Utility");
     let inputProps;
@@ -33,6 +38,10 @@ module.exports = {
     const substitutedProps = { ...inputProps, ...substitutedTaskInputs }; //Combine both w/ new values overwriting old ones
     return substitutedProps;
   },
+  /**
+   * Get props from properties file
+   * @returns Promise
+   */
   getInputProps() {
     log.debug("Inside getInputProps Utility");
     return new Promise(function(resolve, reject) {
@@ -47,14 +56,20 @@ module.exports = {
   output(props) {
     log.debug("Inside output Utility");
   },
-  exitCode(code) {
+  /**
+   * Write exit code to properties file
+   * @param code exit code from plugin execution
+   * @returns Promise
+   */
+  setExitCode(code) {
     log.debug("Inside exitCode Utility");
-    //process.env.OUTPUTS_PROPS_EXITCODE = code;
-    properties.stringify({ SYS_EXITCODE: code }, outputOptions, function(err, obj) {
-      if (err) {
-        log.err(err);
-        reject(err);
-      }
+    return new Promise(function(resolve, reject) {
+      properties.stringify({ SYS_EXITCODE: code }, outputOptions, function(err, obj) {
+        if (err) {
+          reject(err);
+        }
+        resolve(obj);
+      });
     });
   }
 };

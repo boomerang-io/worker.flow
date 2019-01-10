@@ -14,6 +14,12 @@ module.exports = {
       stepProps = await utils.substituteTaskInputValuesForWFInputProperties();
     } catch (e) {
       log.err(e);
+      try {
+        await utils.setExitCode(1);
+      } catch (e) {
+        log.err(e);
+      }
+      return process.exit(0);
     }
 
     //Destructure and rename stepProps
@@ -34,12 +40,16 @@ module.exports = {
     if (!channel) {
       log.debug(channel);
       log.err("Channel or user has not been set");
-      utils.exitCode(1);
+      try {
+        await utils.setExitCode(1);
+      } catch (err) {
+        log.err(err);
+      }
       return process.exit(0);
     }
 
     // Send simple text to the webhook channel
-    webhook.send(
+    return webhook.send(
       {
         channel: channel,
         text: "This is a test from the flow container",
@@ -56,17 +66,24 @@ module.exports = {
           }
         ]
       },
-      function(err, res) {
+      async function(err, res) {
         if (err) {
           //TODO: Catch HTTP error for timeout so we can return better exits
           log.err("Slack sendWebhook error", err);
-          utils.exitCode(1); //send error to output props
-          process.exit(0); //container exits okay
+          try {
+            await utils.setExitCode(1); //send error to output props
+          } catch (err) {
+            log.err(err);
+          }
         } else {
           log.good("Message sent: " + res.text);
-          utils.exitCode(0);
-          process.exit(0);
+          try {
+            await utils.setExitCode(0);
+          } catch (err) {
+            log.err(err);
+          }
         }
+        return process.exit(0);
       }
     );
   }
