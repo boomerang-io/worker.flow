@@ -24,12 +24,10 @@ _Note 2:_ The test Dockerfile will try to immitate the peices that Kubernetes Co
 
 ## How to Test locally with Node.js
 
-`.env` file is used to mock env variables being passed into the container. It uses the `dontenv` npm package.
-
 1. Run cli.js and pass in arguments
 
 ```
-node cli.js slack sendWebhookNoParams
+node cli.js slack sendWebhook
 ```
 
 ## utils.js
