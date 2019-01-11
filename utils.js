@@ -76,6 +76,9 @@ module.exports = (function () {
     setOutputProperty(key, value) {
       log.debug("Inside setOutputProperty Utility");
 
+      log.debug("  key: ", key);
+      log.debug("  value: ", value);
+
       const { WORKFLOW_SYSTEM_PROPS_FILENAME, TASK_SYSTEM_PROPS_FILENAME } = PROPS_FILES_CONFIG;
       const workflowSystemProps = props[WORKFLOW_SYSTEM_PROPS_FILENAME];
       const taskSystemProps = props[TASK_SYSTEM_PROPS_FILENAME];
