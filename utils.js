@@ -49,10 +49,18 @@ module.exports = (function() {
         .filter(taskInputEntry => workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])) //Test the value, and return arrays that match pattern
         .map(match => {
           const property = match[1].match(workflowProps.WF_PROPS_PATTERN)[1]; //Get value from entries array, find match for our property pattern, pull out first matching group
-          match[1] = match[1].replace(
-            workflowProps.WF_PROPS_PATTERN,
-            workflowInputProps[`${workflowProps.WF_PROPS_PREFIX}${property}`]
-          );
+
+          //check for output.properties
+          if (property.includes("/")) {
+            const [taskName, prop] = property.split("/");
+            match[1] = props[`${taskName}.output.properties`][prop];
+          } else {
+            match[1] = match[1].replace(
+              workflowProps.WF_PROPS_PATTERN,
+              workflowInputProps[`${workflowProps.WF_PROPS_PREFIX}${property}`]
+            );
+          }
+
           return match;
         })
         .reduce((accum, [k, v]) => {
