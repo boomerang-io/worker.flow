@@ -2,10 +2,15 @@ const log = require("./../log.js");
 const systemSleep = require("system-sleep");
 
 module.exports = {
-  sleep(req) {
+  sleep() {
     log.debug("Inside Sleep Plugin");
 
-    systemSleep(req.duration);
+    //Destructure and get properties ready.
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    log.debug(taskProps);
+    const { duration: duration } = taskProps;
+
+    systemSleep(duration);
 
     log.debug("Finished Sleep Plugin");
   }
