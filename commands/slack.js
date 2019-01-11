@@ -11,8 +11,10 @@ module.exports = {
 
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
 
+    log.debug(taskProps);
+
     //Destructure and rename taskProps
-    const { TASK_PROPS_CHANNEL: channel, TASK_PROPS_TITLE: title, TASK_PROPS_MESSAGE: message } = taskProps;
+    const { channel: channel, title: title, message: message } = taskProps;
 
     const url = "***REMOVED***";
     const webhook = new IncomingWebhook(url);
@@ -29,12 +31,12 @@ module.exports = {
     if (!channel) {
       log.debug(channel);
       log.err("Channel or user has not been set");
-      try {
-        await utils.setExitCode(1);
-      } catch (err) {
-        log.err(err);
-      }
-      return process.exit(0);
+      // try {
+      //   await utils.setExitCode(1);
+      // } catch (err) {
+      //   log.err(err);
+      // }
+      return process.exit(1);
     }
 
     // Send simple text to the webhook channel
@@ -55,25 +57,19 @@ module.exports = {
           }
         ]
       },
-      async function(err, res) {
+      async function (err, res) {
         if (err) {
           //TODO: Catch HTTP error for timeout so we can return better exits
           log.err("Slack sendWebhook error", err);
-          try {
-            await utils.setExitCode(1); //send error to output props
-          } catch (err) {
-            log.err(err);
-          }
+          return process.exit(1);
         } else {
           log.good("Message sent: " + res.text);
           try {
-            await utils.setExitCode(0);
             await utils.setOutputProperty("this", "that");
           } catch (err) {
             log.err(err);
           }
         }
-        return process.exit(0);
       }
     );
   }
