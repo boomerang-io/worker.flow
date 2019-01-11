@@ -10,9 +10,10 @@ const fs = require("fs");
 /**
  * Use IFFE to enscapsulate properties
  */
-module.exports = (function() {
+module.exports = (function () {
   // Read in property files
   const files = fs.readdirSync(workflowProps.WF_PROPS_PATH);
+  log.debug(files);
 
   /**
    * Filter out files that don't match
@@ -34,7 +35,7 @@ module.exports = (function() {
 
   return {
     //TODO: implement
-    substituteTaskInputValueForWFInputsPropertie(taskProp) {},
+    substituteTaskInputValueForWFInputsProperty(taskProp) { },
     /**
      * Substitute task props that have workflow property notation with corrsponding workflow props
      * @returns Object
@@ -53,7 +54,7 @@ module.exports = (function() {
           //check for output.properties
           if (property.includes("/")) {
             const [taskName, prop] = property.split("/");
-            match[1] = props[`${taskName}.output.properties`][prop];
+            match[1] = props[`${taskName.replace(/\s+/g, '')}.output.properties`][prop];
           } else {
             match[1] = match[1].replace(
               workflowProps.WF_PROPS_PATTERN,
@@ -79,8 +80,9 @@ module.exports = (function() {
       const workflowSystemProps = props[WORKFLOW_SYSTEM_PROPS_FILENAME];
       const taskSystemProps = props[TASK_SYSTEM_PROPS_FILENAME];
 
+      log.debug("  url: ", `${workflowSystemProps.controllerServiceUrl}/controller/property/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}&key=${key}&value=${value}`);
       return fetch(
-        `http://${workflowSystemProps.controllerUrl}/${taskSystemProps.id}/property/set?key=${key}&value=${value}`,
+        `${workflowSystemProps.controllerServiceUrl}/controller/property/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}&key=${key}&value=${value}`,
         {
           method: "put"
         }
@@ -88,21 +90,5 @@ module.exports = (function() {
         .then(res => log.debug(res))
         .catch(err => log.err("setOutputProperty", err));
     },
-    /**
-     * Write exit code to properties file
-     * @param code exit code from plugin execution
-     * @returns Promise
-     */
-    setExitCode(code) {
-      log.debug("Inside exitCode Utility");
-      return new Promise(function(resolve, reject) {
-        properties.stringify({ SYS_EXITCODE: code }, outputOptions, function(err, obj) {
-          if (err) {
-            reject(err);
-          }
-          resolve(obj);
-        });
-      });
-    }
   };
 })();
