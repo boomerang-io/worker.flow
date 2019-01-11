@@ -26,7 +26,7 @@ module.exports = {
 
     log.debug("Finished Create File Plugin");
   },
-  readPropertiesFile() {
+  readFile() {
     log.debug("Started Read Properties File Plugin");
 
     //Destructure and get properties ready.
@@ -37,6 +37,20 @@ module.exports = {
     const file = fs.readFileSync(filePath);
 
     utils.setOutputProperty("fileContent", file);
+
+    log.debug("Finished Read Properties File Plugin");
+  },
+  readPropertiesFile() {
+    log.debug("Started Read Properties File Plugin");
+
+    // //Destructure and get properties ready.
+    // const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    // log.debug(taskProps);
+    // const { filePath: filePath, fileContent: fileContent } = taskProps;
+
+    // const file = fs.readFileSync(filePath);
+
+    // utils.setOutputProperty("fileContent", file);
 
     log.debug("Finished Read Properties File Plugin");
   }
