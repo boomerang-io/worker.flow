@@ -1,5 +1,6 @@
 const log = require("./../log.js");
 const systemSleep = require("system-sleep");
+const utils = require("../utils.js");
 
 module.exports = {
   sleep() {
