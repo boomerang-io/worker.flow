@@ -9,21 +9,10 @@ module.exports = {
   async sendWebhook() {
     log.debug("Inside Send Slack Webhook Plugin");
 
-    let stepProps;
-    try {
-      stepProps = await utils.substituteTaskInputValuesForWFInputProperties();
-    } catch (e) {
-      log.err(e);
-      try {
-        await utils.setExitCode(1);
-      } catch (e) {
-        log.err(e);
-      }
-      return process.exit(0);
-    }
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
 
-    //Destructure and rename stepProps
-    const { TASK_PROPS_CHANNEL: channel, TASK_PROPS_TITLE: title, TASK_PROPS_MESSAGE: message } = stepProps;
+    //Destructure and rename taskProps
+    const { TASK_PROPS_CHANNEL: channel, TASK_PROPS_TITLE: title, TASK_PROPS_MESSAGE: message } = taskProps;
 
     const url = "***REMOVED***";
     const webhook = new IncomingWebhook(url);
@@ -79,6 +68,7 @@ module.exports = {
           log.good("Message sent: " + res.text);
           try {
             await utils.setExitCode(0);
+            await utils.setOutputProperty("this", "that");
           } catch (err) {
             log.err(err);
           }
