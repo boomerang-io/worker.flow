@@ -1,91 +1,100 @@
 const log = require("./log.js");
 const properties = require("properties");
 const config = require("./config");
-const { workflowProps, inputOptions, outputOptions } = config;
+const { workflowProps, inputOptions, outputOptions, PROPS_FILES_CONFIG } = config;
+//const axios = require("axios");
+const fetch = require("node-fetch");
+const Promise = require("bluebird");
+const fs = require("fs");
 
-//TODO Read in the 4 property files workflow.input workflow.system task.input and task.system
-//Go through all task.input properties and resolve any <taskName.output.properties> by accessing the file
-
-module.exports = {
-  //TODO: implement
-  substituteTaskInputValueForWFInputsPropertie(taskProp) { },
+/**
+ * Use IFFE to enscapsulate properties
+ */
+module.exports = (function() {
+  // Read in property files
+  const files = fs.readdirSync(workflowProps.WF_PROPS_PATH);
 
   /**
-   * Substitute task props that have workflow property notation with corrsponding workflow props
-   * @returns Object
+   * Filter out files that don't match
+   * Read in filtered files
+   * Reduce to build up one object with all of the properties
    */
-  async substituteTaskInputValuesForWFInputProperties() {
-    log.debug("Inside substituteTaskInputValuesForWFInputProperties Utility");
-    let inputProps;
-    try {
-      inputProps = await this.getInputProps();
-      log.debug(inputProps);
-    } catch (e) {
-      log.warn(e);
-    }
 
-    const substitutedTaskInputs = Object.entries(inputProps)
-      .filter(taskInputEntry => workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])) //Test the value, and return arrays that match pattern
-      .map(match => {
-        const property = match[1].match(workflowProps.WF_PROPS_PATTERN)[1]; //Get value from entries array, find match for our property pattern, pull out first matching group
-        match[1] = match[1].replace(
-          workflowProps.WF_PROPS_PATTERN,
-          inputProps[`${workflowProps.WF_PROPS_PREFIX}${property}`]
-        );
-        return match;
-      })
-      .reduce((accum, [k, v]) => {
-        accum[k] = v;
-        return accum;
-      }, {});
+  const { PROPS_FILENAMES, INPUT_PROPS_FILENAME_PATTERN } = PROPS_FILES_CONFIG;
+  const props = files
+    .filter(file => PROPS_FILENAMES.includes(file) || INPUT_PROPS_FILENAME_PATTERN.test(file))
+    .reduce((accum, file) => {
+      const contents = fs.readFileSync(`${workflowProps.WF_PROPS_PATH}/${file}`, "utf8");
+      const parsedProps = properties.parse(contents);
+      accum[file] = parsedProps;
+      return accum;
+    }, {});
 
-    const substitutedProps = { ...inputProps, ...substitutedTaskInputs }; //Combine both w/ new values overwriting old ones
-    return substitutedProps;
-  },
-  /**
-   * Get props from properties file
-   * @returns Promise
-   */
-  getInputProps() {
-    // log.debug("Inside getInputProps Utility");
-    // return new Promise(function (resolve, reject) {
-    //   properties.parse(`${workflowProps.WF_PROPS_PATH}/input.properties`, inputOptions, function (err, obj) {
-    //     if (err) {
-    //       reject(err);
-    //     }
-    //     resolve(obj);
-    //   });
-    // });
+  log.debug(props);
 
-    //TODO return an object with the workflow and task properties
+  return {
+    //TODO: implement
+    substituteTaskInputValueForWFInputsPropertie(taskProp) {},
+    /**
+     * Substitute task props that have workflow property notation with corrsponding workflow props
+     * @returns Object
+     */
+    substituteTaskInputPropsValuesForWorkflowInputProps() {
+      log.debug("Inside substituteTaskInputPropsValuesForWorkflowInputProps Utility");
 
-  },
-  setOutputProperty(key, value) {
-    log.debug("Inside setOutputProperty Utility");
+      const taskInputProps = props[PROPS_FILES_CONFIG.TASK_INPUT_PROPS_FILENAME];
+      const workflowInputProps = props[PROPS_FILES_CONFIG.WORKFLOW_INPUT_PROPS_FILENAME];
 
-    //TODO access the workflow and task system properties to build up a fetch
+      const substitutedTaskInputProps = Object.entries(taskInputProps)
+        .filter(taskInputEntry => workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])) //Test the value, and return arrays that match pattern
+        .map(match => {
+          const property = match[1].match(workflowProps.WF_PROPS_PATTERN)[1]; //Get value from entries array, find match for our property pattern, pull out first matching group
+          match[1] = match[1].replace(
+            workflowProps.WF_PROPS_PATTERN,
+            workflowInputProps[`${workflowProps.WF_PROPS_PREFIX}${property}`]
+          );
+          return match;
+        })
+        .reduce((accum, [k, v]) => {
+          accum[k] = v;
+          return accum;
+        }, {});
 
-    fetch(
-      "http://<properties.workflow.system.controllerUrl>/<properties.task.system.id>/property/set?key=<key>&value=<value>",
-      {
-        method: "PUT"
-      }
-    )
-  },
-  /**
-   * Write exit code to properties file
-   * @param code exit code from plugin execution
-   * @returns Promise
-   */
-  setExitCode(code) {
-    log.debug("Inside exitCode Utility");
-    return new Promise(function (resolve, reject) {
-      properties.stringify({ SYS_EXITCODE: code }, outputOptions, function (err, obj) {
-        if (err) {
-          reject(err);
+      //Combine both w/ new values overwriting old ones
+      const substitutedProps = { ...taskInputProps, ...substitutedTaskInputProps };
+      return substitutedProps;
+    },
+    setOutputProperty(key, value) {
+      log.debug("Inside setOutputProperty Utility");
+
+      const { WORKFLOW_SYSTEM_PROPS_FILENAME, TASK_SYSTEM_PROPS_FILENAME } = PROPS_FILES_CONFIG;
+      const workflowSystemProps = props[WORKFLOW_SYSTEM_PROPS_FILENAME];
+      const taskSystemProps = props[TASK_SYSTEM_PROPS_FILENAME];
+
+      return fetch(
+        `http://${workflowSystemProps.controllerUrl}/${taskSystemProps.id}/property/set?key=${key}&value=${value}`,
+        {
+          method: "put"
         }
-        resolve(obj);
+      )
+        .then(res => log.debug(res))
+        .catch(err => log.err("setOutputProperty", err));
+    },
+    /**
+     * Write exit code to properties file
+     * @param code exit code from plugin execution
+     * @returns Promise
+     */
+    setExitCode(code) {
+      log.debug("Inside exitCode Utility");
+      return new Promise(function(resolve, reject) {
+        properties.stringify({ SYS_EXITCODE: code }, outputOptions, function(err, obj) {
+          if (err) {
+            reject(err);
+          }
+          resolve(obj);
+        });
       });
-    });
-  }
-};
+    }
+  };
+})();
