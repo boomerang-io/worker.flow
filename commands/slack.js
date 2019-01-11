@@ -9,11 +9,9 @@ module.exports = {
   async sendWebhook() {
     log.debug("Inside Send Slack Webhook Plugin");
 
+    //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-
     log.debug(taskProps);
-
-    //Destructure and rename taskProps
     const { channel: channel, title: title, message: message } = taskProps;
 
     const url = "***REMOVED***";
@@ -27,15 +25,10 @@ module.exports = {
       });
     }
 
-    //TODO: Finish variable check
+    //TODO: Implement a variable check
     if (!channel) {
       log.debug(channel);
       log.err("Channel or user has not been set");
-      // try {
-      //   await utils.setExitCode(1);
-      // } catch (err) {
-      //   log.err(err);
-      // }
       return process.exit(1);
     }
 

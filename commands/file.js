@@ -2,11 +2,16 @@ const log = require("../log.js");
 var fs = require("fs");
 
 module.exports = {
-  createFile(req, inputProps) {
+  createFile() {
     log.debug("Started Create File Plugin");
 
+    //Destructure and get properties ready.
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    log.debug(taskProps);
+    const { filePath: filePath, fileContent: fileContent } = taskProps;
+
     try {
-      fs.writeFile(req.filePath + '', req.fileContent, err => {
+      fs.writeFile(filePath + '', fileContent, err => {
         if (err) {
           log.err(err);
           throw err;
@@ -19,5 +24,10 @@ module.exports = {
     }
 
     log.debug("Finished Create File Plugin");
+  },
+  readPropertiesFile() {
+    log.debug("Started Read Properties File Plugin");
+
+    log.debug("Finished Read Properties File Plugin");
   }
 };
