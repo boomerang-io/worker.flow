@@ -83,9 +83,9 @@ module.exports = (function () {
       const workflowSystemProps = props[WORKFLOW_SYSTEM_PROPS_FILENAME];
       const taskSystemProps = props[TASK_SYSTEM_PROPS_FILENAME];
 
-      log.debug("  url: ", `${workflowSystemProps.controllerServiceUrl}/controller/property/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}&key=${key}&value=${value}`);
+      log.debug("  url: ", `http://${workflowSystemProps.controllerServiceUrl}/controller/property/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}&key=${key}&value=${value}`);
       return fetch(
-        `${workflowSystemProps.controllerServiceUrl}/controller/property/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}&key=${key}&value=${value}`,
+        `http://${workflowSystemProps.controllerServiceUrl}/controller/property/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}&key=${key}&value=${value}`,
         {
           method: "put"
         }
