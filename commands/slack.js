@@ -15,7 +15,7 @@ module.exports = {
     const { channel: channel, title: title, message: message } = taskProps;
 
     const url = "***REMOVED***";
-    const webhook = new IncomingWebhook(url);
+    let webhook = new IncomingWebhook(url);
 
     //TODO: see if we can set the proxy at the higher CLI level rather than have each plugin have to support a proxy
     if (process.env.HTTP_PROXY) {
