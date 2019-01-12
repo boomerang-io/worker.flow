@@ -19,6 +19,7 @@ module.exports = {
       path = shell.tempdir();
     }
 
+    //TODO get this to fail if directory doesn't exist
     try {
       shell.cd(path);
     } catch (err) {
