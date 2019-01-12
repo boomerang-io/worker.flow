@@ -9,10 +9,10 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
-    const { filePath: filePath, fileContent: fileContent } = taskProps;
+    const { path: path, content: content } = taskProps;
 
     try {
-      fs.writeFile(filePath + '', fileContent, err => {
+      fs.writeFile(path + '', content, err => {
         if (err) {
           log.err(err);
           throw err;
@@ -32,9 +32,9 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
-    const { filePath: filePath, propertyName: propertyName } = taskProps;
+    const { path: path, propertyName: propertyName } = taskProps;
 
-    const file = fs.readFileSync(filePath);
+    const file = fs.readFileSync(path);
 
     utils.setOutputProperty(propertyName, file);
 
