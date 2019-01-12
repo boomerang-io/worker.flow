@@ -11,6 +11,7 @@ module.exports = {
     // }
 
     //Destructure and get properties ready.
+    // How do we handle null checks?
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
     const { path: path, script: script } = taskProps;
@@ -28,6 +29,8 @@ module.exports = {
     }
 
     // shell.cd('/tmp');
+
+    log.debug(script);
 
     shell.exec(script, { verbose: true }, async function (code, stdout, stderr) {
       if (code != 0) {
