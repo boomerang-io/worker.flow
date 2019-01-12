@@ -1,20 +1,40 @@
-const HttpsProxyAgent = require("https-proxy-agent");
-const { IncomingWebhook } = require("@slack/client");
-const https = require("https");
-const datetime = require("node-datetime");
 const log = require("../log.js");
 const utils = require("../utils.js");
+var shell = require('shelljs');
 
 module.exports = {
   execute() {
     log.debug("Inside Shell Plugin");
 
+    // config = {
+    //   verbose: false,
+    // }
+
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
-    const { channel: channel, title: title, message: message } = taskProps;
+    const { path: path, script: script } = taskProps;
 
-    shell.exec('curl -T ' + req.filePath + ' https://tools.boomerangplatform.net/artifactory/boomerang/test' + req.filePath + ' --insecure -u admin:WwwWulaWwHH!');
+    if (!path) {
+      path = shell.tempdir();
+    }
+
+    try {
+      shell.cd(path);
+    } catch (err) {
+      log.err(err);
+      return process.exit(1);
+    }
+
+    // shell.cd('/tmp');
+
+    shell.exec(script, { verbose: true }, async function (code, stdout, stderr) {
+      if (code != 0) {
+        log.err('  Exit code:', code);
+        log.err('  Program stderr:', stderr);
+        return process.exit(code);
+      }
+    });
 
     log.debug("End Shell Plugin");
   }
