@@ -1,22 +1,22 @@
-const log = require("../log.js");
 const fetch = require("node-fetch");
-var fs = require("fs");
-var shell = require('shelljs');
+const log = require("../log.js");
+const utils = require("../utils.js");
 
 module.exports = {
-  downloadFile() {
-    log.debug("Started Artifactory Download File Plugin");
+  //TODO implement a fetch that 
+  execute() {
+    log.debug("Started HTTP Call Plugin");
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
-    const { } = taskProps;
+    const { url: url, method: method } = taskProps;
 
-    //TODO update to use params
+    //TODO finish out passing in of parameters
     fetch(
-      "https://tools.boomerangplatform.net/artifactory/boomerang/test/hello",
+      url,
       {
-        method: "GET",
+        method: method,
         headers: {
           "X-JFrog-Art-Api":
             "AKCp5Z2NfDUZgvYrspbPwhR1byifksXAgJSFTssz5tG7wj41RyfgM1pJxPPn5FRZqTwrhtNZx"
@@ -42,19 +42,7 @@ module.exports = {
       });
     });
 
-    log.debug("Finished Artifactory Download File Plugin");
+    log.debug("Finished HTTP Call File Plugin");
   },
-  uploadFile(req, inputProps) {
-    log.debug("Started Artifactory Upload File Plugin");
 
-    //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    log.debug(taskProps);
-    const { path: path } = taskProps;
-
-    //TODO use more parameters
-    shell.exec('curl -T ' + path + ' https://tools.boomerangplatform.net/artifactory/boomerang/test' + path + ' --insecure -u admin:WwwWulaWwHH!');
-
-    log.debug("Finished Artifactory Upload File Plugin");
-  }
 };
