@@ -2,6 +2,14 @@
 
 The purpose of this image is to provide a base foundation for Boomerang Flow with the ability to execute the workflow steps
 
+## Design
+
+The CLI has a main cli.js which imports all the `*.js` files under `./commands` folder. These are then mapped to the task / plugins command that are sent through as arguments on the flow_task_template mongodb collection. A command and sub command are required for all runs.
+
+### utils.js
+
+Collection of utility functions to help plugins authors
+
 ## How to Build
 
 `docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:0.0.1 .`
@@ -14,7 +22,9 @@ In the cli.js there is a version string for printing out. If you update the tag 
 
 _TODO:_ update how this works.
 
-## How to Test locally with Docker
+## Testing
+
+### How to Test locally with Docker
 
 1. Build with the Dockerfile-test by passing in `-f test.Dockerfile` to the docker build command
 2. Run and pass in required commander parameters `docker run -i -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:0.0.1 -- sendSlackMessage @twlawrie Test Test`
@@ -22,17 +32,13 @@ _TODO:_ update how this works.
 _Note 1:_ This requires developers to have kept this dockerfile up to date
 _Note 2:_ The test Dockerfile will try to immitate the peices that Kubernetes Controller takes care of such as mounting a `/data` directory and `/props/*.properties`
 
-## How to Test locally with Node.js
+### How to Test locally with Node.js
 
 1. Run cli.js and pass in arguments
 
 ```
 node cli.js slack sendWebhook
 ```
-
-## utils.js
-
-Collection of utility functions to help plugins authors
 
 ## Clean up
 
