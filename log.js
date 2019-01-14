@@ -8,6 +8,7 @@ module.exports = {
     console.log(chalk.white("  ", args[1]));
   },
   debug(...args) {
+    //TODO make this only print out if the CLI is set to debug... environment property?
     console.log(chalk.gray(`${datetime.create().format("m/d/y H:M:S")} "- debug:"`), ...args);
   },
   sys(...args) {
