@@ -8,7 +8,11 @@ The CLI has a main cli.js which imports all the `*.js` files under `./commands` 
 
 ### utils.js
 
-Collection of utility functions to help plugins authors
+Collection of utility functions to help plugin authors retrieve, resolve, and set properties.
+
+### log.js
+
+Collection of logging utilities using chalk to output nice values in the log for the user
 
 ## How to Build
 
