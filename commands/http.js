@@ -3,7 +3,14 @@ const log = require("../log.js");
 const utils = require("../utils.js");
 
 module.exports = {
-  //TODO implement a fetch that 
+  //TODO implement a fetch that takes in;
+  //  - URL
+  //  - method (get, post, put, delete, patch, etc)
+  //  - headers (new line delimitered list?)
+  //  - body (optional depending on method)
+  //  - content type (any, text, xml, json, html, etc)
+  //  - option to allow untrusted SSL certs 
+
   execute() {
     log.debug("Started HTTP Call Plugin");
 
@@ -18,18 +25,11 @@ module.exports = {
       {
         method: method,
         headers: {
-          "X-JFrog-Art-Api":
-            "AKCp5Z2NfDUZgvYrspbPwhR1byifksXAgJSFTssz5tG7wj41RyfgM1pJxPPn5FRZqTwrhtNZx"
         }
       }
     ).then(res => {
       return new Promise((resolve, reject) => {
-        const dest = fs.createWriteStream("file");
-        res.body.pipe(dest);
-        fs.rename("file", "/data/file", function (err) {
-          if (err) throw err;
-          console.log("Successfully renamed - AKA moved!");
-        });
+        //TODO
         res.body.on("error", err => {
           reject(err);
         });
