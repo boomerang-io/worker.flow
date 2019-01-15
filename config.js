@@ -1,4 +1,4 @@
-const nodeEnv = process.env.NODE_ENV;
+const { NODE_ENV } = process.env;
 
 const inputOptions = {
   path: true,
@@ -8,7 +8,7 @@ const inputOptions = {
   include: false
 };
 const workflowProps = {
-  WF_PROPS_PATH: nodeEnv === "local" ? "./props" : "/props",
+  WF_PROPS_PATH: NODE_ENV === "local" ? "./props" : "/props",
   WF_PROPS_PREFIX: "WF_PROPS_",
   WF_PROPS_PATTERN: /\$\{p:(.+)\}/
 };
