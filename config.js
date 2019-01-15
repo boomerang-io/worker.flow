@@ -7,7 +7,7 @@ const inputOptions = {
 };
 
 const workflowProps = {
-  WF_PROPS_PATH: "/props",
+  WF_PROPS_PATH: "./props",
   WF_PROPS_PREFIX: "WF_PROPS_",
   WF_PROPS_PATTERN: /\$\{p:(.+)\}/
 };
