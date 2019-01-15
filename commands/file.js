@@ -34,6 +34,8 @@ module.exports = {
     log.debug(taskProps);
     const { path: path, propertyName: propertyName } = taskProps;
 
+    //TODO Update to catch and fail if file is not there or any other error
+    //To get the container to show failure, we have to exit the process with process.exit(1);
     const file = fs.readFileSync(path);
 
     utils.setOutputProperty(propertyName, file);

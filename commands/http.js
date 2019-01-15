@@ -27,18 +27,19 @@ module.exports = {
         method,
         "headers": {
           ...headerObject,
-          "Content-Type":contentType
+          "Content-Type": contentType
         },
-        "body": method !== "GET"? bodyStringfy:null
+        "body": method !== "GET" ? bodyStringfy : null
       }
     ).then(res => res.json())
-    .then(body=> {
-      console.log(body,"Response");
-      utils.setOutputProperty("requestRes",body);
-    })
-    .catch(err => {
-      console.log(err);
-    });
+      .then(body => {
+        console.log(body, "Response");
+        utils.setOutputProperty("requestRes", body);
+      })
+      .catch(err => {
+        console.log(err);
+        //TODO make sure to set failure of process.exit(1);
+      });
     log.debug("Finished HTTP Call File Plugin");
   },
 };
