@@ -16,7 +16,7 @@ async function cli() {
 
   //CLI Commands
   log.debug("Start of CLI commands");
-  program.version("0.1.8").description("Boomerang Flow Worker CLI");
+  program.version("0.1.9").description("Boomerang Flow Worker CLI");
 
   program
     .arguments("<cmd> <method>")
