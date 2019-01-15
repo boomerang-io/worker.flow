@@ -17,33 +17,28 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
-    const { url: url, method: method } = taskProps;
-
+    const { url, method, header, contentType, body } = taskProps;
+    const headerObject = JSON.parse(header);
+    const bodyStringfy = JSON.stringify(body);
     //TODO finish out passing in of parameters
     fetch(
       url,
       {
-        method: method,
-        headers: {
-          //TODO headers parameter
-        }
+        method,
+        "headers": {
+          ...headerObject,
+          "Content-Type":contentType
+        },
+        "body": method !== "GET"? bodyStringfy:null
       }
-    ).then(res => {
-      return new Promise((resolve, reject) => {
-        //TODO
-        res.body.on("error", err => {
-          reject(err);
-        });
-        dest.on("finish", () => {
-          resolve();
-        });
-        dest.on("error", err => {
-          reject(err);
-        });
-      });
+    ).then(res => res.json())
+    .then(body=> {
+      console.log(body,"Response");
+      utils.setOutputProperty("requestRes",body);
+    })
+    .catch(err => {
+      console.log(err);
     });
-
     log.debug("Finished HTTP Call File Plugin");
   },
-
 };
