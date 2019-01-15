@@ -14,6 +14,10 @@ Collection of utility functions to help plugin authors retrieve, resolve, and se
 
 Collection of logging utilities using chalk to output nice values in the log for the user
 
+### Failure
+
+When a method fails, we need to set or return (depending on the type of method) by catching the error to log and then return process.exit(1). This allows the container to fail the Kubernetes Pod which will in turn eventually bubble up the failure to the UI.
+
 ## How to Build
 
 `docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:0.0.1 .`
