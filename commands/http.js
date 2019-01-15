@@ -4,12 +4,12 @@ const utils = require("../utils.js");
 
 module.exports = {
   //TODO implement a fetch that takes in;
-  //  - URL
-  //  - method (get, post, put, delete, patch, etc)
-  //  - headers (new line delimitered list?)
-  //  - body (optional depending on method)
-  //  - content type (any, text, xml, json, html, etc)
-  //  - option to allow untrusted SSL certs 
+  //  - URL [String]
+  //  - method [Select - Options: get, post, put, patch, delete, options] 
+  //  - headers [Text Area - new line delimitered list?]
+  //  - content type [Select - Options: any, text, xml, json, html]
+  //  - body [Text Area - optional depending on method]
+  //  - Allow untrusted SSL certs [Boolean Toggle]
 
   execute() {
     log.debug("Started HTTP Call Plugin");
@@ -25,6 +25,7 @@ module.exports = {
       {
         method: method,
         headers: {
+          //TODO headers parameter
         }
       }
     ).then(res => {

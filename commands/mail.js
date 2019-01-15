@@ -2,17 +2,21 @@ const log = require("../log.js");
 const fetch = require("node-fetch");
 
 module.exports = {
-  sendMailToMember(req) {
+  sendMailToMember() {
     log.debug("Starting Send Mail to Member Plugin");
 
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    log.debug(taskProps);
+    const { subject: subject, message: message } = taskProps;
+
     bodyString = JSON.stringify({
-      subject: req.subject,
-      body: req.message
+      subject: subject,
+      body: message
     });
     try {
       fetch(
         "http://bmrg-core-services-mail.bmrg-live/mail/send/emailUser?memberId=" +
-          req.to,
+        req.to,
         {
           method: "POST",
           body: bodyString,
