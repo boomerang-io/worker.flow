@@ -5,9 +5,8 @@ const inputOptions = {
   variables: false,
   include: false
 };
-
 const workflowProps = {
-  WF_PROPS_PATH: "/props",
+  WF_PROPS_PATH: process.env.NODE_ENV === "local"? "./props" : "/props",
   WF_PROPS_PREFIX: "WF_PROPS_",
   WF_PROPS_PATTERN: /\$\{p:(.+)\}/
 };
