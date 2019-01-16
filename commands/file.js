@@ -45,6 +45,10 @@ module.exports = {
   readPropertiesFile() {
     log.debug("Started Read Properties File Plugin");
 
+    //TODO
+    //This method should read in a file of type properties file and parse every property (based on a delimiter, default is '=') and set as output properties.
+    //This is similar functionality to our read properties method
+
     // //Destructure and get properties ready.
     // const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     // log.debug(taskProps);
@@ -55,5 +59,12 @@ module.exports = {
     // utils.setOutputProperty("fileContent", file);
 
     log.debug("Finished Read Properties File Plugin");
+  },
+  checkFileOrFolderExists() {
+    log.debug("Started Check File or Folder Exists Plugin");
+
+    //TODO
+
+    log.debug("Finished Check File or Folder Exists Plugin");
   }
 };

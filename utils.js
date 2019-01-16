@@ -79,25 +79,21 @@ module.exports = (function () {
       log.debug("  key: ", key);
       log.debug("  value: ", value);
 
-      const { WORKFLOW_SYSTEM_PROPS_FILENAME, TASK_SYSTEM_PROPS_FILENAME } = PROPS_FILES_CONFIG;
-      const workflowSystemProps = props[WORKFLOW_SYSTEM_PROPS_FILENAME];
-      const taskSystemProps = props[TASK_SYSTEM_PROPS_FILENAME];
-
-      log.debug("  url: ", `http://${workflowSystemProps.controllerServiceUrl}/controller/property/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}&key=${key}&value=${value}`);
-      return fetch(
-        `http://${workflowSystemProps.controllerServiceUrl}/controller/property/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}&key=${key}&value=${value}`,
-        {
-          method: "patch"
-        }
-      )
-        .then(res => log.debug(res))
-        .catch(err => log.err("setOutputProperty", err));
+      //TODO can I do this?
+      setOutputProperties({ key: value });
     },
     setOutputProperties(properties) {
       log.debug("Inside setOutputProperties Utility");
 
       //TODO make sure this implementation below is correct.
       //It should be taking in an array of key value pairs
+      //The endpoint has been tested with this body. Let me know if this is not correct.
+      //{
+      // 	"key1": "value1",
+      // 	"key2": "value2"
+      // }
+
+      //TODO add validation that properties is in fact an array of key values
 
       log.debug("  properties: ", properties);
 
@@ -107,7 +103,7 @@ module.exports = (function () {
 
       log.debug("  url: ", `http://${workflowSystemProps.controllerServiceUrl}/controller/properties/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}`);
       return fetch(
-        `http://${workflowSystemProps.controllerServiceUrl}/controller/property/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}`,
+        `http://${workflowSystemProps.controllerServiceUrl}/controller/properties/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}`,
         {
           method: "patch",
           body: JSON.stringify(properties),
