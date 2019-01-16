@@ -43,10 +43,9 @@ _Note 2:_ The test Dockerfile will try to immitate the peices that Kubernetes Co
 ### How to Test locally with Node.js
 
 1. Ensure that you have the package cross-env installed
-2. Run the node:cli script and pass in arguments e.g. run node:cli slack sendWebhook
-
+2. Run the node:cli script and pass in arguments
 ```
-node cli.js slack sendWebhook
+run node:cli slack sendWebhook
 ```
 
 ## Clean up
