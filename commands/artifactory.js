@@ -50,10 +50,10 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
-    const { path: path } = taskProps;
+    const { url: url, file: file, username: username, password: password } = taskProps;
 
     //TODO use more parameters
-    shell.exec('curl -T ' + path + ' https://tools.boomerangplatform.net/artifactory/boomerang/test' + path + ' --insecure -u admin:WwwWulaWwHH!');
+    shell.exec('curl -T ' + file + ' ' + url + file + ' --insecure -u ' + username + ':' + password);
 
     log.debug("Finished Artifactory Upload File Plugin");
   }
