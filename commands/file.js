@@ -10,7 +10,7 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
-    const { path: path, content: content } = taskProps;
+    const { path, content } = taskProps;
 
     try {
       fs.writeFile(path + '', content, err => {
@@ -29,13 +29,13 @@ module.exports = {
   },
   readFileToProperty() {
     log.debug("Started Read Properties File Plugin");
-    
+
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
     const { path: path, propertyName: propertyName } = taskProps;
     try {
-      const file = fs.readFileSync(path);
+      const file = fs.readFileSync(path, "utf8");
       utils.setOutputProperty(propertyName, file);
       log.debug("The file was succesfully read!");
     } catch (e) {
@@ -45,7 +45,7 @@ module.exports = {
 
     //TODO Update to catch and fail if file is not there or any other error
     //To get the container to show failure, we have to exit the process with process.exit(1);
-    
+
 
     log.debug("Finished Read Properties File Plugin");
   },
@@ -53,16 +53,16 @@ module.exports = {
     log.debug("Started Read Properties File Plugin");
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
-    const { path, delimiter = "=" } = taskProps;  
+    const { path, delimiter = "=" } = taskProps;
     const delimiterExpression = new RegExp(`${delimiter}(.+)`);
 
     try {
-      const file = fs.readFileSync(path,"utf-8");
+      const file = fs.readFileSync(path, "utf-8");
 
       const fileArray = file.split("\r\n");
       let fileObject = {};
 
-      fileArray.forEach(file=>{
+      fileArray.forEach(file => {
         let fileData = file.split(delimiterExpression);
         fileObject[fileData[0]] = fileData[1];
       });
@@ -90,34 +90,34 @@ module.exports = {
   },
   checkFileOrFolderExists() {
     log.debug("Started Check File or Folder Exists Plugin");
-      const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-      log.debug(taskProps);
-      const { path, expression, propertyName } = taskProps;
-      //Used to check if the path indicates a file or a directory
-      const fileExtension = filePath.extname(path);
-      try {
-        //Search for files and directories that match the expression inside the path dir
-        if(expression && !fileExtension){
-          const regExp = new RegExp(expression);
-          fs.readdir(path, (err,files) => {
-            let filteredFiles = files.filter(file=>{
-              return regExp.test(file);
-            })
-            if(filteredFiles.length === 0) throw new Error("Regex expression doesn't match any file.");
-            else utils.setOutputProperty(propertyName, true);
-          });
-        }
-        else {
-          fs.stat(path, (err, stat) => {
-            if(!stat) throw new Error("File not found.");
-            else utils.setOutputProperty(propertyName, true);
-          });
-        }        
-        log.debug("The file/directory was found!");
-      } catch (e) {
-        log.err(e);
-        process.exit(1);
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    log.debug(taskProps);
+    const { path, expression, propertyName } = taskProps;
+    //Used to check if the path indicates a file or a directory
+    const fileExtension = filePath.extname(path);
+    try {
+      //Search for files and directories that match the expression inside the path dir
+      if (expression && !fileExtension) {
+        const regExp = new RegExp(expression);
+        fs.readdir(path, (err, files) => {
+          let filteredFiles = files.filter(file => {
+            return regExp.test(file);
+          })
+          if (filteredFiles.length === 0) throw new Error("Regex expression doesn't match any file.");
+          else utils.setOutputProperty(propertyName, true);
+        });
       }
+      else {
+        fs.stat(path, (err, stat) => {
+          if (!stat) throw new Error("File not found.");
+          else utils.setOutputProperty(propertyName, true);
+        });
+      }
+      log.debug("The file/directory was found!");
+    } catch (e) {
+      log.err(e);
+      process.exit(1);
+    }
     log.debug("Finished Check File or Folder Exists Plugin");
   }
 };
