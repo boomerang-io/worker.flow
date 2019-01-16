@@ -79,8 +79,10 @@ module.exports = (function () {
       log.debug("  key: ", key);
       log.debug("  value: ", value);
 
-      //TODO can I do this?
-      setOutputProperties({ key: value });
+      // TODO can I do this?
+      // To set a object key using a variable it needs to be between []
+      // "this." is necessary in order to call a different function of this module
+      this.setOutputProperties({ [key]: value });
     },
     setOutputProperties(properties) {
       log.debug("Inside setOutputProperties Utility");
@@ -94,6 +96,15 @@ module.exports = (function () {
       // }
 
       //TODO add validation that properties is in fact an array of key values
+      try {
+        if (!(Object.keys(properties) && typeof properties === "object")) {
+          log.debug("Properties variable isn't a valid object");
+          return;
+        }
+      } catch (error) {
+        log.debug(error);
+        return;
+      }
 
       log.debug("  properties: ", properties);
 
