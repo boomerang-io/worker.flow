@@ -42,12 +42,10 @@ _Note 2:_ The test Dockerfile will try to immitate the peices that Kubernetes Co
 
 ### How to Test locally with Node.js
 
-1. Set up the property files under `./props`
-2. Ensure the `WF_PROPS_PATH` is set to `./props` in the `config.js` -> Do NOT check this change in.
-3. Run cli.js and pass in arguments
-
+1. Ensure that you have the package cross-env installed
+2. Run the node:cli script and pass in arguments
 ```
-node cli.js slack sendWebhook
+npm run node:cli slack sendWebhook
 ```
 
 ## Clean up
