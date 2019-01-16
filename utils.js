@@ -87,11 +87,35 @@ module.exports = (function () {
       return fetch(
         `http://${workflowSystemProps.controllerServiceUrl}/controller/property/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}&key=${key}&value=${value}`,
         {
-          method: "put"
+          method: "patch"
         }
       )
         .then(res => log.debug(res))
         .catch(err => log.err("setOutputProperty", err));
+    },
+    setOutputProperties(properties) {
+      log.debug("Inside setOutputProperties Utility");
+
+      //TODO make sure this implementation below is correct.
+      //It should be taking in an array of key value pairs
+
+      log.debug("  properties: ", properties);
+
+      const { WORKFLOW_SYSTEM_PROPS_FILENAME, TASK_SYSTEM_PROPS_FILENAME } = PROPS_FILES_CONFIG;
+      const workflowSystemProps = props[WORKFLOW_SYSTEM_PROPS_FILENAME];
+      const taskSystemProps = props[TASK_SYSTEM_PROPS_FILENAME];
+
+      log.debug("  url: ", `http://${workflowSystemProps.controllerServiceUrl}/controller/properties/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}`);
+      return fetch(
+        `http://${workflowSystemProps.controllerServiceUrl}/controller/property/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}`,
+        {
+          method: "patch",
+          body: JSON.stringify(properties),
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+        .then(res => log.debug(res))
+        .catch(err => log.err("setOutputProperties", err));
     },
   };
 })();
