@@ -113,7 +113,7 @@ module.exports = {
             else utils.setOutputProperty(propertyName, true);
           });
         }        
-        log.debug("The file was succesfully read!");
+        log.debug("The file/directory was found!");
       } catch (e) {
         log.err(e);
         process.exit(1);
