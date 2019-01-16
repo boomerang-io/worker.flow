@@ -45,7 +45,7 @@ _Note 2:_ The test Dockerfile will try to immitate the peices that Kubernetes Co
 1. Ensure that you have the package cross-env installed
 2. Run the node:cli script and pass in arguments
 ```
-run node:cli slack sendWebhook
+npm run node:cli slack sendWebhook
 ```
 
 ## Clean up
