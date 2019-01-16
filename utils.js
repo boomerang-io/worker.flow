@@ -52,13 +52,14 @@ module.exports = (function () {
           const property = match[1].match(workflowProps.WF_PROPS_PATTERN)[1]; //Get value from entries array, find match for our property pattern, pull out first matching group
 
           //check for output.properties
+          //TODO update this. Workflow System and Input properties might conflict
           if (property.includes("/")) {
             const [taskName, prop] = property.split("/");
             match[1] = props[`${taskName.replace(/\s+/g, '')}.output.properties`][prop];
           } else {
             match[1] = match[1].replace(
               workflowProps.WF_PROPS_PATTERN,
-              workflowInputProps[`${workflowProps.WF_PROPS_PREFIX}${property}`]
+              workflowInputProps[`${property}`]
             );
           }
 
@@ -87,15 +88,7 @@ module.exports = (function () {
     setOutputProperties(properties) {
       log.debug("Inside setOutputProperties Utility");
 
-      //TODO make sure this implementation below is correct.
-      //It should be taking in an array of key value pairs
-      //The endpoint has been tested with this body. Let me know if this is not correct.
-      //{
-      // 	"key1": "value1",
-      // 	"key2": "value2"
-      // }
-
-      //TODO add validation that properties is in fact an array of key values
+      //Validation that properties is in fact an array of key values
       try {
         if (!(Object.keys(properties) && typeof properties === "object")) {
           log.debug("Properties variable isn't a valid object");
@@ -106,7 +99,7 @@ module.exports = (function () {
         return;
       }
 
-      log.debug("  properties: ", properties);
+      log.debug("  properties: ", JSON.stringify(properties));
 
       const { WORKFLOW_SYSTEM_PROPS_FILENAME, TASK_SYSTEM_PROPS_FILENAME } = PROPS_FILES_CONFIG;
       const workflowSystemProps = props[WORKFLOW_SYSTEM_PROPS_FILENAME];
