@@ -5,9 +5,9 @@ const utils = require("../utils.js");
 
 module.exports = {
   createFile() {
+    //Create file on file system
     log.debug("Started Create File Plugin");
 
-    //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
     const { path, content } = taskProps;
@@ -28,9 +28,9 @@ module.exports = {
     log.debug("Finished Create File Plugin");
   },
   readFileToProperty() {
-    log.debug("Started Read Properties File Plugin");
+    //Read in a file and set contents as an output property
+    log.debug("Started Read File to Property Plugin");
 
-    //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
     const { path: path, propertyName: propertyName } = taskProps;
@@ -43,14 +43,12 @@ module.exports = {
       process.exit(1);
     }
 
-    //TODO Update to catch and fail if file is not there or any other error
-    //To get the container to show failure, we have to exit the process with process.exit(1);
-
-
-    log.debug("Finished Read Properties File Plugin");
+    log.debug("Finished Read File to Property Plugin");
   },
-  readPropertiesFile() {
-    log.debug("Started Read Properties File Plugin");
+  readPropertiesFromFile() {
+    //Read in a file of type properties file and parse every property (based on a delimiter, default being '=') and set as output properties.
+    log.debug("Started Read Properties From File Plugin");
+
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
     const { path, delimiter = "=" } = taskProps;
@@ -66,33 +64,22 @@ module.exports = {
         let fileData = file.split(delimiterExpression);
         fileObject[fileData[0]] = fileData[1];
       });
-      // utils.setOutputProperties(fileObject);
-      log.debug("The file was succesfully read!");
+      utils.setOutputProperties(fileObject);
+      log.good("The file was succesfully read!");
     } catch (e) {
       log.err(e);
       process.exit(1);
     }
 
-    //TODO
-    //This method should read in a file of type properties file and parse every property (based on a delimiter, default is '=') and set as output properties.
-    //This is similar functionality to our read properties method
-
-    // //Destructure and get properties ready.
-    // const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    // log.debug(taskProps);
-    // const { filePath: filePath, fileContent: fileContent } = taskProps;
-
-    // const file = fs.readFileSync(filePath);
-
-    // utils.setOutputProperty("fileContent", file);
-
-    log.debug("Finished Read Properties File Plugin");
+    log.debug("Finished Read Properties From File Plugin");
   },
   checkFileOrFolderExists() {
+    //Return true if file or folder exists based on regular expression
     log.debug("Started Check File or Folder Exists Plugin");
+
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     log.debug(taskProps);
-    const { path, expression, propertyName } = taskProps;
+    const { path, expression } = taskProps;
     //Used to check if the path indicates a file or a directory
     const fileExtension = filePath.extname(path);
     try {
@@ -104,16 +91,14 @@ module.exports = {
             return regExp.test(file);
           })
           if (filteredFiles.length === 0) throw new Error("Regex expression doesn't match any file.");
-          else utils.setOutputProperty(propertyName, true);
         });
       }
       else {
         fs.stat(path, (err, stat) => {
           if (!stat) throw new Error("File not found.");
-          else utils.setOutputProperty(propertyName, true);
         });
       }
-      log.debug("The file/directory was found!");
+      log.good("The file/directory was found!");
     } catch (e) {
       log.err(e);
       process.exit(1);
