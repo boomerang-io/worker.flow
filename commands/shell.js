@@ -6,33 +6,34 @@ module.exports = {
   execute() {
     log.debug("Inside Shell Plugin");
 
+    // shell.config.verbose = true;
+    // shell.config.fatal = true;
     // config = {
     //   verbose: false,
     // }
 
     //Destructure and get properties ready.
-    // How do we handle null checks?
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    log.debug(taskProps);
-    const { path: path, script: script } = taskProps;
+    const { path, script } = taskProps;
 
+    let dir = path;
     if (!path) {
-      path = shell.tempdir();
+      dir = '/tmp';
     }
+    shell.config.silent = true; //set to silent otherwise CD will print out no such file or directory if the directory doesn't exist
+    shell.cd(dir);
 
-    //TODO get this to fail if directory doesn't exist
-    try {
-      shell.cd(path);
-    } catch (err) {
-      log.err(err);
+    //shell.cd -> does not have an error handling call back and will default to current directory of /cli
+    if (shell.pwd().toString() !== dir.toString()) {
+      log.err('No such file or directory:', dir);
       return process.exit(1);
     }
 
-    // shell.cd('/tmp');
+    shell.config.reset(); //reset the config
 
     log.debug(script);
 
-    shell.exec(script, { verbose: true }, async function (code, stdout, stderr) {
+    shell.exec(script, { verbose: true }, function (code, stdout, stderr) {
       if (code != 0) {
         log.err('  Exit code:', code);
         log.err('  Program stderr:', stderr);

@@ -15,19 +15,18 @@ async function cli() {
   });
 
   //CLI Commands
-  log.debug("Start of CLI commands");
   program.version("0.1.10").description("Boomerang Flow Worker CLI");
+  log.sys("Boomerang Flow CLI", program.version());
 
   program
     .arguments("<cmd> <method>")
     .action((cmd, method) => {
-      log.sys(cmd, method);
+      log.sys("Executing", cmd, method);
       commands[cmd][method]();
     });
 
   program.parse(process.argv);
+
 }
 
 cli();
-
-//TODO: Write out to props
