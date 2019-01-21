@@ -8,8 +8,12 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    log.debug(taskProps);
-    const { duration: duration } = taskProps;
+    const { duration } = taskProps;
+
+    if (!duration) {
+      log.err('No duration has been specified');
+      return process.exit(1);
+    }
 
     systemSleep(duration);
 
