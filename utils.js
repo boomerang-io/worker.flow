@@ -77,9 +77,6 @@ module.exports = (function () {
     setOutputProperty(key, value) {
       log.debug("Inside setOutputProperty Utility");
 
-      log.debug("  key: ", key);
-      log.debug("  value: ", value);
-
       // Call internal method
       // To set a object key using a variable it needs to be between []
       // "this." is necessary in order to call a different function of this module

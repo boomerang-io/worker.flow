@@ -32,7 +32,6 @@ module.exports = {
     log.debug("Started Read File to Property Plugin");
 
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    log.debug(taskProps);
     const { path: path, propertyName: propertyName } = taskProps;
     try {
       const file = fs.readFileSync(path, "utf8");
@@ -50,7 +49,6 @@ module.exports = {
     log.debug("Started Read Properties From File Plugin");
 
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    log.debug(taskProps);
     const { path, delimiter = "=" } = taskProps;
     const delimiterExpression = new RegExp(`${delimiter}(.+)`);
 
@@ -78,7 +76,6 @@ module.exports = {
     log.debug("Started Check File or Folder Exists Plugin");
 
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    log.debug(taskProps);
     const { path, expression } = taskProps;
     //Used to check if the path indicates a file or a directory
     const fileExtension = filePath.extname(path);

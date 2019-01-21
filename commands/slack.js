@@ -11,7 +11,6 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    log.debug(taskProps);
     const { channel: channel, title: title, message: message } = taskProps;
 
     const url = "***REMOVED***";
