@@ -16,7 +16,6 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    log.debug(taskProps);
     const { url, method, header, contentType, body } = taskProps;
     const headerObject = JSON.parse(header);
     const bodyStringfy = JSON.stringify(body);

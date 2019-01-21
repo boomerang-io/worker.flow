@@ -6,7 +6,6 @@ module.exports = {
     log.debug("Starting Send Mail to Member Plugin");
 
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    log.debug(taskProps);
     const { subject: subject, message: message } = taskProps;
 
     bodyString = JSON.stringify({
