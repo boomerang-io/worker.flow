@@ -31,7 +31,7 @@ module.exports = (function () {
       return accum;
     }, {});
 
-  //log.debug(props);
+  log.debug(props);
 
   return {
     //TODO: implement
