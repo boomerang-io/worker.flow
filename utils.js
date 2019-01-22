@@ -45,13 +45,14 @@ module.exports = (function () {
 
       const taskInputProps = props[PROPS_FILES_CONFIG.TASK_INPUT_PROPS_FILENAME];
       const workflowInputProps = props[PROPS_FILES_CONFIG.WORKFLOW_INPUT_PROPS_FILENAME];
-
+      //log.debug(taskInputProps);
       const substitutedTaskInputProps = Object.entries(taskInputProps)
         .filter(taskInputEntry => workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])) //Test the value, and return arrays that match pattern
         .map(match => {
+          //log.debug(match);
           const property = match[1].match(workflowProps.WF_PROPS_PATTERN)[1]; //Get value from entries array, find match for our property pattern, pull out first matching group
+          //log.debug(property);
 
-          //check for output.properties
           //TODO update this. Workflow System and Input properties might conflict
           if (property.includes("/")) {
             const [taskName, prop] = property.split("/");
