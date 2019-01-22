@@ -32,12 +32,13 @@ module.exports = {
       }
     ).then(res => res.json())
       .then(body => {
-        console.log(body, "Response");
-        utils.setOutputProperty("requestRes", body);
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputProperty("response", body);
+        log.good("Response successfully received!")
       })
       .catch(err => {
-        console.log(err);
-        //TODO make sure to set failure of process.exit(1);
+        log.err(err);
+        process.exit(1);
       });
     log.debug("Finished HTTP Call File Plugin");
   },
