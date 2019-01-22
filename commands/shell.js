@@ -39,6 +39,8 @@ module.exports = {
       }
     });
 
+    utils.setOutputProperty("this", "that");
+
     log.debug("End Shell Plugin");
   }
 };
