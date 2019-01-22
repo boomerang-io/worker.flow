@@ -2,7 +2,6 @@
 
 const program = require("commander");
 const log = require("./log.js");
-const props = require("./utils.js");
 require("dotenv").config();
 
 async function cli() {
@@ -15,8 +14,8 @@ async function cli() {
   });
 
   //CLI Commands
-  program.version("0.1.10").description("Boomerang Flow Worker CLI");
-  log.sys("Boomerang Flow CLI", program.version());
+  program.version("1.0.0-beta.1").description("Boomerang Flow CLI");
+  log.sys(program.description(), program.version());
 
   program
     .arguments("<cmd> <method>")
