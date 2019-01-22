@@ -49,21 +49,39 @@ module.exports = (function () {
       const substitutedTaskInputProps = Object.entries(taskInputProps)
         .filter(taskInputEntry => workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])) //Test the value, and return arrays that match pattern
         .map(match => {
-          //log.debug(match);
-          const property = match[1].match(workflowProps.WF_PROPS_PATTERN)[1]; //Get value from entries array, find match for our property pattern, pull out first matching group
-          //log.debug(property);
+          log.debug("Property Matched:", match);
+          const properties = match[1].match(workflowProps.WF_PROPS_PATTERN); //Get value from entries array, find match for our property pattern, pull out first matching group
+          log.debug("Property references in match:", properties);
 
-          //TODO update this. Workflow System and Input properties might conflict
-          if (property.includes("/")) {
-            const [taskName, prop] = property.split("/");
-            match[1] = props[`${taskName.replace(/\s+/g, '')}.output.properties`][prop];
-          } else {
-            match[1] = match[1].replace(
-              workflowProps.WF_PROPS_PATTERN,
-              workflowInputProps[`${property}`]
-            );
+          for (var property of properties) {
+            var propertyKey = property.replace("${p:", "").replace("}", "")
+            //TODO update this. Workflow System and Input properties might conflict
+            try {
+              if (property.includes("workflow/")) {
+                const [key, prop] = propertyKey.split("/");
+                replacementStr = props[`workflow.system.properties`][prop]
+              } else if (property.includes("task/")) {
+                const [key, prop] = propertyKey.split("/");
+                replacementStr = props[`task.system.properties`][prop]
+              } else if (property.includes("/")) {
+                const [key, prop] = propertyKey.split("/");
+                replacementStr = props[`${key.replace(/\s+/g, '')}.output.properties`][prop]
+              } else {
+                replacementStr = (workflowInputProps[`${propertyKey}`] ? workflowInputProps[`${propertyKey}`] : "")
+              }
+            } catch {
+              replacementStr = "";
+              //TODO decide if we want to error out
+            }
+            if (!replacementStr) {
+              log.warn("Undefined property:", property);
+            } else {
+              log.debug("Replacing proeprty:", property, "with:", replacementStr);
+              match[1] = match[1].replace(
+                property,
+                replacementStr);
+            }
           }
-
           return match;
         })
         .reduce((accum, [k, v]) => {
@@ -102,10 +120,15 @@ module.exports = (function () {
       const { WORKFLOW_SYSTEM_PROPS_FILENAME, TASK_SYSTEM_PROPS_FILENAME } = PROPS_FILES_CONFIG;
       const workflowSystemProps = props[WORKFLOW_SYSTEM_PROPS_FILENAME];
       const taskSystemProps = props[TASK_SYSTEM_PROPS_FILENAME];
+      const controllerUrl = workflowSystemProps['controller.service.url'];
+      const workflowId = workflowSystemProps['workflow.id'];
+      const activityId = workflowSystemProps['activity.id'];
+      const taskId = taskSystemProps['task.id'];
+      const taskName = taskSystemProps['task.name'].replace(/\s+/g, '');
 
-      log.debug("  url: ", `http://${workflowSystemProps.controllerServiceUrl}/controller/properties/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}`);
+      log.debug("  url: ", `http://${controllerUrl}/controller/properties/set?workflowId=${workflowId}&workflowActivityId=${activityId}&taskId=${taskId}&taskName=${taskName}`);
       return fetch(
-        `http://${workflowSystemProps.controllerServiceUrl}/controller/properties/set?workflowId=${workflowSystemProps.workflowId}&workflowActivityId=${workflowSystemProps.activityId}&taskId=${taskSystemProps.taskId}&taskName=${taskSystemProps.taskName.replace(/\s+/g, '')}`,
+        `http://${controllerUrl}/controller/properties/set?workflowId=${workflowId}&workflowActivityId=${activityId}&taskId=${taskId}&taskName=${taskName}`,
         {
           method: "patch",
           body: JSON.stringify(properties),
