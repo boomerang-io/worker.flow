@@ -15,7 +15,11 @@ module.exports = {
       return process.exit(1);
     }
 
+    log.sys("Commencing sleep for", duration, "milliseconds.")
+
     systemSleep(duration);
+
+    log.good("Finished sleeping for", duration, "milliseconds.")
 
     log.debug("Finished Sleep Plugin");
   }

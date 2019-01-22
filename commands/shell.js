@@ -24,14 +24,12 @@ module.exports = {
     shell.cd(dir);
 
     //shell.cd -> does not have an error handling call back and will default to current directory of /cli
-    if (shell.pwd().toString() !== dir.toString()) {
-      log.err('No such file or directory:', dir);
-      return process.exit(1);
-    }
+    // if (shell.pwd().toString() !== dir.toString()) {
+    //   log.err('No such file or directory:', dir);
+    //   return process.exit(1);
+    // }
 
     shell.config.reset(); //reset the config
-
-    log.debug(script);
 
     shell.exec(script, { verbose: true }, function (code, stdout, stderr) {
       if (code != 0) {
