@@ -57,7 +57,10 @@ module.exports = (function () {
             var propertyKey = property.replace("${p:", "").replace("}", "")
             //TODO update this. Workflow System and Input properties might conflict
             try {
-              if (property.includes("workflow/")) {
+              if (property.includes("workflow/controller.service.url")) {
+                //TODO properly detect a list of protected properties
+                throw new Error("Protected property");
+              } else if (property.includes("workflow/")) {
                 const [key, prop] = propertyKey.split("/");
                 replacementStr = props[`workflow.system.properties`][prop]
               } else if (property.includes("task/")) {
@@ -126,7 +129,7 @@ module.exports = (function () {
       const taskId = taskSystemProps['task.id'];
       const taskName = taskSystemProps['task.name'].replace(/\s+/g, '');
 
-      log.debug("  url: ", `http://${controllerUrl}/controller/properties/set?workflowId=${workflowId}&workflowActivityId=${activityId}&taskId=${taskId}&taskName=${taskName}`);
+      //log.debug("  url: ", `http://${controllerUrl}/controller/properties/set?workflowId=${workflowId}&workflowActivityId=${activityId}&taskId=${taskId}&taskName=${taskName}`);
       return fetch(
         `http://${controllerUrl}/controller/properties/set?workflowId=${workflowId}&workflowActivityId=${activityId}&taskId=${taskId}&taskName=${taskName}`,
         {
