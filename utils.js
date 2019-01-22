@@ -13,7 +13,7 @@ const fs = require("fs");
 module.exports = (function () {
   // Read in property files
   const files = fs.readdirSync(workflowProps.WF_PROPS_PATH);
-  log.debug(files);
+  log.debug("Property Files Found:", files);
 
   /**
    * Filter out files that don't match
@@ -31,7 +31,7 @@ module.exports = (function () {
       return accum;
     }, {});
 
-  log.debug(props);
+  //log.debug(props);
 
   return {
     //TODO: implement
@@ -41,7 +41,7 @@ module.exports = (function () {
      * @returns Object
      */
     substituteTaskInputPropsValuesForWorkflowInputProps() {
-      log.debug("Inside substituteTaskInputPropsValuesForWorkflowInputProps Utility");
+      //log.debug("Inside substituteTaskInputPropsValuesForWorkflowInputProps Utility");
 
       const taskInputProps = props[PROPS_FILES_CONFIG.TASK_INPUT_PROPS_FILENAME];
       const workflowInputProps = props[PROPS_FILES_CONFIG.WORKFLOW_INPUT_PROPS_FILENAME];
@@ -49,32 +49,27 @@ module.exports = (function () {
       const substitutedTaskInputProps = Object.entries(taskInputProps)
         .filter(taskInputEntry => workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])) //Test the value, and return arrays that match pattern
         .map(match => {
-          log.debug("Property Matched:", match);
+          log.debug("Task property found requiring substitutions:", match);
           const properties = match[1].match(workflowProps.WF_PROPS_PATTERN); //Get value from entries array, find match for our property pattern, pull out first matching group
           log.debug("Property references in match:", properties);
 
           for (var property of properties) {
             var propertyKey = property.replace("${p:", "").replace("}", "")
             //TODO update this. Workflow System and Input properties might conflict
-            try {
-              if (property.includes("workflow/controller.service.url")) {
-                //TODO properly detect a list of protected properties
-                throw new Error("Protected property");
-              } else if (property.includes("workflow/")) {
-                const [key, prop] = propertyKey.split("/");
-                replacementStr = props[`workflow.system.properties`][prop]
-              } else if (property.includes("task/")) {
-                const [key, prop] = propertyKey.split("/");
-                replacementStr = props[`task.system.properties`][prop]
-              } else if (property.includes("/")) {
-                const [key, prop] = propertyKey.split("/");
-                replacementStr = props[`${key.replace(/\s+/g, '')}.output.properties`][prop]
-              } else {
-                replacementStr = (workflowInputProps[`${propertyKey}`] ? workflowInputProps[`${propertyKey}`] : "")
-              }
-            } catch {
-              replacementStr = "";
-              //TODO decide if we want to error out
+            if (property.includes("workflow/controller.service.url")) {
+              //TODO properly detect a list of protected properties
+              throw new Error("Protected property");
+            } else if (property.includes("workflow/")) {
+              const [key, prop] = propertyKey.split("/");
+              replacementStr = props[`workflow.system.properties`][prop]
+            } else if (property.includes("task/")) {
+              const [key, prop] = propertyKey.split("/");
+              replacementStr = props[`task.system.properties`][prop]
+            } else if (property.includes("/")) {
+              const [key, prop] = propertyKey.split("/");
+              replacementStr = props[`${key.replace(/\s+/g, '')}.output.properties`][prop]
+            } else {
+              replacementStr = (workflowInputProps[`${propertyKey}`] ? workflowInputProps[`${propertyKey}`] : "")
             }
             if (!replacementStr) {
               log.warn("Undefined property:", property);
