@@ -20,6 +20,14 @@ module.exports = {
     const headerObject = JSON.parse(header);
     const bodyStringfy = JSON.stringify(body);
     //TODO finish out passing in of parameters
+
+    var agent = null;
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      agent = new HttpsProxyAgent(process.env.HTTP_PROXY)
+    }
+
+    //TODO implement proxy
     fetch(
       url,
       {
@@ -28,6 +36,7 @@ module.exports = {
           ...headerObject,
           "Content-Type": contentType
         },
+        "agent": agent,
         "body": method !== "GET" ? bodyStringfy : null
       }
     ).then(res => res.json())
