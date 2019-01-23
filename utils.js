@@ -54,11 +54,14 @@ module.exports = (function () {
           log.debug("Property references in match:", properties);
 
           for (var property of properties) {
+            //TODO use original regex for capture group of key
             var propertyKey = property.replace("${p:", "").replace("}", "")
+            var protectedProperty = false;
             //TODO update this. Workflow System and Input properties might conflict
             if (property.includes("workflow/controller.service.url")) {
               //TODO properly detect a list of protected properties
-              throw new Error("Protected property");
+              replacementStr = "";
+              protectedProperty = true;
             } else if (property.includes("workflow/")) {
               const [key, prop] = propertyKey.split("/");
               replacementStr = props[`workflow.system.properties`][prop]
@@ -72,7 +75,7 @@ module.exports = (function () {
               replacementStr = (workflowInputProps[`${propertyKey}`] ? workflowInputProps[`${propertyKey}`] : "")
             }
             if (!replacementStr) {
-              log.warn("Undefined property:", property);
+              (protectedProperty ? log.warn("Protected property:", property) : log.warn("Undefined property:", property));
             } else {
               log.debug("Replacing proeprty:", property, "with:", replacementStr);
               match[1] = match[1].replace(
