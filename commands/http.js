@@ -1,4 +1,5 @@
 const fetch = require("node-fetch");
+const HttpsProxyAgent = require("https-proxy-agent");
 const log = require("../log.js");
 const utils = require("../utils.js");
 
