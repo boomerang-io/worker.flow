@@ -14,7 +14,7 @@ module.exports = {
 
   execute() {
     log.debug("Started HTTP Call Plugin");
-
+    
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { url, method, header, contentType, body } = taskProps;
@@ -43,7 +43,7 @@ module.exports = {
     ).then(res => res.json())
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputProperty("response", body);
+        utils.setOutputProperty("response", JSON.stringify(body));
         log.good("Response successfully received!")
       })
       .catch(err => {
