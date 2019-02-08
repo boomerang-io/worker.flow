@@ -14,7 +14,7 @@ module.exports = {
 
   execute() {
     log.debug("Started HTTP Call Plugin");
-    
+
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { url, method, header, contentType, body } = taskProps;
@@ -28,7 +28,6 @@ module.exports = {
       agent = new HttpsProxyAgent(process.env.HTTP_PROXY)
     }
 
-    //TODO implement proxy
     fetch(
       url,
       {
