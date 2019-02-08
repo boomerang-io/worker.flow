@@ -141,8 +141,6 @@ module.exports = {
           },
           []
         );
-        // var incidents = "";
-        // body.result.forEach(incident => { incidents = incidents + incident.number });
         log.sys("Incidents Found:", JSON.stringify(incidents));
         utils.setOutputProperty("incidents", JSON.stringify(incidents));
         log.good("Response successfully received!")
