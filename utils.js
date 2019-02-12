@@ -94,6 +94,11 @@ module.exports = (function () {
       const substitutedProps = { ...taskInputProps, ...substitutedTaskInputProps };
       return substitutedProps;
     },
+    getWorkflowSystemProperty(key) {
+      const { WORKFLOW_SYSTEM_PROPS_FILENAME } = PROPS_FILES_CONFIG;
+      const workflowSystemProps = props[WORKFLOW_SYSTEM_PROPS_FILENAME];
+      return workflowSystemProps[key];
+    },
     setOutputProperty(key, value) {
       log.debug("Inside setOutputProperty Utility");
 
