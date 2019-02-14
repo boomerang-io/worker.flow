@@ -1,5 +1,5 @@
 const log = require("../log.js");
-var filePath = require('path');
+var filePath = require("path");
 var fs = require("fs");
 const utils = require("../utils.js");
 
@@ -13,7 +13,7 @@ module.exports = {
     const { path, content } = taskProps;
 
     try {
-      fs.writeFile(path + '', content, err => {
+      fs.writeFile(path + "", content, err => {
         if (err) {
           log.err(err);
           throw err;
@@ -86,11 +86,11 @@ module.exports = {
         fs.readdir(path, (err, files) => {
           let filteredFiles = files.filter(file => {
             return regExp.test(file);
-          })
-          if (filteredFiles.length === 0) throw new Error("Regex expression doesn't match any file.");
+          });
+          if (filteredFiles.length === 0)
+            throw new Error("Regex expression doesn't match any file.");
         });
-      }
-      else {
+      } else {
         fs.stat(path, (err, stat) => {
           if (!stat) throw new Error("File not found.");
         });
