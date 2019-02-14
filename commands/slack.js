@@ -13,7 +13,8 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { channel: channel, title: title, message: message } = taskProps;
 
-    const url = "https://hooks.slack.com/services/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";
+    const url =
+      "https://hooks.slack.com/services/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";
     let webhook = new IncomingWebhook(url);
 
     //TODO: see if we can set the proxy at the higher CLI level rather than have each plugin have to support a proxy
@@ -49,7 +50,7 @@ module.exports = {
           }
         ]
       },
-      async function (err, res) {
+      async function(err, res) {
         if (err) {
           //TODO: Catch HTTP error for timeout so we can return better exits
           log.err("Slack sendWebhook error", err);

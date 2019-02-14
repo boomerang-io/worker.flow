@@ -16,7 +16,7 @@ module.exports = {
     try {
       fetch(
         "http://bmrg-core-services-mail.bmrg-live/mail/send/emailUser?memberId=" +
-        to,
+          to,
         {
           method: "POST",
           body: bodyString,
