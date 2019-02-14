@@ -2,7 +2,7 @@ const fetch = require("node-fetch");
 const HttpsProxyAgent = require("https-proxy-agent");
 const log = require("../log.js");
 const utils = require("../utils.js");
-const sn = require('servicenow-rest-api');
+const sn = require("servicenow-rest-api");
 
 module.exports = {
   authenticate() {
@@ -21,7 +21,8 @@ module.exports = {
   incidents() {
     this.authenticate();
 
-    ServiceNow.getSampleData('incident', (res) => {    // 
+    ServiceNow.getSampleData("incident", res => {
+      //
       log.debug("Incident:", res);
     });
   },
@@ -35,38 +36,37 @@ module.exports = {
     var agent = null;
     if (process.env.HTTP_PROXY) {
       log.debug("Using Proxy", process.env.HTTP_PROXY);
-      agent = new HttpsProxyAgent(process.env.HTTP_PROXY)
+      agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
     }
 
     var method = "GET";
-    var url = "https://" + instance + ".service-now.com/api/now/v2/table/incident?sysparm_limit=10"
+    var url =
+      "https://" +
+      instance +
+      ".service-now.com/api/now/v2/table/incident?sysparm_limit=10";
 
-    fetch(
-      url,
-      {
-        method,
-        "headers": {
-          'Accept': 'application/json',
-          "Content-Type": 'application/json',
-          'Authorization': 'Basic ' + new Buffer(username + ":" + password).toString("base64"),
-        },
-        "agent": agent,
-        "body": null
-      }
-    ).then(res => res.json())
+    fetch(url, {
+      method,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization:
+          "Basic " + new Buffer(username + ":" + password).toString("base64")
+      },
+      agent: agent,
+      body: null
+    })
+      .then(res => res.json())
       .then(body => {
         log.debug("Response Received:", JSON.stringify(body));
-        var incidents = body.result.reduce(
-          function (accumulator, incident) {
-            return accumulator.concat(incident.number);
-          },
-          []
-        );
+        var incidents = body.result.reduce(function(accumulator, incident) {
+          return accumulator.concat(incident.number);
+        }, []);
         // var incidents = "";
         // body.result.forEach(incident => { incidents = incidents + incident.number });
         log.sys("Incidents Found:", JSON.stringify(incidents));
         utils.setOutputProperty("incidents", JSON.stringify(incidents));
-        log.good("Response successfully received!")
+        log.good("Response successfully received!");
       })
       .catch(err => {
         log.err(err);
@@ -84,11 +84,14 @@ module.exports = {
     var agent = null;
     if (process.env.HTTP_PROXY) {
       log.debug("Using Proxy", process.env.HTTP_PROXY);
-      agent = new HttpsProxyAgent(process.env.HTTP_PROXY)
+      agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
     }
 
     var method = "GET";
-    var url = "https://" + instance + ".service-now.com/api/now/v2/table/incident?sysparm_limit=10"
+    var url =
+      "https://" +
+      instance +
+      ".service-now.com/api/now/v2/table/incident?sysparm_limit=10";
     if (tag) {
       url = url + "&sysparm_query=sys_tags." + tag + "%3D" + tag;
     }
@@ -120,30 +123,29 @@ module.exports = {
     }
     log.debug("URL: ", url);
 
-    fetch(
-      url,
-      {
-        method,
-        "headers": {
-          'Accept': 'application/json',
-          "Content-Type": 'application/json',
-          'Authorization': 'Basic ' + new Buffer(username + ":" + password).toString("base64"),
-        },
-        "agent": agent,
-        "body": null
-      }
-    ).then(res => res.json())
+    fetch(url, {
+      method,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization:
+          "Basic " + new Buffer(username + ":" + password).toString("base64")
+      },
+      agent: agent,
+      body: null
+    })
+      .then(res => res.json())
       .then(body => {
         log.debug("Response Received:", JSON.stringify(body));
-        var incidents = body.result.reduce(
-          function (accumulator, incident) {
-            return accumulator.concat({ "number": incident.number, "sys_id": incident.sys_id });
-          },
-          []
-        );
+        var incidents = body.result.reduce(function(accumulator, incident) {
+          return accumulator.concat({
+            number: incident.number,
+            sys_id: incident.sys_id
+          });
+        }, []);
         log.sys("Incidents Found:", JSON.stringify(incidents));
         utils.setOutputProperty("incidents", JSON.stringify(incidents));
-        log.good("Response successfully received!")
+        log.good("Response successfully received!");
       })
       .catch(err => {
         log.err(err);

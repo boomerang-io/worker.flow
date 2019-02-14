@@ -11,15 +11,15 @@ module.exports = {
     const { duration } = taskProps;
 
     if (!duration) {
-      log.err('No duration has been specified');
+      log.err("No duration has been specified");
       return process.exit(1);
     }
 
-    log.sys("Commencing sleep for", duration, "milliseconds.")
+    log.sys("Commencing sleep for", duration, "milliseconds.");
 
     systemSleep(duration);
 
-    log.good("Finished sleeping for", duration, "milliseconds.")
+    log.good("Finished sleeping for", duration, "milliseconds.");
 
     log.debug("Finished Sleep Plugin");
   }

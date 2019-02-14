@@ -17,15 +17,12 @@ async function cli() {
   program.version("1.0.0-beta.1").description("Boomerang Flow CLI");
   log.sys(program.description(), program.version());
 
-  program
-    .arguments("<cmd> <method>")
-    .action((cmd, method) => {
-      log.sys("Executing", cmd, method);
-      commands[cmd][method]();
-    });
+  program.arguments("<cmd> <method>").action((cmd, method) => {
+    log.sys("Executing", cmd, method);
+    commands[cmd][method]();
+  });
 
   program.parse(process.argv);
-
 }
 
 cli();
