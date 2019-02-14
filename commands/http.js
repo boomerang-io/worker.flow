@@ -4,13 +4,15 @@ const log = require("../log.js");
 const utils = require("../utils.js");
 
 module.exports = {
-  //TODO implement a fetch that takes in;
-  //  - URL [String]
-  //  - method [Select - Options: get, post, put, patch, delete, options]
-  //  - headers [Text Area - new line delimitered list?]
-  //  - content type [Select - Options: any, text, xml, json, html]
-  //  - body [Text Area - optional depending on method]
-  //  - Allow untrusted SSL certs [Boolean Toggle]
+  /**
+   * @todo implement a fetch that takes in;
+   * URL [String]
+   * method [Select - Options: get, post, put, patch, delete, options]
+   * headers [Text Area - new line delimitered list?]
+   * content type [Select - Options: any, text, xml, json, html]
+   * body [Text Area - optional depending on method]
+   * Allow untrusted SSL certs [Boolean Toggle]
+   */
 
   execute() {
     log.debug("Started HTTP Call Plugin");
@@ -20,7 +22,7 @@ module.exports = {
     const { url, method, header, contentType, body } = taskProps;
     const headerObject = JSON.parse(header);
     const bodyStringfy = JSON.stringify(body);
-    //TODO finish out passing in of parameters
+    /** @todo finish out passing in of parameters*/
 
     var agent = null;
     if (process.env.HTTP_PROXY) {

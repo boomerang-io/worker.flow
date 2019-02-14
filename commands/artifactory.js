@@ -11,7 +11,7 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const {} = taskProps;
 
-    //TODO update to use params
+    /** @todo update to use params*/
     fetch(
       "https://tools.boomerangplatform.net/artifactory/boomerang/test/hello",
       {
@@ -55,7 +55,7 @@ module.exports = {
       password: password
     } = taskProps;
 
-    //TODO use more parameters
+    /** @todo use more parameters */
     shell.exec(
       "curl -T " +
         file +
