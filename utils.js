@@ -46,7 +46,7 @@ module.exports = (function() {
   log.debug(props);
 
   return {
-    //TODO: implement
+    /** @todo implement */
     substituteTaskInputValueForWFInputsProperty(taskProp) {},
     /**
      * Substitute task props that have workflow property notation with corrsponding workflow props
@@ -70,12 +70,12 @@ module.exports = (function() {
           log.debug("Property references in match:", properties);
 
           for (var property of properties) {
-            //TODO use original regex for capture group of key
+            /** @todo use original regex for capture group of key*/
             var propertyKey = property.replace("${p:", "").replace("}", "");
             var protectedProperty = false;
-            //TODO update this. Workflow System and Input properties might conflict
+            /** @todo update this. Workflow System and Input properties might conflict*/
             if (property.includes("workflow/controller.service.url")) {
-              //TODO properly detect a list of protected properties
+              /** @todo properly detect a list of protected properties*/
               replacementStr = "";
               protectedProperty = true;
             } else if (property.includes("workflow/")) {
@@ -129,9 +129,11 @@ module.exports = (function() {
     setOutputProperty(key, value) {
       log.debug("Inside setOutputProperty Utility");
 
-      // Call internal method
-      // To set a object key using a variable it needs to be between [] (computed property)
-      // "this." is necessary in order to call a different function of this module
+      /**
+       * Call internal method
+       * To set a object key using a variable it needs to be between [] (computed property)
+       * this." is necessary in order to call a different function of this module
+       */
       this.setOutputProperties({ [key]: value });
     },
     setOutputProperties(properties) {
