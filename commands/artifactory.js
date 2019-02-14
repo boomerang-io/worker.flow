@@ -1,7 +1,7 @@
 const log = require("../log.js");
 const fetch = require("node-fetch");
 var fs = require("fs");
-var shell = require('shelljs');
+var shell = require("shelljs");
 
 module.exports = {
   downloadFile() {
@@ -9,7 +9,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { } = taskProps;
+    const {} = taskProps;
 
     //TODO update to use params
     fetch(
@@ -25,7 +25,7 @@ module.exports = {
       return new Promise((resolve, reject) => {
         const dest = fs.createWriteStream("file");
         res.body.pipe(dest);
-        fs.rename("file", "/data/file", function (err) {
+        fs.rename("file", "/data/file", function(err) {
           if (err) throw err;
           console.log("Successfully renamed - AKA moved!");
         });
@@ -48,10 +48,25 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { url: url, file: file, username: username, password: password } = taskProps;
+    const {
+      url: url,
+      file: file,
+      username: username,
+      password: password
+    } = taskProps;
 
     //TODO use more parameters
-    shell.exec('curl -T ' + file + ' ' + url + file + ' --insecure -u ' + username + ':' + password);
+    shell.exec(
+      "curl -T " +
+        file +
+        " " +
+        url +
+        file +
+        " --insecure -u " +
+        username +
+        ":" +
+        password
+    );
 
     log.debug("Finished Artifactory Upload File Plugin");
   }
