@@ -38,7 +38,6 @@ module.exports = {
       ".service-now.com/api/now/v2/table/incident?sysparm_limit=10";
     if (tag) {
       let tagId = await this.getTagID();
-      log.debug("TAG ID:", tagId);
       url = url + "&sysparm_query=sys_tags." + tagId + "%3D" + tagId;
     }
     if (state) {
@@ -99,6 +98,51 @@ module.exports = {
       });
     log.debug("Finished ServiceNow Plugin");
   },
+  async updateIncidentState() {
+    log.debug("Inside ServiceNow Update Incident State Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const { instance, username, password, state, incidents } = taskProps;
+
+    var agent = null;
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+    }
+
+    var method = "PATCH";
+    var url =
+      "https://" +
+      instance +
+      ".service-now.com/api/now/v2/table/incident/" + incidents;
+
+    var body;
+    const stateOpts = { "New": 1, "In Progress": 2, "On Hold": 3, "Resolved": 4, "Closed": 5, "Canceled": 6 };
+    if ((state) && (stateOpts[state])) {
+      body = { "state": stateOpts[state] + "" };
+      log.debug("Body: ", body);
+    } else {
+      log.err("None or incorrect state specified");
+      process.exit(1);
+    }
+
+    fetch(url, {
+      method,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization:
+          "Basic " + new Buffer(username + ":" + password).toString("base64")
+      },
+      agent: agent,
+      body: JSON.stringify(body)
+    }).catch(err => {
+      log.err(err);
+      process.exit(1);
+    });
+    log.debug("Finished ServiceNow Update Incident State Plugin");
+  },
   async getTagID() {
     log.debug("Inside ServiceNow Get Tag ID Plugin");
 
@@ -126,7 +170,7 @@ module.exports = {
 
     log.debug("URL: ", url);
 
-    fetch(url, {
+    let id = fetch(url, {
       method,
       headers: {
         Accept: "application/json",
@@ -145,11 +189,14 @@ module.exports = {
         }, "");
         log.sys("Label Found:", JSON.stringify(labelId));
         log.good("Response successfully received!");
+        return labelId;
       })
       .catch(err => {
         log.err(err);
         process.exit(1);
       });
+
     log.debug("Finished ServiceNow Get Tag ID Plugin");
+    return id;
   }
 };
