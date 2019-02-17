@@ -112,11 +112,6 @@ module.exports = {
     }
 
     var method = "PATCH";
-    var url =
-      "https://" +
-      instance +
-      ".service-now.com/api/now/v2/table/incident/" + incidents;
-
     var body;
     const stateOpts = { "New": 1, "In Progress": 2, "On Hold": 3, "Resolved": 4, "Closed": 5, "Canceled": 6 };
     if ((state) && (stateOpts[state])) {
@@ -127,21 +122,29 @@ module.exports = {
       process.exit(1);
     }
 
-    fetch(url, {
-      method,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization:
-          "Basic " + new Buffer(username + ":" + password).toString("base64")
-      },
-      agent: agent,
-      body: JSON.stringify(body)
-    }).catch(err => {
-      log.err(err);
-      process.exit(1);
-    });
-    log.debug("Finished ServiceNow Update Incident State Plugin");
+    JSON.parse(incidents).forEach(incident => {
+      incidentSysId = incident.sys_id;
+      var url =
+        "https://" +
+        instance +
+        ".service-now.com/api/now/v2/table/incident/" + incidentSysId;
+      log.debug("Updating incident:", incidentSysId);
+      fetch(url, {
+        method,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization:
+            "Basic " + new Buffer(username + ":" + password).toString("base64")
+        },
+        agent: agent,
+        body: JSON.stringify(body)
+      }).catch(err => {
+        log.err(err);
+        process.exit(1);
+      });
+      log.debug("Finished ServiceNow Update Incident State Plugin");
+    })
   },
   async getTagID() {
     log.debug("Inside ServiceNow Get Tag ID Plugin");
