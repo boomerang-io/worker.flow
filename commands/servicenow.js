@@ -19,7 +19,7 @@ module.exports = {
 
     var method = "GET";
     if (instanceId) {
-      log.debug("instanceId: ", instanceId);
+      log.debug("instanceId:", instanceId);
       var url =
         "https://" +
         instanceId +
@@ -29,7 +29,7 @@ module.exports = {
       process.exit(1);
     }
     if (tag) {
-      let tagId = await this.getTagID();
+      let tagId = await this.getTagID(instanceId, username, password, tag);
       url = url + "&sysparm_query=sys_tags." + tagId + "%3D" + tagId;
     }
     if (state) {
@@ -140,12 +140,12 @@ module.exports = {
       log.debug("Finished ServiceNow Update Incident State Plugin");
     })
   },
-  async getTagID() {
+  async getTagID(instanceId, username, password, tag) {
     log.debug("Inside ServiceNow Get Tag ID Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { instanceId, username, password, tag } = taskProps;
+    //const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    //const { instanceId, username, password, tag } = taskProps;
 
     var agent = null;
     if (process.env.HTTP_PROXY) {

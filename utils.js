@@ -62,14 +62,15 @@ module.exports = (function () {
       //log.debug(taskInputProps);
       const substitutedTaskInputProps = Object.entries(taskInputProps)
         .filter(taskInputEntry =>
-          workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])
+          log.debug("Value Found:", taskInputEntry[1]) ||
+          workflowProps.WF_PROPS_PATTERN.test(taskInputEntry)
         ) //Test the value, and return arrays that match pattern
-        .map(match => {
-          log.debug("Task property found requiring substitutions:", match);
-          const properties = match[1].match(workflowProps.WF_PROPS_PATTERN); //Get value from entries array, find match for our property pattern, pull out first matching group
-          log.debug("Property references in match:", properties);
+        .map(filteredProps => {
+          log.debug("Task property found requiring substitutions:", filteredProps);
+          const matchedProps = filteredProps[1].match(workflowProps.WF_PROPS_PATTERN); //Get value from entries array, find match for our property pattern, pull out first matching group
+          log.debug("Property references in match:", matchedProps);
 
-          for (var property of properties) {
+          for (var property of matchedProps) {
             /** @todo use original regex for capture group of key*/
             var propertyKey = property.replace("${p:", "").replace("}", "");
             var protectedProperty = false;
@@ -104,10 +105,10 @@ module.exports = (function () {
                 "with:",
                 replacementStr
               );
-              match[1] = match[1].replace(property, replacementStr);
+              filteredProps[1] = filteredProps[1].replace(property, replacementStr);
             }
           }
-          return match;
+          return filteredProps;
         })
         .reduce((accum, [k, v]) => {
           accum[k] = v;
