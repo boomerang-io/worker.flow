@@ -3,6 +3,59 @@ const HttpsProxyAgent = require("https-proxy-agent");
 const log = require("../log.js");
 const utils = require("../utils.js");
 
+async function getTagID(instanceId, username, password, tag) {
+  log.debug("Inside ServiceNow Get Tag ID Plugin");
+
+  var agent = null;
+  if (process.env.HTTP_PROXY) {
+    log.debug("Using Proxy", process.env.HTTP_PROXY);
+    agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+  }
+
+  var method = "GET";
+  var url =
+    "https://" +
+    instanceId +
+    ".service-now.com/api/now/v2/table/label?sysparm_limit=10";
+  if (tag) {
+    url = url + "&sysparm_query=name%3D" + tag;
+  } else {
+    log.err("No Label Name provided");
+    process.exit(1);
+  }
+
+  log.debug("URL: ", url);
+
+  let id = fetch(url, {
+    method,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization:
+        "Basic " + new Buffer(username + ":" + password).toString("base64")
+    },
+    agent: agent,
+    body: null
+  })
+    .then(res => res.json())
+    .then(body => {
+      log.debug("Response Received:", JSON.stringify(body));
+      var labelId = body.result.reduce(function (accumulator, label) {
+        return label.sys_id
+      }, "");
+      log.sys("Label Found:", JSON.stringify(labelId));
+      log.good("Response successfully received!");
+      return labelId;
+    })
+    .catch(err => {
+      log.err(err);
+      process.exit(1);
+    });
+
+  log.debug("Finished ServiceNow Get Tag ID Plugin");
+  return id;
+};
+
 module.exports = {
   async getIncidents() {
     log.debug("Inside ServiceNow Plugin");
@@ -29,7 +82,7 @@ module.exports = {
       process.exit(1);
     }
     if (tag) {
-      let tagId = await this.getTagID(instanceId, username, password, tag);
+      let tagId = await getTagID(instanceId, username, password, tag);
       url = url + "&sysparm_query=sys_tags." + tagId + "%3D" + tagId;
     }
     if (state) {
@@ -139,61 +192,5 @@ module.exports = {
       });
       log.debug("Finished ServiceNow Update Incident State Plugin");
     })
-  },
-  async getTagID(instanceId, username, password, tag) {
-    log.debug("Inside ServiceNow Get Tag ID Plugin");
-
-    //Destructure and get properties ready.
-    //const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    //const { instanceId, username, password, tag } = taskProps;
-
-    var agent = null;
-    if (process.env.HTTP_PROXY) {
-      log.debug("Using Proxy", process.env.HTTP_PROXY);
-      agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-    }
-
-    var method = "GET";
-    var url =
-      "https://" +
-      instanceId +
-      ".service-now.com/api/now/v2/table/label?sysparm_limit=10";
-    if (tag) {
-      url = url + "&sysparm_query=name%3D" + tag;
-    } else {
-      log.err("No Label Name provided");
-      process.exit(1);
-    }
-
-    log.debug("URL: ", url);
-
-    let id = fetch(url, {
-      method,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization:
-          "Basic " + new Buffer(username + ":" + password).toString("base64")
-      },
-      agent: agent,
-      body: null
-    })
-      .then(res => res.json())
-      .then(body => {
-        log.debug("Response Received:", JSON.stringify(body));
-        var labelId = body.result.reduce(function (accumulator, label) {
-          return label.sys_id
-        }, "");
-        log.sys("Label Found:", JSON.stringify(labelId));
-        log.good("Response successfully received!");
-        return labelId;
-      })
-      .catch(err => {
-        log.err(err);
-        process.exit(1);
-      });
-
-    log.debug("Finished ServiceNow Get Tag ID Plugin");
-    return id;
   }
 };
