@@ -2,28 +2,14 @@ const fetch = require("node-fetch");
 const HttpsProxyAgent = require("https-proxy-agent");
 const log = require("../log.js");
 const utils = require("../utils.js");
-const sn = require("servicenow-rest-api");
 
 module.exports = {
-  authenticate() {
-    log.debug("Inside ServiceNow Authenticate Plugin");
-
-    //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { url, username, password } = taskProps;
-
-    const ServiceNow = new sn(url, username, password);
-
-    ServiceNow.Authenticate(res => {
-      log.good(res);
-    });
-  },
   async getIncidents() {
     log.debug("Inside ServiceNow Plugin");
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { instance, username, password, state, tag } = taskProps;
+    const { instanceId, username, password, state, tag } = taskProps;
 
     var agent = null;
     if (process.env.HTTP_PROXY) {
@@ -32,10 +18,16 @@ module.exports = {
     }
 
     var method = "GET";
-    var url =
-      "https://" +
-      instance +
-      ".service-now.com/api/now/v2/table/incident?sysparm_limit=10";
+    if (instanceId) {
+      log.debug("instanceId: ", instanceId);
+      var url =
+        "https://" +
+        instanceId +
+        ".service-now.com/api/now/v2/table/incident?sysparm_limit=10";
+    } else {
+      log.err("instanceId ID has not been provided or set correctly.");
+      process.exit(1);
+    }
     if (tag) {
       let tagId = await this.getTagID();
       url = url + "&sysparm_query=sys_tags." + tagId + "%3D" + tagId;
@@ -98,12 +90,12 @@ module.exports = {
       });
     log.debug("Finished ServiceNow Plugin");
   },
-  async updateIncidentState() {
+  async updateIncidents() {
     log.debug("Inside ServiceNow Update Incident State Plugin");
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { instance, username, password, state, incidents } = taskProps;
+    const { instanceId, username, password, state, incidents } = taskProps;
 
     var agent = null;
     if (process.env.HTTP_PROXY) {
@@ -122,11 +114,13 @@ module.exports = {
       process.exit(1);
     }
 
+    //TODO: also handle a newline entered list of manual sys_id's not just the array element returned by getIncidents
     JSON.parse(incidents).forEach(incident => {
       incidentSysId = incident.sys_id;
+      log.debug("instanceId: ", instanceId);
       var url =
         "https://" +
-        instance +
+        instanceId +
         ".service-now.com/api/now/v2/table/incident/" + incidentSysId;
       log.debug("Updating incident:", incidentSysId);
       fetch(url, {
@@ -151,7 +145,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { instance, username, password, tag } = taskProps;
+    const { instanceId, username, password, tag } = taskProps;
 
     var agent = null;
     if (process.env.HTTP_PROXY) {
@@ -162,7 +156,7 @@ module.exports = {
     var method = "GET";
     var url =
       "https://" +
-      instance +
+      instanceId +
       ".service-now.com/api/now/v2/table/label?sysparm_limit=10";
     if (tag) {
       url = url + "&sysparm_query=name%3D" + tag;
