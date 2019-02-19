@@ -15,7 +15,7 @@ const fs = require("fs");
 /**
  * Use IFFE to enscapsulate properties
  */
-module.exports = (function() {
+module.exports = (function () {
   // Read in property files
   const files = fs.readdirSync(workflowProps.WF_PROPS_PATH);
   log.debug("Property Files Found:", files);
@@ -47,7 +47,7 @@ module.exports = (function() {
 
   return {
     /** @todo implement */
-    substituteTaskInputValueForWFInputsProperty(taskProp) {},
+    substituteTaskInputValueForWFInputsProperty(taskProp) { },
     /**
      * Substitute task props that have workflow property notation with corrsponding workflow props
      * @returns Object
@@ -99,7 +99,7 @@ module.exports = (function() {
                 : log.warn("Undefined property:", property);
             } else {
               log.debug(
-                "Replacing proeprty:",
+                "Replacing property:",
                 property,
                 "with:",
                 replacementStr
