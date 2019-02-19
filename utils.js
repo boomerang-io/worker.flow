@@ -63,11 +63,12 @@ module.exports = (function () {
       const substitutedTaskInputProps = Object.entries(taskInputProps)
         .filter(taskInputEntry =>
           log.debug("Value Found:", taskInputEntry[1]) ||
-          workflowProps.WF_PROPS_PATTERN.test(taskInputEntry)
+          workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])
+          //typeof taskInputEntry[1] == "string" && !!taskInputEntry[1].match(workflowProps.WF_PROPS_PATTERN)
         ) //Test the value, and return arrays that match pattern
         .map(filteredProps => {
           log.debug("Task property found requiring substitutions:", filteredProps);
-          const matchedProps = filteredProps[1].match(workflowProps.WF_PROPS_PATTERN); //Get value from entries array, find match for our property pattern, pull out first matching group
+          const matchedProps = filteredProps[1].match(workflowProps.WF_PROPS_PATTERN_GLOBAL); //Get value from entries array, find match for our property pattern, pull out first matching group
           log.debug("Property references in match:", matchedProps);
 
           for (var property of matchedProps) {
