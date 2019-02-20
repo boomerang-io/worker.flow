@@ -9,8 +9,9 @@ const inputOptions = {
 };
 const workflowProps = {
   WF_PROPS_PATH: NODE_ENV === "local" ? "./props" : "/props",
-  //WF_PROPS_PREFIX: "WF_PROPS_", //no longer used
-  //old pattern: /\$\{p:(.+)\}/
+  // We have two properties that are the same other than the Global regex flag
+  // This is as regex.test(), if passed global, will not reset the index from word to word of our search
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test
   WF_PROPS_PATTERN: /\$\{p:([\w\ \.]*\/?[\w\.]+)\}/,
   WF_PROPS_PATTERN_GLOBAL: /\$\{p:([\w\ \.]*\/?[\w\.]+)\}/g
 };
