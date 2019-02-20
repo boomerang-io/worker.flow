@@ -14,7 +14,7 @@ async function cli() {
   });
 
   //CLI Commands
-  program.version("1.0.0-beta.1").description("Boomerang Flow CLI");
+  program.version("1.0.0-beta.2").description("Boomerang Flow CLI");
   log.sys(program.description(), program.version());
 
   program.arguments("<cmd> <method>").action((cmd, method) => {
