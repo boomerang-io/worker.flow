@@ -50,7 +50,7 @@ module.exports = {
           }
         ]
       },
-      async function(err, res) {
+      async function (err, res) {
         if (err) {
           /** @todo Catch HTTP error for timeout so we can return better exits */
           log.err("Slack sendWebhook error", err);
