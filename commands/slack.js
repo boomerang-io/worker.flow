@@ -6,15 +6,32 @@ const log = require("./../log.js");
 const utils = require("../utils.js");
 
 module.exports = {
-  async sendWebhook() {
-    log.debug("Inside Send Slack Webhook Plugin");
+  async sendSimpleMessage() {
+    log.debug("Inside Send Simple Slack Webhook Plugin");
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { channel: channel, title: title, message: message } = taskProps;
+    const { url, channel, username, message, icon } = taskProps;
 
-    const url =
-      "***REMOVED***";
+    //Variable Checks
+    if (!url) {
+      log.err("URL has not been set");
+      return process.exit(1);
+    }
+    if (!channel) {
+      log.err("Channel or user has not been set");
+      return process.exit(1);
+    }
+    if (!username) {
+      log.debug("Setting default username to Boomerang Joe");
+      username == "Boomerang Joe";
+    }
+    if (!icon) {
+      log.debug("Setting default icon to :boomerang:");
+      icon == ":boomerang:";
+    }
+
+    // const url = "***REMOVED***";
     let webhook = new IncomingWebhook(url);
 
     /** @todo see if we can set the proxy at the higher CLI level rather than have each plugin have to support a proxy*/
@@ -25,18 +42,79 @@ module.exports = {
       });
     }
 
+    // Send simple text to the webhook channel
+    return webhook.send(
+      {
+        channel: channel,
+        username: username,
+        icon_emoji: icon,
+        text: message,
+      },
+      async function (err, res) {
+        if (err) {
+          /** @todo Catch HTTP error for timeout so we can return better exits */
+          log.err("Slack sendWebhook error", err);
+          return process.exit(1);
+        } else {
+          log.good("Message sent: " + res.text);
+        }
+      }
+    );
+  },
+  async sendRichMessage() {
+    log.debug("Inside Send Rich Slack Webhook Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const { url, channel, username, message, icon } = taskProps;
+
     /** @todo Implement a variable check */
+    if (!url) {
+      log.debug(url);
+      log.err("URL has not been set");
+      return process.exit(1);
+    }
     if (!channel) {
       log.debug(channel);
       log.err("Channel or user has not been set");
       return process.exit(1);
     }
 
+    // const url = "***REMOVED***";
+    let webhook = new IncomingWebhook(url);
+
+    /** @todo see if we can set the proxy at the higher CLI level rather than have each plugin have to support a proxy*/
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      webhook = new IncomingWebhook(url, {
+        agent: new HttpsProxyAgent(process.env.HTTP_PROXY)
+      });
+    }
+
+    //Variable Checks
+    if (!url) {
+      log.err("URL has not been set");
+      return process.exit(1);
+    }
+    if (!channel) {
+      log.err("Channel or user has not been set");
+      return process.exit(1);
+    }
+    if (!username) {
+      log.debug("Setting default username to Boomerang Joe");
+      username == "Boomerang Joe";
+    }
+    if (!icon) {
+      log.debug("Setting default icon to :boomerang:");
+      icon == ":boomerang:";
+    }
+
     // Send simple text to the webhook channel
     return webhook.send(
       {
         channel: channel,
-        text: "This is a test from the flow container",
+        username: username,
+        icon_emoji: icon,
         attachments: [
           {
             fallback: "This is a test.",
