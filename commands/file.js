@@ -101,5 +101,75 @@ module.exports = {
       process.exit(1);
     }
     log.debug("Finished Check File or Folder Exists Plugin");
+  },
+  checkFileContainsString() {
+    // Check if a file contains string or matches regular expression
+    log.debug("Started Check File Contains String Plugin");
+
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const { path, expression, flags, string } = taskProps;
+
+    try {
+      const file = fs.readFileSync(path, "utf-8");
+      let result;
+
+      if (expression) {
+        const fileExpression = new RegExp(
+          expression,
+          flags ? flags : undefined
+        );
+        result = fileExpression.test(file);
+      } else {
+        result = file.includes(string);
+      }
+
+      if (result) {
+        log.good(
+          expression ? "Regex expression matched." : "String found in file."
+        );
+      } else {
+        throw new Error(
+          expression ? "Regex expression didn't match." : "String not found."
+        );
+      }
+    } catch (e) {
+      log.err(e);
+      process.exit(1);
+    }
+
+    log.debug("Finished Check File Contains String Plugin");
+  },
+  replaceStringInFile() {
+    // Replace string in file finding by string or regular expression
+    log.debug("Started Replace String In File Plugin");
+
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const { path, expression, flags, findString, replaceString } = taskProps;
+
+    try {
+      const file = fs.readFileSync(path, "utf-8");
+      let result;
+
+      if (expression) {
+        const fileExpression = new RegExp(
+          expression,
+          flags ? flags : undefined
+        );
+        if (!fileExpression.test(file))
+          throw new Error("Regex expression didn't match.");
+        result = file.replace(fileExpression, replaceString);
+      } else {
+        if (!file.includes(findString)) throw new Error("String not found.");
+        result = file.replace(findString, replaceString);
+      }
+
+      fs.writeFileSync(path, result, "utf-8");
+      log.good("The string has been replaced!");
+    } catch (e) {
+      log.err(e);
+      process.exit(1);
+    }
+
+    log.debug("Finished Replace String In File Plugin");
   }
 };
