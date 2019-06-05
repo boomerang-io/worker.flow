@@ -2,7 +2,7 @@
 
 # ( printf '\n'; printf '%.0s-' {1..30}; printf ' Package Docker Image '; printf '%.0s-' {1..30}; printf '\n\n' )
 
-R_URL=$1
+ART_URL=$1
 ART_REPO_ID=$2
 ART_REPO_USER=$3
 ART_REPO_PASSWORD=$4
