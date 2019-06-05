@@ -5,6 +5,9 @@ class CICDError extends Error {
       case 1:
         definedMessage = "Unknown property encountered."
         break;
+      case 127:
+        definedMessage = "A file required was not found."
+        break;
       default:
         break;
     }
