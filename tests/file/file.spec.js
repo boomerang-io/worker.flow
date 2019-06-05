@@ -1,5 +1,9 @@
 const { expect } = require("chai");
-const { createFile, replaceStringInFile } = require("../../commands/file");
+const {
+  createFile,
+  checkFileContainsString,
+  replaceStringInFile
+} = require("../../commands/file");
 const fs = require("fs");
 
 // use "props/test.task.input.properties" to control test props variables
@@ -13,6 +17,12 @@ describe("Create File", () => {
   it("Created file has correct content", () => {
     const file = fs.readFileSync("tests/file/testfile.txt", "utf-8");
     expect(file.includes("pandas are adorable")).to.be.true;
+  });
+});
+
+describe("Check File Contains String", () => {
+  it("Contains string", () => {
+    expect(checkFileContainsString()).to.be.true;
   });
 });
 
