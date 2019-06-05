@@ -123,6 +123,47 @@ module.exports = (function () {
       };
       return substitutedProps;
     },
+    resolveCICDTaskInputProps() {
+      log.debug("Resolving properties");
+      const taskInputProps = props[PROPS_FILES_CONFIG.TASK_INPUT_PROPS_FILENAME];
+      const substitutedTaskInputProps = Object.entries(taskInputProps)
+        .filter(taskInputEntry =>
+          log.debug(taskInputEntry[0], "=", taskInputEntry[1]) ||
+          workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])
+          //typeof taskInputEntry[1] == "string" && !!taskInputEntry[1].match(workflowProps.WF_PROPS_PATTERN)
+        ) //Test the value, and return arrays that match pattern
+        .map(filteredEntry => {
+          log.debug("Property found requiring substitutions:", filteredEntry);
+          const matchedProps = filteredEntry[1].match(workflowProps.WF_PROPS_PATTERN_GLOBAL); //Get value from entries array, find match for our property pattern, pull out first matching group
+          log.debug("Property references in match:", matchedProps);
+          for (var property of matchedProps) {
+            /** @todo use original regex for capture group of key*/
+            var propertyKey = property.replace("${p:", "").replace("}", "");
+            var replacementStr = taskInputProps[`${propertyKey}`]
+              ? taskInputProps[`${propertyKey}`]
+              : "";
+            log.debug("Replacing property:", property, "with:", replacementStr);
+            filteredEntry[1] = filteredEntry[1].replace(property, replacementStr);
+          }
+          return filteredEntry;
+        })
+        .reduce((accum, [k, v]) => {
+          accum[k] = v;
+          return accum;
+        }, {});
+      //Combine both w/ new values overwriting old ones
+      const substitutedProps = {
+        ...taskInputProps,
+        ...substitutedTaskInputProps
+      };
+      return substitutedProps;
+    },
+    getInputProperty(key) {
+      // Figure out why this doesn't work
+      const { TASK_INPUT_PROPS_FILENAME } = PROPS_FILES_CONFIG;
+      const taskInputProps = props[TASK_INPUT_PROPS_FILENAME];
+      return taskInputProps[key];
+    },
     getWorkflowSystemProperty(key) {
       const { WORKFLOW_SYSTEM_PROPS_FILENAME } = PROPS_FILES_CONFIG;
       const workflowSystemProps = props[WORKFLOW_SYSTEM_PROPS_FILENAME];
