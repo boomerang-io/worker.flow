@@ -107,31 +107,20 @@ module.exports = {
     log.debug("Started Check File Contains String Plugin");
 
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { path, expression, flags, string } = taskProps;
+    const { path, string, flags, failIfNotFound = false } = taskProps;
 
     try {
       const file = fs.readFileSync(path, "utf-8");
       let result;
 
-      if (expression) {
-        const fileExpression = new RegExp(
-          expression,
-          flags ? flags : undefined
-        );
-        result = fileExpression.test(file);
-      } else {
-        result = file.includes(string);
+      const fileExpression = new RegExp(string, flags ? flags : undefined);
+      result = fileExpression.test(file);
+
+      if (failIfNotFound && !result) {
+        throw new Error("Not found any matches.");
       }
 
-      if (result) {
-        log.good(
-          expression ? "Regex expression matched." : "String found in file."
-        );
-      } else {
-        throw new Error(
-          expression ? "Regex expression didn't match." : "String not found."
-        );
-      }
+      return result;
     } catch (e) {
       log.err(e);
       process.exit(1);
@@ -144,24 +133,22 @@ module.exports = {
     log.debug("Started Replace String In File Plugin");
 
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { path, expression, flags, findString, replaceString } = taskProps;
+    const {
+      path,
+      flags,
+      findString,
+      replaceString,
+      failIfNotFound = false
+    } = taskProps;
 
     try {
       const file = fs.readFileSync(path, "utf-8");
       let result;
 
-      if (expression) {
-        const fileExpression = new RegExp(
-          expression,
-          flags ? flags : undefined
-        );
-        if (!fileExpression.test(file))
-          throw new Error("Regex expression didn't match.");
-        result = file.replace(fileExpression, replaceString);
-      } else {
-        if (!file.includes(findString)) throw new Error("String not found.");
-        result = file.replace(findString, replaceString);
-      }
+      const fileExpression = new RegExp(findString, flags ? flags : undefined);
+      if (failIfNotFound && !fileExpression.test(file))
+        throw new Error("Not found any matches.");
+      result = file.replace(fileExpression, replaceString);
 
       fs.writeFileSync(path, result, "utf-8");
       log.good("The string has been replaced!");
