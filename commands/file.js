@@ -77,6 +77,12 @@ module.exports = {
 
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { path, expression } = taskProps;
+
+    this.checkFileOrFolderExistsWithProps(path, expression);
+
+    log.debug("Finished Check File or Folder Exists Plugin");
+  },
+  checkFileOrFolderExistsWithProps(path, expression) {
     //Used to check if the path indicates a file or a directory
     const fileExtension = filePath.extname(path);
     try {
@@ -100,7 +106,6 @@ module.exports = {
       log.err(e);
       process.exit(1);
     }
-    log.debug("Finished Check File or Folder Exists Plugin");
   },
   checkFileContainsString() {
     // Check if a file contains string or matches regular expression
@@ -109,6 +114,11 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { path, string, flags, failIfNotFound = false } = taskProps;
 
+    this.checkFileContainsStringWithProps(path, expression, flags, string);
+
+    log.debug("Finished Check File Contains String Plugin");
+  },
+  checkFileContainsStringWithProps(path, expression, flags, string) {
     try {
       const file = fs.readFileSync(path, "utf-8");
       let result;
@@ -125,8 +135,6 @@ module.exports = {
       log.err(e);
       process.exit(1);
     }
-
-    log.debug("Finished Check File Contains String Plugin");
   },
   replaceStringInFile() {
     // Replace string in file finding by string or regular expression
@@ -141,6 +149,11 @@ module.exports = {
       failIfNotFound = false
     } = taskProps;
 
+    this.replaceStringInFileWithProps(path, expression, flags, findString, replaceString);
+
+    log.debug("Finished Replace String In File Plugin");
+  },
+  replaceStringInFileWithProps(path, expression, flags, findString, replaceString) {
     try {
       const file = fs.readFileSync(path, "utf-8");
       let result;
@@ -156,7 +169,5 @@ module.exports = {
       log.err(e);
       process.exit(1);
     }
-
-    log.debug("Finished Replace String In File Plugin");
   }
 };
