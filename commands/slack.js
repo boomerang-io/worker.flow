@@ -48,7 +48,7 @@ module.exports = {
         channel: channel,
         username: username,
         icon_emoji: icon,
-        text: message,
+        text: JSON.stringify(message),
       },
       async function (err, res) {
         if (err) {
