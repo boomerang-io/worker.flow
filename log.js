@@ -19,6 +19,16 @@ module.exports = {
       chalk.blue(`${datetime.create().format("m/d/y H:M:S")}`, "🤖 ", ...args)
     );
   },
+  ci(...args) {
+    console.log(
+      chalk.blue(`${datetime.create().format("m/d/y H:M:S")}`, "🏗️ ", "-".repeat(20), ...args, "-".repeat(20))
+    );
+  },
+  head(...args) {
+    console.log(
+      chalk.blue(`${datetime.create().format("m/d/y H:M:S")}`, "-".repeat(20), ...args, "-".repeat(20))
+    );
+  },
   good(...args) {
     console.log(
       chalk.green(`${datetime.create().format("m/d/y H:M:S")}`, "✅ ", ...args)
