@@ -1,3 +1,5 @@
+// http://tldp.org/LDP/abs/html/exitcodes.html
+// For shell we need to keep the codes 50-99 to be safe
 class CICDError extends Error {
   constructor(code, stack) {
     var definedMessage = "An unknown error occurred. Please speak to your support representative.";
