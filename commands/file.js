@@ -114,11 +114,11 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { path, string, flags, failIfNotFound = false } = taskProps;
 
-    this.checkFileContainsStringWithProps(path, expression, flags, string);
+    this.checkFileContainsStringWithProps(path, string, flags, failIfNotFound);
 
     log.debug("Finished Check File Contains String Plugin");
   },
-  checkFileContainsStringWithProps(path, expression, flags, string) {
+  checkFileContainsStringWithProps(path, string, flags, failIfNotFound) {
     try {
       const file = fs.readFileSync(path, "utf-8");
       let result;
@@ -149,11 +149,12 @@ module.exports = {
       failIfNotFound = false
     } = taskProps;
 
-    this.replaceStringInFileWithProps(path, expression, flags, findString, replaceString);
+    // TODO: standardize order of parameters with checkFileContainsString
+    this.replaceStringInFileWithProps(path, flags, findString, replaceString, failIfNotFound);
 
     log.debug("Finished Replace String In File Plugin");
   },
-  replaceStringInFileWithProps(path, expression, flags, findString, replaceString) {
+  replaceStringInFileWithProps(path, flags, findString, replaceString, failIfNotFound) {
     try {
       const file = fs.readFileSync(path, "utf-8");
       let result;
