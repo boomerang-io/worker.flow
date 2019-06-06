@@ -2,6 +2,7 @@ const log = require("../log.js");
 const utils = require("../utils.js");
 const { CICDError } = require('../error.js')
 const shell = require("shelljs");
+const fs = require("fs");
 const fileCommand = require("./file.js");
 
 function exec(command) {
@@ -36,18 +37,34 @@ module.exports = {
       log.ci("Retrieving Source Code");
       await exec(shellDir + '/common/git-clone.sh ' + taskProps['component/repoSshUrl'] + ' ' + taskProps['component/repoUrl'] + ' ' + taskProps['git.commit.id']);
       shell.cd("/data/workspace");
-      fileCommand.checkFileContainsStringWithProps("/data/workspace/pom.xml", undefined, undefined, "<plugins>");
-      fileCommand.checkFileContainsStringWithProps("/data/workspace/pom.xml", undefined, undefined, "<artifactId>jacoco-maven-plugin</artifactId>");
-      fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", undefined, undefined, "<plugins>", "<plugins>\nTEST\n");
+      if (!fileCommand.checkFileContainsStringWithProps("/data/workspace/pom.xml", "<plugins>", undefined, false)) {
+        log.debug("No Maven plugins found, adding...");
+        var replacementString = fs.readFileSync(shellDir + '/test/unit-java-maven-plugins.xml', "utf-8");
+        fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", undefined, "<plugins>", replacementString, false);
+      }
+      if (!fileCommand.checkFileContainsStringWithProps("/data/workspace/pom.xml", "<artifactId>jacoco-maven-plugin</artifactId>", undefined, false)) {
+        log.debug("...adding jacoco-maven-plugin.");
+        var replacementString = fs.readFileSync(shellDir + '/test/unit-java-maven-jacoco.xml', "utf-8");
+        fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", undefined, "<plugins>", replacementString, false);
+      }
+      if (!fileCommand.checkFileContainsStringWithProps("/data/workspace/pom.xml", "<artifactId>sonar-maven-plugin</artifactId>", undefined, false)) {
+        log.debug("...adding sonar-maven-plugin.");
+        var replacementString = fs.readFileSync(shellDir + '/test/unit-java-maven-sonar.xml', "utf-8");
+        fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", undefined, "<plugins>", replacementString, false);
+      }
+      if (!fileCommand.checkFileContainsStringWithProps("/data/workspace/pom.xml", "<artifactId>maven-surefire-report-plugin</artifactId>", undefined, false)) {
+        log.debug("...adding maven-surefire-report-plugin.");
+        var replacementString = fs.readFileSync(shellDir + '/test/unit-java-maven-surefire.xml', "utf-8");
+        fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", undefined, "<plugins>", replacementString, false);
+      }
       await exec("less /data/workspace/pom.xml");
+      await exec(shellDir + '/test/unit-java.sh');
       await exec(shellDir + '/common/footer.sh');
     } catch (e) {
       log.err("  Error encountered. Code: " + e.code + ", Message:", e.message);
       process.exit(1);
     } finally {
-      log.debug("End Deploy Plugin");
+      log.debug("End Test Plugin");
     }
-
-    log.debug("End Test Plugin");
   }
 };
