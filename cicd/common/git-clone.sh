@@ -15,6 +15,14 @@ if [[ "$GIT_SSH_URL" =~ ^http.* ]]; then
     GIT_CLONE_URL=`echo "$GIT_SSH_URL" | sed 's#^\(.*://\)\(.*\)\(\.git\)\{0,1\}$#\git@\2.git#' | sed 's/\//:/'`
 fi
 
+if [ -f "/cli/cicd/config/rsa-git" ]; then
+    echo "Adjusting permissions and checking Git SSH key exists."
+    chmod 700 /cli/cicd/config/rsa-git
+else
+    echo "Git SSH Key not found."
+    exit 1
+fi
+
 if [ "$HTTP_PROXY" != "" ]; then
     echo "Setting Git SSH Config with Proxy"
     cat >> ~/.ssh/config <<EOL
