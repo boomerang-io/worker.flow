@@ -2,7 +2,8 @@
 
 # ( printf '\n'; printf '%.0s-' {1..30}; printf ' Initialize Dependencies '; printf '%.0s-' {1..30}; printf '\n\n' )
 
-DEPLOY_TYPE=${arr['deploy.type']}
+DEPLOY_TYPE=$1
+DEPLOY_KUBE_VERSION=$2
 
 if [ "$DEPLOY_TYPE" == "helm" ] || [ "$DEPLOY_TYPE" == "kubernetes" ]; then
     KUBE_HOME=/opt/bin
@@ -13,7 +14,7 @@ if [ "$DEPLOY_TYPE" == "helm" ] || [ "$DEPLOY_TYPE" == "kubernetes" ]; then
     curl -L https://storage.googleapis.com/kubernetes-release/release/$KUBE_CLI_VERSION/bin/linux/amd64/kubectl -o $KUBE_CLI && chmod +x $KUBE_CLI
 
     KUBE_NAMESPACE=bmrg-dev
-    KUBE_CLUSTER_HOST=wdc3.cloud.boomerangplatform.net
+    export KUBE_CLUSTER_HOST=wdc3.cloud.boomerangplatform.net #needed for deploy step
     KUBE_CLUSTER_IP=10.190.20.176
     KUBE_CLUSTER_PORT=8001
     KUBE_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdF9oYXNoIjoicmJqeDN4Y3g3YnkzeGJhYzRyNW0iLCJyZWFsbU5hbWUiOiJjdXN0b21SZWFsbSIsInVuaXF1ZVNlY3VyaXR5TmFtZSI6InR3bGF3cmllQHVzLmlibS5jb20iLCJpc3MiOiJodHRwczovL2Nsb3VkLmJvb21lcmFuZ3BsYXRmb3JtLm5ldDo5NDQzL29pZGMvZW5kcG9pbnQvT1AiLCJhdWQiOiJjNGE2NzIwMjQ4OGQwN2Q0ZjNkZmNmZTc4YjBkNzQyMSIsImV4cCI6MTU1OTI5Mzk2MiwiaWF0IjoxNTU5MjY1MTYyLCJzdWIiOiJ0d2xhd3JpZUB1cy5pYm0uY29tIiwidGVhbVJvbGVNYXBwaW5ncyI6WyJzeXN0ZW06bWFzdGVycyJdfQ.PpgdsLJo9UUk65YCsAGe00mwjnsEf63-nrk-H89gMWYHRJZ00uU_eefNWYDEtV5ZbvkGUhUY0KOxPNHbn7qAJa02cifwkRaJtEiL3cpC24UTA2m3VnAqJ5Gty2ub_wsPfWqHkxavLIWqcb0eZqvDIxsdlrqCRSAJf4INqPshvercK59YU9kWyE4lm49DT6L7HJlq8JXhIHBS5shbPnl-xrLGThaaxE5OxqY_Tz3e4NgC6WZqNseBwrndC9xRZx3ApmfN8rR8xCJ6gGUYK1NpPxiRUBntN3yDlku5SkXkPW4u4acFNJjb76_6AcX_Vr6OzBIGgnAWDmg9RCFcEp1l0g
@@ -33,7 +34,7 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
 
     K8S_CLUSTER_NAME=wdc3.cloud.boomerangplatform.net
     K8S_CLUSTER_MASTER_IP=10.190.20.176
-    K8S_CLUSTER_VERSION=${arr['deploy.kube.version']}
+    K8S_CLUSTER_VERSION=$DEPLOY_KUBE_VERSION
     K8S_CLUSTER_MAJOR_VERSION=`echo $K8S_CLUSTER_VERSION | cut -d "." -f 1`
     K8S_CLUSTER_SSH_USER=root
     K8S_CLUSTER_SSH_PRIVATE_KEY=/cli/scripts/config/rsa-bmrgicp
@@ -59,9 +60,9 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
     HELM_SSH_OPTS="-A -o LogLevel=error -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $HELM_SSH_PRIVATE_KEY -S $HELM_SSH_SOCK"
     HELM_SSH_CMD="ssh $HELM_SSH_OPTS $HELM_SSH_TUNNEL"
 
-    HELM_RESOURCE_PATH=/tmp/.helm
+    export HELM_RESOURCE_PATH=/tmp/.helm #needed for deploy step
     HELM_CLUSTER_CONFIG_PATH=$HELM_RESOURCE_PATH/$K8S_CLUSTER_NAME
-    HELM_TLS_STRING="--tls --tls-ca-cert $HELM_CLUSTER_CONFIG_PATH/ca.crt --tls-cert $HELM_CLUSTER_CONFIG_PATH/admin.crt --tls-key $HELM_CLUSTER_CONFIG_PATH/admin.key"
+    export HELM_TLS_STRING="--tls --tls-ca-cert $HELM_CLUSTER_CONFIG_PATH/ca.crt --tls-cert $HELM_CLUSTER_CONFIG_PATH/admin.crt --tls-key $HELM_CLUSTER_CONFIG_PATH/admin.key"  #needed for deploy step
 
     echo "Installing Helm $HELM_VERSION ($HELM_PLATFORM-$HELM_ARCH) from $HELM_URL"
     curl '-#' -fL -o /tmp/helm.tar.gz --retry 5 $HELM_URL
