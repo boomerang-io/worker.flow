@@ -41,7 +41,7 @@ module.exports = {
       } else if (taskProps['deploy.type'] === "helm") {
         await exec(shellDir + '/deploy/helm.sh ' + taskProps['global/helm.repo.url'] + ' ' + taskProps['global/deploy.helm.chart'] + ' ' + taskProps['global/deploy.helm.release'] + ' ' + taskProps['global/helm.image.tag'] + ' ' + taskProps['version.name']);
       }
-      await exec(shell Dir + '/common/footer.sh');
+      await exec(shellDir + '/common/footer.sh');
     } catch (e) {
       log.err("  Error encountered. Code: " + e.code + ", Message:", e.message);
       process.exit(1);
