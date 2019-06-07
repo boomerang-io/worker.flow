@@ -1,3 +1,7 @@
 test2
 hello world
-cats
+${p:pandas}:${p:awesome}
+${d:pandas}:${d:awesome}
+${p:pandas]:${p:awesome}
+pandas
+awesome
