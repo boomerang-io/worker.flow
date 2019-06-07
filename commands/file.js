@@ -203,6 +203,11 @@ module.exports = {
     //     return filelist;
     // };
 
+    this.replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, flags);
+
+    log.debug("Finished Replace Tokens in File Plugin");
+  },
+  replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, flags) {
     const stringToRegexp = str => {
       const lastSlash = str.lastIndexOf("/");
       return new RegExp(str.slice(1, lastSlash), str.slice(lastSlash + 1));
@@ -256,7 +261,5 @@ module.exports = {
       log.err(e);
       process.exit(1);
     }
-
-    log.debug("Finished Replace Tokens in File Plugin");
   }
 };

@@ -1,0 +1,82 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: @system.team.name@-@system.component.name@
+  namespace: @deploy.kube.namespace@
+  annotations:
+    platform: boomerang
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      org: @team.name@
+      component: @system.component.name@
+      env: @system.stage.name@
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+      org: @team.name@
+      component: @system.component.name@
+      env: @system.stage.name@
+    spec:
+      containers:
+      - image: @global/container.registry.host@:@global/container.registry.port@/@team.name@/@image.name@:@version.name@
+        imagePullPolicy: Always
+        name: cntr
+        ports:
+        - name: port-cntr
+          containerPort: @kube.port@
+          protocol: TCP
+        env:
+        - name: DEPLOY_TARGET
+          value: '@system.stage.name@'
+      imagePullSecrets:
+      - name: boomerang.registrykey
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: @system.team.name@-@system.component.name@
+  namespace: @deploy.kube.namespace@
+spec:
+  ports:
+  - name: port-svc
+    port: 443
+    protocol: TCP
+    targetPort: port-cntr
+  selector:
+    org: @team.name@
+    component: @system.component.name@
+    env: @system.stage.name@
+  sessionAffinity: None
+# ---
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   name: @system.team.name@-@system.component.name@
+#   namespace: @deploy.kube.namespace@
+#   annotations:
+#     kubernetes.io/ingress.class: nginx
+#     ingress.kubernetes.io/ssl-redirect: "true"
+#     ingress.kubernetes.io/rewrite-target: /
+# spec:
+#   tls:
+#   - hosts:
+#     - ${p:kubernetes.ingress}
+#     ${p?:bmrg.kubernetes.tls.secretname}
+#   rules:
+#     - host: ${p:kubernetes.ingress}
+#       http:
+#         paths:
+#           - path: ${p:kubernetes.ingress.root}/${p:bmrg.component}
+#             backend:
+#               serviceName: ${p:bmrg.org}-${p:bmrg.component}
+#               servicePort: port-svc
