@@ -22,19 +22,14 @@ module.exports = {
   async execute() {
     log.debug("Inside Test Plugin");
 
-    //Destructure and get properties ready.
     const taskProps = utils.resolveCICDTaskInputProps();
-    // const { path, script } = taskProps;
     const shellDir = "/cli/cicd";
     config = {
       verbose: true,
     }
 
-<<<<<<< HEAD
     var testTypes = taskProps['test.type'].split(',');
 
-=======
->>>>>>> c06bd099aba27ba3a4698468827cf8d4315e09ec
     try {
       shell.cd("/data");
       log.ci("Initializing Dependencies");
