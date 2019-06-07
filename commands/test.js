@@ -30,6 +30,8 @@ module.exports = {
       verbose: true,
     }
 
+    var testTypes = taskProps['test.type'].split(',');
+
     try {
       shell.cd("/data");
       log.ci("Initializing Dependencies");
@@ -57,8 +59,14 @@ module.exports = {
         var replacementString = fs.readFileSync(shellDir + '/test/unit-java-maven-surefire.xml', "utf-8");
         fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", undefined, "<plugins>", replacementString, false);
       }
-      await exec("less /data/workspace/pom.xml");
-      await exec(shellDir + '/test/unit-java.sh ' + taskProps['build.tool'] + ' ' + taskProps['version.name'] + ' ' + taskProps['global/sonar.url'] + ' ' + taskProps['global/sonar.api.key'] + ' ' + taskProps['system.component.id'] + ' ' + taskProps['system.component.name']);
+      if (testTypes.includes("static")) {
+        log.debug("Commencing static tests");
+        await exec(shellDir + '/test/static-java.sh ' + taskProps['build.tool'] + ' ' + taskProps['version.name'] + ' ' + taskProps['global/sonar.url'] + ' ' + taskProps['global/sonar.api.key'] + ' ' + taskProps['system.component.id'] + ' ' + taskProps['system.component.name']);
+      }
+      if (testTypes.includes("unit")) {
+        log.debug("Commencing unit tests");
+        await exec(shellDir + '/test/unit-java.sh ' + taskProps['build.tool'] + ' ' + taskProps['version.name'] + ' ' + taskProps['global/sonar.url'] + ' ' + taskProps['global/sonar.api.key'] + ' ' + taskProps['system.component.id'] + ' ' + taskProps['system.component.name']);
+      }
       await exec(shellDir + '/common/footer.sh');
     } catch (e) {
       log.err("  Error encountered. Code: " + e.code + ", Message:", e.message);
