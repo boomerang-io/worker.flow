@@ -34,7 +34,11 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
 
     K8S_CLUSTER_NAME=wdc3.cloud.boomerangplatform.net
     K8S_CLUSTER_MASTER_IP=10.190.20.176
+<<<<<<< HEAD
     K8S_CLUSTER_VERSION=$DEPLOY_KUBE_VERSION
+=======
+    K8S_CLUSTER_VERSION=${arr['deploy.kube.version']}
+>>>>>>> c06bd099aba27ba3a4698468827cf8d4315e09ec
     K8S_CLUSTER_MAJOR_VERSION=`echo $K8S_CLUSTER_VERSION | cut -d "." -f 1`
     K8S_CLUSTER_SSH_USER=root
     K8S_CLUSTER_SSH_PRIVATE_KEY=/cli/scripts/config/rsa-bmrgicp
@@ -60,9 +64,15 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
     HELM_SSH_OPTS="-A -o LogLevel=error -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $HELM_SSH_PRIVATE_KEY -S $HELM_SSH_SOCK"
     HELM_SSH_CMD="ssh $HELM_SSH_OPTS $HELM_SSH_TUNNEL"
 
+<<<<<<< HEAD
     export HELM_RESOURCE_PATH=/tmp/.helm #needed for deploy step
     HELM_CLUSTER_CONFIG_PATH=$HELM_RESOURCE_PATH/$K8S_CLUSTER_NAME
     export HELM_TLS_STRING="--tls --tls-ca-cert $HELM_CLUSTER_CONFIG_PATH/ca.crt --tls-cert $HELM_CLUSTER_CONFIG_PATH/admin.crt --tls-key $HELM_CLUSTER_CONFIG_PATH/admin.key"  #needed for deploy step
+=======
+    HELM_RESOURCE_PATH=/tmp/.helm
+    HELM_CLUSTER_CONFIG_PATH=$HELM_RESOURCE_PATH/$K8S_CLUSTER_NAME
+    HELM_TLS_STRING="--tls --tls-ca-cert $HELM_CLUSTER_CONFIG_PATH/ca.crt --tls-cert $HELM_CLUSTER_CONFIG_PATH/admin.crt --tls-key $HELM_CLUSTER_CONFIG_PATH/admin.key"
+>>>>>>> c06bd099aba27ba3a4698468827cf8d4315e09ec
 
     echo "Installing Helm $HELM_VERSION ($HELM_PLATFORM-$HELM_ARCH) from $HELM_URL"
     curl '-#' -fL -o /tmp/helm.tar.gz --retry 5 $HELM_URL
