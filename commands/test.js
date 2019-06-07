@@ -58,7 +58,7 @@ module.exports = {
         fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", undefined, "<plugins>", replacementString, false);
       }
       await exec("less /data/workspace/pom.xml");
-      await exec(shellDir + '/test/unit-java.sh');
+      await exec(shellDir + '/test/unit-java.sh ' + taskProps['build.tool'] + ' ' + taskProps['version.name'] + ' ' + taskProps['global/sonar.url'] + ' ' + taskProps['global/sonar.api.key'] + ' ' + taskProps['system.component.id'] + ' ' + taskProps['system.component.name']);
       await exec(shellDir + '/common/footer.sh');
     } catch (e) {
       log.err("  Error encountered. Code: " + e.code + ", Message:", e.message);
