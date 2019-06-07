@@ -158,5 +158,91 @@ module.exports = {
     }
 
     log.debug("Finished Replace String In File Plugin");
+  },
+  replaceTokensInFile() {
+    // Replace tokens in files
+    log.debug("Started Replace Tokens in File Plugin");
+
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const {
+      path,
+      files,
+      tokenStartDelimiter, // need to use double escape "\\" before special characters like "$", otherwise the regex search will fail
+      tokenEndDelimiter,
+      replaceTokenMap,
+      flags = "g",
+      failIfNotFound = false
+    } = taskProps;
+
+    /* recursive function for deep search */
+    //   const walkSync = (dir, filelist) => {
+    //     const dirFiles = fs.readdirSync(dir);
+    //     filelist = filelist || [];
+    //     dirFiles.forEach(file => {
+    //       if (fs.statSync(filePath.join(dir, file)).isDirectory()) {
+    //         filelist = walkSync(filePath.join(dir, file), filelist);
+    //       }
+    //       else {
+    //         filelist.push(filePath.join(dir, file));
+    //       }
+    //     });
+    //     return filelist;
+    // };
+
+    const stringToRegexp = str => {
+      const lastSlash = str.lastIndexOf("/");
+      return new RegExp(str.slice(1, lastSlash), str.slice(lastSlash + 1));
+    };
+
+    try {
+      const allFileNames = fs.readdirSync(path);
+      let replaceFileNames = [];
+      if (Array.isArray(files)) {
+        allFileNames.forEach(fileName =>
+          files.forEach(file => {
+            if (stringToRegexp(file).test(fileName)) {
+              replaceFileNames.push(fileName);
+            }
+          })
+        );
+      } else {
+        allFileNames.forEach(fileName => {
+          if (stringToRegexp(files).test(fileName)) {
+            replaceFileNames.push(fileName);
+          }
+        });
+      }
+
+      if (failIfNotFound && replaceFileNames.length === 0)
+        throw new Error("Not found any matches.");
+
+      const allFilePaths = replaceFileNames.map(fileName =>
+        filePath.join(path, fileName)
+      );
+      const allFileContents = allFilePaths.map(fileDir =>
+        fs.readFileSync(fileDir, "utf-8")
+      );
+
+      const newFileContents = allFileContents.map(fileContent => {
+        let file = fileContent;
+        Object.keys(replaceTokenMap).forEach(tokenKey => {
+          const expression = new RegExp(
+            `(${tokenStartDelimiter})(${tokenKey})(${tokenEndDelimiter})`,
+            flags
+          );
+          file = file.replace(expression, replaceTokenMap[tokenKey]);
+        });
+        return file;
+      });
+
+      allFilePaths.forEach((fileDir, index) => {
+        fs.writeFileSync(fileDir, newFileContents[index], "utf-8");
+      });
+    } catch (e) {
+      log.err(e);
+      process.exit(1);
+    }
+
+    log.debug("Finished Replace Tokens in File Plugin");
   }
 };
