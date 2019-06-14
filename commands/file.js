@@ -170,8 +170,6 @@ module.exports = {
       log.err(e);
       process.exit(1);
     }
-
-    log.debug("Finished Replace String In File Plugin");
   },
   replaceTokensInFile() {
     // Replace tokens in files
