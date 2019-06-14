@@ -37,7 +37,7 @@ module.exports = {
           kubePort = "3000";
         }
         // TODO: orgProp = `echo $TEAM_NAME | sed 's/[^a-zA-Z0-0]//g' | tr '[:upper:]' '[:lower:]'`
-        fileCommand.replaceTokensInFileWithProps(shellDir + '/deploy', 'kube.yaml', '@', '@', taskProps, 'g');
+        fileCommand.replaceTokensInFileWithProps(shellDir + '/deploy', 'kube.yaml', "@", "@", taskProps, "g");
         await exec(shellDir + '/deploy/kubernetes.sh ' + shellDir + '/deploy/kube.yaml');
       } else if (taskProps['deploy.type'] === "helm") {
         await exec(shellDir + '/deploy/helm.sh ' + taskProps['global/helm.repo.url'] + ' ' + taskProps['global/deploy.helm.chart'] + ' ' + taskProps['global/deploy.helm.release'] + ' ' + taskProps['global/helm.image.tag'] + ' ' + taskProps['version.name']);
