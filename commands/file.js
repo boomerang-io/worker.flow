@@ -182,7 +182,8 @@ module.exports = {
       tokenStartDelimiter, // need to use double escape "\\" before special characters like "$", otherwise the regex search will fail
       tokenEndDelimiter,
       replaceTokenMap,
-      flags = "g",
+      filenameSearchFlags = "g",
+      tokenSearchFlags = "g",
       failIfNotFound = false
     } = taskProps;
 
@@ -201,14 +202,23 @@ module.exports = {
     //     return filelist;
     // };
 
-    this.replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, flags);
+    this.replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
 
     log.debug("Finished Replace Tokens in File Plugin");
   },
-  replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, flags) {
-    const stringToRegexp = str => {
-      const lastSlash = str.lastIndexOf("/");
-      return new RegExp(str.slice(1, lastSlash), str.slice(lastSlash + 1));
+  replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, filenameSearchFlags, tokenSearchFlags, failIfNotFound) {
+    const testFilename = (file, fileName) => {
+      let expression;
+      if (file.startsWith("/") && file.lastIndexOf("/") > 0) {
+        const lastSlash = file.lastIndexOf("/");
+        expression = new RegExp(
+          file.slice(1, lastSlash),
+          file.slice(lastSlash + 1)
+        );
+      } else {
+        expression = new RegExp(file, filenameSearchFlags);
+      }
+      return expression.test(fileName);
     };
 
     try {
@@ -217,14 +227,14 @@ module.exports = {
       if (Array.isArray(files)) {
         allFileNames.forEach(fileName =>
           files.forEach(file => {
-            if (stringToRegexp(file).test(fileName)) {
+            if (testFilename(file, fileName)) {
               replaceFileNames.push(fileName);
             }
           })
         );
       } else {
         allFileNames.forEach(fileName => {
-          if (stringToRegexp(files).test(fileName)) {
+          if (testFilename(files, fileName)) {
             replaceFileNames.push(fileName);
           }
         });
@@ -245,7 +255,7 @@ module.exports = {
         Object.keys(replaceTokenMap).forEach(tokenKey => {
           const expression = new RegExp(
             `(${tokenStartDelimiter})(${tokenKey})(${tokenEndDelimiter})`,
-            flags
+            tokenSearchFlags
           );
           file = file.replace(expression, replaceTokenMap[tokenKey]);
         });
