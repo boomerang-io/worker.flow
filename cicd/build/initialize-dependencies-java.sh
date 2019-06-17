@@ -17,6 +17,5 @@ elif [ "$BUILD_TOOL" == "gradle" ]; then
     export PATH=$PATH:/opt/gradle/gradle-$BUILD_TOOL_VERSION/bin
     gradle -v
 else
-    echo "ERROR: no build tool specified."
-    exit 1
+    exit 99
 fi
