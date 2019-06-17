@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: @system.team.name@-@system.component.name@
+  name: @process/org@-@process/component.name@
   namespace: @deploy.kube.namespace@
   annotations:
     platform: boomerang
@@ -10,9 +10,9 @@ spec:
   revisionHistoryLimit: 5
   selector:
     matchLabels:
-      org: @team.name@
-      component: @system.component.name@
-      env: @system.stage.name@
+      org: @process/org@
+      component: @process/component.name@
+      env: @system/stage.name@
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -20,23 +20,22 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      creationTimestamp: null
       labels:
-      org: @team.name@
-      component: @system.component.name@
-      env: @system.stage.name@
+        org: @process/org@
+        component: @process/component.name@
+        env: @system/stage.name@
     spec:
       containers:
-      - image: @global/container.registry.host@:@global/container.registry.port@/@team.name@/@image.name@:@version.name@
+      - image: @global/container.registry.host@:@global/container.registry.port@/@process/org@/@docker.image.name@:@version.name@
         imagePullPolicy: Always
         name: cntr
         ports:
         - name: port-cntr
-          containerPort: @kube.port@
+          containerPort: @process/port@
           protocol: TCP
         env:
         - name: DEPLOY_TARGET
-          value: '@system.stage.name@'
+          value: '@system/stage.name@'
       imagePullSecrets:
       - name: boomerang.registrykey
       restartPolicy: Always
@@ -44,7 +43,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: @system.team.name@-@system.component.name@
+  name: @process/org@-@process/component.name@
   namespace: @deploy.kube.namespace@
 spec:
   ports:
@@ -53,15 +52,15 @@ spec:
     protocol: TCP
     targetPort: port-cntr
   selector:
-    org: @team.name@
-    component: @system.component.name@
-    env: @system.stage.name@
+    org: @process/org@
+    component: @process/component.name@
+    env: @system/stage.name@
   sessionAffinity: None
 # ---
 # apiVersion: extensions/v1beta1
 # kind: Ingress
 # metadata:
-#   name: @system.team.name@-@system.component.name@
+#   name: @system.team.name@-@process/component.name@
 #   namespace: @deploy.kube.namespace@
 #   annotations:
 #     kubernetes.io/ingress.class: nginx

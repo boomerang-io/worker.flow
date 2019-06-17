@@ -4,8 +4,11 @@ class CICDError extends Error {
   constructor(code, stack) {
     var definedMessage = "An unknown error occurred. Please speak to your support representative.";
     switch (code) {
-      case 1:
+      case 98:
         definedMessage = "Unknown property encountered."
+        break;
+      case 99:
+        definedMessage = "No build tool specified but required."
         break;
       case 127:
         definedMessage = "A file required was not found."

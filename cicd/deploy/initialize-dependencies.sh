@@ -4,8 +4,12 @@
 
 DEPLOY_TYPE=$1
 DEPLOY_KUBE_VERSION=$2
+DEPLOY_KUBE_NAMESPACE=$3
+
+env
 
 if [ "$DEPLOY_TYPE" == "helm" ] || [ "$DEPLOY_TYPE" == "kubernetes" ]; then
+    echo "Configuring Kubernetes..."
     KUBE_HOME=/opt/bin
     KUBE_CLI=$KUBE_HOME/kubectl
     KUBE_CLI_VERSION=v1.10.2
@@ -13,7 +17,7 @@ if [ "$DEPLOY_TYPE" == "helm" ] || [ "$DEPLOY_TYPE" == "kubernetes" ]; then
     # Relies on proxy settings coming through if there is a proxy
     curl -L https://storage.googleapis.com/kubernetes-release/release/$KUBE_CLI_VERSION/bin/linux/amd64/kubectl -o $KUBE_CLI && chmod +x $KUBE_CLI
 
-    KUBE_NAMESPACE=bmrg-dev
+    KUBE_NAMESPACE=$DEPLOY_KUBE_NAMESPACE
     export KUBE_CLUSTER_HOST=wdc3.cloud.boomerangplatform.net #needed for deploy step
     KUBE_CLUSTER_IP=10.190.20.176
     KUBE_CLUSTER_PORT=8001
