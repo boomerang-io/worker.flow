@@ -15,8 +15,7 @@ REGISTRY_PASSWORD=$7
 if  [ -f "Dockerfile" ]; then
     /opt/bin/img build -t $IMAGE_NAME:$VERSION_NAME --build-arg BMRG_TAG=$VERSION_NAME --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY .
 else
-    echo "Have not implemented the creation of a Dockerfile."
-    exit 1
+    exit 96
 fi
 
 #ping -c 3 $REGISTRY_HOST

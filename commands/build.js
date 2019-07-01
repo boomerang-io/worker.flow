@@ -33,7 +33,7 @@ module.exports = {
       log.ci("Initializing Dependencies");
       if (taskProps['system.mode'] === "java.lib" || taskProps['system.mode'] === "java") {
         await exec(shellDir + '/build/initialize-dependencies-java.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version'] + ' ' + JSON.stringify(taskProps['global/artifactory.url']) + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
-      } else if (taskProps['system.mode'] === "nodejs") {
+      } else if (taskProps['system.mode'] === "nodejs-nextgen") {
         await exec(shellDir + '/build/initialize-dependencies-node.sh ' + taskProps['build.tool']);
       }
       log.ci("Retrieving Source Code");
@@ -42,9 +42,12 @@ module.exports = {
       if (taskProps['system.mode'] === "java.lib") {
         log.ci("Compile & Package Artifact(s)");
         await exec(shellDir + '/build/compile-package-jar.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version'] + ' ' + taskProps['version.name'] + ' ' + JSON.stringify(taskProps['global/maven.repo.url']) + ' ' + taskProps['global/maven.repo.id'] + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
-      } else {
+      } else if (taskProps['system.mode'] === "java") {
         log.ci("Compile Artifact(s)");
-        await exec(shellDir + '/build/compile.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version'] + ' ' + taskProps['version.name']);
+        await exec(shellDir + '/build/compile-java.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version'] + ' ' + taskProps['version.name'] + ' ' + JSON.stringify(taskProps['global/maven.repo.url']) + ' ' + taskProps['global/maven.repo.id'] + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
+      } else if (taskProps['system.mode'] === "nodejs-nextgen") {
+        log.ci("Compile Artifact(s)");
+        await exec(shellDir + '/build/compile-node.sh ' + taskProps['build.tool'] + ' ' + JSON.stringify(taskProps['global/artifactory.url']) + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
       }
       if (taskProps['docker.enable']) {
         log.ci("Packaging for Docker registry")
