@@ -56,26 +56,26 @@ spec:
     component: @process/component.name@
     env: @system/stage.name@
   sessionAffinity: None
-# ---
-# apiVersion: extensions/v1beta1
-# kind: Ingress
-# metadata:
-#   name: @system.team.name@-@process/component.name@
-#   namespace: @deploy.kube.namespace@
-#   annotations:
-#     kubernetes.io/ingress.class: nginx
-#     ingress.kubernetes.io/ssl-redirect: "true"
-#     ingress.kubernetes.io/rewrite-target: /
-# spec:
-#   tls:
-#   - hosts:
-#     - ${p:kubernetes.ingress}
-#     ${p?:bmrg.kubernetes.tls.secretname}
-#   rules:
-#     - host: ${p:kubernetes.ingress}
-#       http:
-#         paths:
-#           - path: ${p:kubernetes.ingress.root}/${p:bmrg.component}
-#             backend:
-#               serviceName: ${p:bmrg.org}-${p:bmrg.component}
-#               servicePort: port-svc
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: @process/org@-@process/component.name@
+  namespace: @deploy.kube.namespace@
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    ingress.kubernetes.io/ssl-redirect: "true"
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - @deploy.kube.host@
+    ${p?:bmrg.kubernetes.tls.secretname}
+  rules:
+    - host: @deploy.kube.host@
+      http:
+        paths:
+          - path: ${p:kubernetes.ingress.root}/${p:bmrg.component}
+            backend:
+              serviceName: @process/org@-@process/component.name@
+              servicePort: port-svc
