@@ -30,7 +30,7 @@ module.exports = {
     try {
       shell.cd("/data");
       log.ci("Initializing Dependencies");
-      await exec(shellDir + '/deploy/initialize-dependencies.sh ' + taskProps['deploy.type'] + ' ' + taskProps['deploy.kube.version'] + ' ' + taskProps['deploy.kube.namespace']);
+      await exec(shellDir + '/deploy/initialize-dependencies.sh ' + taskProps['deploy.type'] + ' ' + taskProps['deploy.kube.version'] + ' ' + taskProps['deploy.kube.namespace'] + ' ' + taskProps['deploy.kube.host'] + ' ' + taskProps['deploy.kube.ip'] + ' ' + taskProps['deploy.kube.token']);
       if (taskProps['deploy.type'] === "kubernetes") {
         var kubePort = "8080";
         if (taskProps['system.mode'] === "nodejs") {
@@ -41,7 +41,7 @@ module.exports = {
         taskProps['process/component.name'] = taskProps['system.component.name'].toString().replace(/[^a-zA-Z0-0]/g, "").toLowerCase();
         fileCommand.replaceTokensInFileWithProps(shellDir + '/deploy', 'kube.yaml', "@", "@", taskProps, "g", "g", true);
         await exec('less ' + shellDir + '/deploy/kube.yaml');
-        await exec(shellDir + '/deploy/kubernetes.sh ' + shellDir + '/deploy/kube.yaml' + ' ' + taskProps['deploy.kube.namespace']);
+        await exec(shellDir + '/deploy/kubernetes.sh ' + shellDir + '/deploy/kube.yaml' + ' ' + taskProps['deploy.kube.namespace'] + ' ' + taskProps['deploy.kube.host'] + ' ' + taskProps['deploy.kube.ip'] + ' ' + taskProps['deploy.kube.token']);
       } else if (taskProps['deploy.type'] === "helm") {
         await exec(shellDir + '/deploy/helm.sh ' + taskProps['global/helm.repo.url'] + ' ' + taskProps['global/deploy.helm.chart'] + ' ' + taskProps['global/deploy.helm.release'] + ' ' + taskProps['global/helm.image.tag'] + ' ' + taskProps['version.name']);
       }
