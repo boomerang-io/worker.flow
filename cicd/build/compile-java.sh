@@ -4,8 +4,32 @@
 
 BUILD_TOOL=$1
 BUILD_TOOL_VERSION=$2
-VERSION_NAME=$3
+VERSION_NAME=$3ART_URL=$4
+ART_REPO_ID=$5
+ART_REPO_USER=$6
+ART_REPO_PASSWORD=$7
+ART_REPO_HOME=~/.m2/repository
+if [ -d "/cache" ]; then
+    echo "Setting cache..."
+    mkdir -p /cache/repository
+    ls -ltr /cache
+    ART_REPO_HOME=/cache/repository
+fi
+
 if [ "$BUILD_TOOL" == "maven" ]; then
+    mkdir -p ~/.m2
+    cat >> ~/.m2/settings.xml <<EOL
+<settings>
+ <servers>
+   <server>
+     <id>$ART_REPO_ID</id>
+     <username>$ART_REPO_USER</username>
+     <password>$ART_REPO_PASSWORD</password>
+   </server>
+ </servers>
+ <localRepository>$ART_REPO_HOME</localRepository>
+</settings>
+EOL
     if [ "$HTTP_PROXY" != "" ]; then
         # Swap , for |
         MAVEN_PROXY_IGNORE=`echo "$NO_PROXY" | sed -e 's/ //g' -e 's/\"\,\"/\|/g' -e 's/\,\"/\|/g' -e 's/\"$//' -e 's/\,/\|/g'`
