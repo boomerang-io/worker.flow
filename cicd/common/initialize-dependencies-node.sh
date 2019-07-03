@@ -5,12 +5,21 @@
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
 BUILD_TOOL=$1
+ART_URL=$2
+ART_USER=$3
+ART_PASSWORD=$4
 
 if [ "$BUILD_TOOL" == "npm" ] || [ "$BUILD_TOOL" == "yarn" ]; then
     # TODO: Updated the dependencies and add user supplied ones
     apk add --no-cache curl-dev bash gcc g++ make libc6-compat libc-dev lcms2-dev libpng-dev automake autoconf libtool yarn  python && apk add --no-cache fftw-dev build-base --repository http://dl-3.alpinelinux.org/alpine/edge/testing --repository http://dl-3.alpinelinux.org/alpine/edge/main && apk add --no-cache nodejs nodejs-npm --repository http://dl-3.alpinelinux.org/alpine/edge/main
 else
     exit 99
+fi
+
+curl --insecure -u $ART_USER:$ART_PASSWORD $ART_URL/api/npm/boomeranglib-npm/auth/boomerang -o .npmrc
+
+if [ $DEBUG ]; then
+    less .npmrc
 fi
 
 yarn --version

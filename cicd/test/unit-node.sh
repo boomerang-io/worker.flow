@@ -17,7 +17,6 @@ curl --noproxy $NO_PROXY --insecure -X POST -u $SONAR_APIKEY: "$SONAR_URL/api/qu
 # Dependency for sonarscanner
 apk add openjdk8
 
-
 curl --insecure -o /opt/sonarscanner.zip -L https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492.zip
 unzip /opt/sonarscanner.zip -d /opt
 SONAR_FOLDER=`ls /opt | grep sonar-scanner`
@@ -27,9 +26,32 @@ if [ $DEBUG ]; then
 else
     SONAR_FLAGS=
 fi
-SCRIPT=$(node -pe "require('./package.json').scripts.lint");
+
+if [ "$BUILD_TOOL" == "npm" ] || [ "$BUILD_TOOL" == "yarn" ]; then
+    if [ -e 'yarn.lock' ]; then
+        echo "Running YARN install..."
+        yarn install --verbose
+    elif [ -e 'package-lock.json' ]; then
+        echo "Running NPM ci..."
+        npm ci --verbose
+    else
+        echo "Running NPM install..."
+        npm install --verbose
+    fi
+else
+    exit 99
+fi
+
+SCRIPT=$(node -pe "require('./package.json').scripts.test:ci");
 if [ "$SCRIPT" != "undefined" ]; then
-    npm run lint
-    $SONAR_FLAGS="$SONAR_FLAGS -Dsonar.eslint.reportPaths=report.json"
+    if [ "$BUILD_TOOL" == "npm" ]; then
+        npm run test:ci
+    elif [ "$BUILD_TOOL" == "yarn" ]; then
+        yarn test:ci
+    else
+        exit 99
+    fi
+else
+    exit 95
 fi
 $SONAR_HOME/bin/sonar-scanner -Dsonar.host.url=$SONAR_URL -Dsonar.sources=src -Dsonar.login=$SONAR_APIKEY -Dsonar.projectKey=$COMPONENT_ID -Dsonar.projectName="$COMPONENT_NAME" -Dsonar.projectVersion=$VERSION_NAME -Dsonar.scm.disabled=true $SONAR_FLAGS
