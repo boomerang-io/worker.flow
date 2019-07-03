@@ -3,13 +3,6 @@
 # ( printf '\n'; printf '%.0s-' {1..30}; printf ' Build Artifact '; printf '%.0s-' {1..30}; printf '\n\n' )
 
 BUILD_TOOL=$1
-ART_URL=$2
-ART_USER=$3
-ART_PASSWORD=$4
-
-curl --insecure -u $ART_USER:$ART_PASSWORD $ART_URL/api/npm/boomeranglib-npm/auth/boomerang -o .npmrc
-
-less .npmrc
 
 if [ "$BUILD_TOOL" == "npm" ] || [ "$BUILD_TOOL" == "yarn" ]; then
     if [ -e 'yarn.lock' ]; then
