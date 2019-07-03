@@ -4,6 +4,9 @@ class CICDError extends Error {
   constructor(code, stack) {
     var definedMessage = "An unknown error occurred. Please speak to your support representative.";
     switch (code) {
+      case 95:
+        definedMessage = "Unable to find test command."
+        break;
       case 96:
         definedMessage = "Unable to find Dockerfile."
         break;

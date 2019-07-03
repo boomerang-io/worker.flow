@@ -19,7 +19,7 @@ function exec(command) {
 
 module.exports = {
   async execute() {
-    log.debug("Inside Deploy Plugin");
+    log.debug("Started CICD Deploy Activity");
 
     const taskProps = utils.resolveCICDTaskInputProps();
     const shellDir = "/cli/cicd";
@@ -50,7 +50,7 @@ module.exports = {
       log.err("  Error encountered. Code: " + e.code + ", Message:", e.message);
       process.exit(1);
     } finally {
-      log.debug("End Deploy Plugin");
+      log.debug("Finished CICD Deploy Activity");
     }
   }
 };

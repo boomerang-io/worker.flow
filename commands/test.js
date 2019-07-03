@@ -20,7 +20,7 @@ function exec(command) {
 
 module.exports = {
   async execute() {
-    log.debug("Inside Test Plugin");
+    log.debug("Started CICD Test Activity");
 
     const taskProps = utils.resolveCICDTaskInputProps();
     const shellDir = "/cli/cicd";
@@ -28,18 +28,20 @@ module.exports = {
       verbose: true,
     }
 
-    var testTypes = taskProps['test.type'].split(',');
+    var testTypes = taskProps['test.type'] ? taskProps['test.type'].split(',') : [];
 
     try {
       shell.cd("/data");
-      if (taskProps['system.mode'] === "java.lib" || taskProps['system.mode'] === "java") {
-        log.ci("Initializing Dependencies");
-        await exec(shellDir + '/test/initialize-dependencies.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version']);
+      log.ci("Initializing Dependencies");
+      if (taskProps['system.mode'] === "lib.jar" || taskProps['system.mode'] === "java") {
+        await exec(shellDir + '/common/initialize-dependencies-java.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version']);
+      } else if (taskProps['system.mode'] === "nodejs-nextgen") {
+        await exec(shellDir + '/common/initialize-dependencies-node.sh ' + taskProps['build.tool'] + ' ' + JSON.stringify(taskProps['global/artifactory.url']) + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
       }
       log.ci("Retrieving Source Code");
       await exec(shellDir + '/common/git-clone.sh ' + taskProps['component/repoSshUrl'] + ' ' + taskProps['component/repoUrl'] + ' ' + taskProps['git.commit.id']);
       shell.cd("/data/workspace");
-      if (taskProps['system.mode'] === "java.lib" || taskProps['system.mode'] === "java") {
+      if (taskProps['system.mode'] === "lib.jar" || taskProps['system.mode'] === "java") {
         if (!fileCommand.checkFileContainsStringWithProps("/data/workspace/pom.xml", "<plugins>", undefined, false)) {
           log.debug("No Maven plugins found, adding...");
           var replacementString = fs.readFileSync(shellDir + '/test/unit-java-maven-plugins.xml', "utf-8");
@@ -73,13 +75,17 @@ module.exports = {
           log.debug("Commencing static tests");
           await exec(shellDir + '/test/static-node.sh ' + taskProps['build.tool'] + ' ' + taskProps['version.name'] + ' ' + taskProps['global/sonar.url'] + ' ' + taskProps['global/sonar.api.key'] + ' ' + taskProps['system.component.id'] + ' ' + taskProps['system.component.name']);
         }
+        if (testTypes.includes("unit")) {
+          log.debug("Commencing static tests");
+          await exec(shellDir + '/test/unit-node.sh ' + taskProps['build.tool'] + ' ' + taskProps['version.name'] + ' ' + taskProps['global/sonar.url'] + ' ' + taskProps['global/sonar.api.key'] + ' ' + taskProps['system.component.id'] + ' ' + taskProps['system.component.name']);
+        }
       }
       await exec(shellDir + '/common/footer.sh');
     } catch (e) {
       log.err("  Error encountered. Code: " + e.code + ", Message:", e.message);
       process.exit(1);
     } finally {
-      log.debug("End Test Plugin");
+      log.debug("Finished CICD Test Activity");
     }
   }
 };
