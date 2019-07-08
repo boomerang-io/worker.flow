@@ -112,18 +112,18 @@ module.exports = {
     log.debug("Started Check File Contains String Plugin");
 
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { path, string, flags, failIfNotFound = false } = taskProps;
+    const { path, expression, flags, failIfNotFound = false } = taskProps;
 
-    this.checkFileContainsStringWithProps(path, string, flags, failIfNotFound);
+    this.checkFileContainsStringWithProps(path, expression, flags, failIfNotFound);
 
     log.debug("Finished Check File Contains String Plugin");
   },
-  checkFileContainsStringWithProps(path, string, flags, failIfNotFound) {
+  checkFileContainsStringWithProps(path, expression, flags, failIfNotFound) {
     try {
       const file = fs.readFileSync(path, "utf-8");
       let result;
 
-      const fileExpression = new RegExp(string, flags ? flags : undefined);
+      const fileExpression = new RegExp(expression, flags ? flags : undefined);
       result = fileExpression.test(file);
 
       if (failIfNotFound && !result) {
@@ -143,23 +143,22 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const {
       path,
-      flags,
-      findString,
+      expression,
       replaceString,
+      flags,
       failIfNotFound = false
     } = taskProps;
 
-    // TODO: standardize order of parameters with checkFileContainsString
-    this.replaceStringInFileWithProps(path, flags, findString, replaceString, failIfNotFound);
+    this.replaceStringInFileWithProps(path, expression, replaceString, flags, failIfNotFound);
 
     log.debug("Finished Replace String In File Plugin");
   },
-  replaceStringInFileWithProps(path, flags, findString, replaceString, failIfNotFound) {
+  replaceStringInFileWithProps(path, expression, replaceString, flags, failIfNotFound) {
     try {
       const file = fs.readFileSync(path, "utf-8");
       let result;
 
-      const fileExpression = new RegExp(findString, flags ? flags : undefined);
+      const fileExpression = new RegExp(expression, flags ? flags : undefined);
       if (failIfNotFound && !fileExpression.test(file))
         throw new Error("Not found any matches.");
       result = file.replace(fileExpression, replaceString);

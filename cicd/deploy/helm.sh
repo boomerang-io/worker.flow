@@ -8,6 +8,15 @@ VERSION_NAME=$5
 
 helm --home $HELM_RESOURCE_PATH repo add boomerang-charts $HELM_REPO_URL
 
+str="Learn-to-Split-a-String-in-Bash-Scripting"
+ 
+IFS=',' # comma (,) is set as delimiter
+read -ra ADDR <<< "$str" # str is read into an array as tokens separated by IFS
+for i in "${ADDR[@]}"; do # access each element of array
+    echo "$i"
+done
+IFS=' '
+
 CHART_VERSION=`helm list --home $HELM_RESOURCE_PATH $HELM_TLS_STRING --debug --kube-context $KUBE_CLUSTER_HOST-context $CHART_RELEASE | grep $CHART_NAME | rev | cut -d $'\t' -f 2- | sed -e 's/^[[:space:]]*//' | cut -d ' ' -f 1 | rev | sed 's/.*-//'`
 echo "Chart Version: $CHART_VERSION"
 

@@ -28,7 +28,7 @@ module.exports = {
       verbose: true,
     }
 
-    var testTypes = taskProps['test.type'] ? taskProps['test.type'].split(',') : [];
+    var testTypes = taskProps['test.type'] !== undefined ? taskProps['test.type'].split(',') : [];
 
     try {
       shell.cd("/data");
@@ -45,22 +45,22 @@ module.exports = {
         if (!fileCommand.checkFileContainsStringWithProps("/data/workspace/pom.xml", "<plugins>", undefined, false)) {
           log.debug("No Maven plugins found, adding...");
           var replacementString = fs.readFileSync(shellDir + '/test/unit-java-maven-plugins.xml', "utf-8");
-          fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", undefined, "<plugins>", replacementString, false);
+          fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", "<plugins>", replacementString, undefined, false);
         }
         if (!fileCommand.checkFileContainsStringWithProps("/data/workspace/pom.xml", "<artifactId>jacoco-maven-plugin</artifactId>", undefined, false)) {
           log.debug("...adding jacoco-maven-plugin.");
           var replacementString = fs.readFileSync(shellDir + '/test/unit-java-maven-jacoco.xml', "utf-8");
-          fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", undefined, "<plugins>", replacementString, false);
+          fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", "<plugins>", replacementString, undefined, false);
         }
         if (!fileCommand.checkFileContainsStringWithProps("/data/workspace/pom.xml", "<artifactId>sonar-maven-plugin</artifactId>", undefined, false)) {
           log.debug("...adding sonar-maven-plugin.");
           var replacementString = fs.readFileSync(shellDir + '/test/unit-java-maven-sonar.xml', "utf-8");
-          fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", undefined, "<plugins>", replacementString, false);
+          fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", "<plugins>", replacementString, undefined, false);
         }
         if (!fileCommand.checkFileContainsStringWithProps("/data/workspace/pom.xml", "<artifactId>maven-surefire-report-plugin</artifactId>", undefined, false)) {
           log.debug("...adding maven-surefire-report-plugin.");
           var replacementString = fs.readFileSync(shellDir + '/test/unit-java-maven-surefire.xml', "utf-8");
-          fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", undefined, "<plugins>", replacementString, false);
+          fileCommand.replaceStringInFileWithProps("/data/workspace/pom.xml", "<plugins>", replacementString, undefined, false);
         }
         if (testTypes.includes("static")) {
           log.debug("Commencing static tests");
