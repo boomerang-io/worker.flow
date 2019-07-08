@@ -9,9 +9,11 @@ RUN ls -ltr /props
 COPY ./data/uploadfile.txt /data/
 RUN ls -ltr /data
 WORKDIR /cli
-ADD ./cli.js ./log.js ./utils.js ./config.js  ./package.json ./
+ADD ./cli.js ./log.js ./error.js ./utils.js ./config.js  ./package.json ./
 ADD ./commands ./commands
 RUN ls -ltr && yarn install && yarn link
 RUN curl --version && ls -ltr /cli/commands
+
+ENV DEBUG=true
 
 ENTRYPOINT [ "node", "cli" ]
