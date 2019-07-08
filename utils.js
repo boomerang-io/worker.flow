@@ -38,7 +38,14 @@ module.exports = (function () {
         `${workflowProps.WF_PROPS_PATH}/${file}`,
         "utf8"
       );
-      const parsedProps = properties.parse(contents);
+      log.debug("  File: " + file + " Content: " + contents);
+      var options = {
+        comments: "#",
+        separators: "=",
+        strict: true
+      };
+      const parsedProps = properties.parse(contents, options);
+      log.debug("  File: " + file + " Parsed Content: ", parsedProps);
       accum[file] = parsedProps;
       return accum;
     }, {});

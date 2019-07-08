@@ -18,7 +18,8 @@ module.exports = {
           log.err(err);
           throw err;
         }
-        log.debug("The file was succesfully saved!");
+        log.debug("The file was succesfully saved! File contents:");
+        log.debug(fs.readFileSync(path, "utf-8"));
       });
     } catch (e) {
       log.err(e);
