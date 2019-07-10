@@ -7,6 +7,7 @@
   "author": "Tyson Lawrie <twlawrie@us.ibm.com>",
   "license": "MIT",
   "dependencies": {
+    "@octokit/rest": "^16.28.2",
     "@slack/client": "^4.8.0",
     "axios": "^0.18.0",
     "bluebird": "^3.5.3",
