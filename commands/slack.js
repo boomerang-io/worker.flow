@@ -48,7 +48,8 @@ module.exports = {
         channel: channel,
         username: username,
         icon_emoji: icon,
-        text: JSON.stringify(message),
+        text: message,
+        ts: datetime.create().epoch()
       },
       async function (err, res) {
         if (err) {
@@ -66,19 +67,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { url, channel, username, message, icon } = taskProps;
-
-    /** @todo Implement a variable check */
-    if (!url) {
-      log.debug(url);
-      log.err("URL has not been set");
-      return process.exit(1);
-    }
-    if (!channel) {
-      log.debug(channel);
-      log.err("Channel or user has not been set");
-      return process.exit(1);
-    }
+    const { url, channel, username, fallback, blocks, icon } = taskProps;
 
     // const url = "***REMOVED***";
     let webhook = new IncomingWebhook(url);
@@ -115,18 +104,9 @@ module.exports = {
         channel: channel,
         username: username,
         icon_emoji: icon,
-        attachments: [
-          {
-            fallback: "This is a test.",
-            color: "#36a64f",
-            title: title,
-            text: message,
-            image_url: "http://my-website.com/path/to/image.jpg",
-            thumb_url: "http://example.com/path/to/thumb.png",
-            footer: "Boomerang Flow",
-            ts: datetime.create().epoch()
-          }
-        ]
+        ts: datetime.create().epoch(),
+        text: fallback,
+        blocks: blocks,
       },
       async function (err, res) {
         if (err) {

@@ -41,7 +41,7 @@ _TODO:_ update how this works.
 1. Build with the Dockerfile-test by passing in `-f Dockerfile.test` to the docker build command
 2. Run and pass in required commander parameters `docker run -i -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:test -- slack sendWebhook`
 
-Example: `docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:test -f Dockerfile.test . && docker push tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:test`
+Example: `docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:test -f Dockerfile.test . && docker run -i -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:test -- slack sendWebhook`
 
 _Note 1:_ This requires developers to have kept this dockerfile up to date
 _Note 2:_ The test Dockerfile will try to immitate the peices that Kubernetes Controller takes care of such as mounting a `/data` directory and `/props/*.properties`
