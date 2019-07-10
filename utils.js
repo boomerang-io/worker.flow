@@ -38,7 +38,7 @@ module.exports = (function () {
         `${workflowProps.WF_PROPS_PATH}/${file}`,
         "utf8"
       );
-      log.debug("  File: " + file + " Content: " + contents);
+      log.debug("  File: " + file + " Original Content: " + contents);
       var options = {
         comments: "#",
         separators: "=",
@@ -49,9 +49,6 @@ module.exports = (function () {
       accum[file] = parsedProps;
       return accum;
     }, {});
-
-  log.debug(props);
-
   return {
     /** @todo implement */
     substituteTaskInputValueForWFInputsProperty(taskProp) { },
@@ -188,7 +185,9 @@ module.exports = (function () {
     },
     setOutputProperties(properties) {
       log.debug("Inside setOutputProperties Utility");
-
+      /**
+       * Please note the current limitation that this method can only be called once.
+       */
       //Validation that properties is in fact an array of key values
       try {
         if (!(Object.keys(properties) && typeof properties === "object")) {

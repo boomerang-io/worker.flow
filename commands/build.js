@@ -80,7 +80,7 @@ module.exports = {
       await exec(shellDir + '/common/git-clone.sh ' + taskProps['component/repoSshUrl'] + ' ' + taskProps['component/repoUrl'] + ' ' + taskProps['git.commit.id']);
       shell.cd("/data/workspace");
       log.ci("Compile & Package Artifact(s)");
-      await exec(shellDir + '/build/compile-package-jar.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version'] + ' ' + taskProps['version.name'] + ' ' + JSON.stringify(taskProps['global/maven.repo.url']) + ' ' + taskProps['global/maven.repo.id'] + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
+      await exec(shellDir + '/build/compile-package-jar.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version'] + ' ' + taskProps['version.name'].substring(0, taskProps['version.name'].lastIndexOf("-")) + ' ' + JSON.stringify(taskProps['global/maven.repo.url']) + ' ' + taskProps['global/maven.repo.id'] + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
       if (taskProps['docker.enable']) {
         log.ci("Packaging for Docker registry")
         await exec(shellDir + '/build/package-docker.sh ' + taskProps['docker.image.name'] + ' ' + taskProps['version.name'] + ' ' + JSON.stringify(taskProps['team.name']) + ' ' + JSON.stringify(taskProps['global/container.registry.host']) + ' ' + taskProps['global/container.registry.port'] + ' ' + taskProps['global/container.registry.user'] + ' ' + taskProps['global/container.registry.password']);
