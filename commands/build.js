@@ -32,7 +32,9 @@ module.exports = {
       shell.cd("/data");
       log.ci("Initializing Dependencies");
       if (taskProps['system.mode'] === "lib.jar" || taskProps['system.mode'] === "java") {
-        await exec(shellDir + '/common/initialize-dependencies-java.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version'] + ' ' + JSON.stringify(taskProps['global/artifactory.url']) + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
+        await exec(shellDir + '/common/initialize-dependencies-java.sh ' + taskProps['language.version']);
+        log.ci("Initializing Language Dependencies");
+        await exec(shellDir + '/common/initialize-dependencies-java-tool.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version']);
       } else if (taskProps['system.mode'] === "nodejs-nextgen") {
         await exec(shellDir + '/common/initialize-dependencies-node.sh ' + taskProps['build.tool'] + ' ' + JSON.stringify(taskProps['global/artifactory.url']) + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
       }
@@ -41,7 +43,7 @@ module.exports = {
       shell.cd("/data/workspace");
       if (taskProps['system.mode'] === "lib.jar") {
         log.ci("Compile & Package Artifact(s)");
-        await exec(shellDir + '/build/compile-package-jar.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version'] + ' ' + taskProps['version.name'] + ' ' + JSON.stringify(taskProps['global/maven.repo.url']) + ' ' + taskProps['global/maven.repo.id'] + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
+        await exec(shellDir + '/build/compile-package-jar.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version'] + ' ' + taskProps['version.name'].substr(0, taskProps['version.name'].lastIndexOf("-")) + ' ' + JSON.stringify(taskProps['global/maven.repo.url']) + ' ' + taskProps['global/maven.repo.id'] + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
       } else if (taskProps['system.mode'] === "java") {
         log.ci("Compile Artifact(s)");
         await exec(shellDir + '/build/compile-java.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version'] + ' ' + taskProps['version.name'] + ' ' + JSON.stringify(taskProps['global/maven.repo.url']) + ' ' + taskProps['global/maven.repo.id'] + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
