@@ -34,7 +34,9 @@ module.exports = {
       shell.cd("/data");
       log.ci("Initializing Dependencies");
       if (taskProps['system.mode'] === "lib.jar" || taskProps['system.mode'] === "java") {
-        await exec(shellDir + '/common/initialize-dependencies-java.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version']);
+        await exec(shellDir + '/common/initialize-dependencies-java.sh ' + taskProps['language.version']);
+        log.ci("Initializing Language Dependencies");
+        await exec(shellDir + '/common/initialize-dependencies-java-tool.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version']);
       } else if (taskProps['system.mode'] === "nodejs-nextgen") {
         await exec(shellDir + '/common/initialize-dependencies-node.sh ' + taskProps['build.tool'] + ' ' + JSON.stringify(taskProps['global/artifactory.url']) + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
       }
