@@ -2,21 +2,14 @@
 
 # ( printf '\n'; printf '%.0s-' {1..30}; printf ' Initialize Dependencies '; printf '%.0s-' {1..30}; printf '\n\n' )
 
-apk add curl curl-dev wget openjdk8
+apk add curl curl-dev wget
 
-BUILD_TOOL=$1
-BUILD_TOOL_VERSION=$2
-if [ "$BUILD_TOOL" == "maven" ]; then
-    echo "Installing maven ..."
-    apk add maven
-    # TODO update to use build tool if specified
-elif [ "$BUILD_TOOL" == "gradle" ]; then
-    echo "Installing gradle ..."
-    wget https://services.gradle.org/distributions/gradle-$BUILD_TOOL_VERSION-bin.zip
-    mkdir -p /opt/gradle
-    unzip -d /opt/gradle gradle-$BUILD_TOOL_VERSION-bin.zip
-    export PATH=$PATH:/opt/gradle/gradle-$BUILD_TOOL_VERSION/bin
-    gradle -v
+BUILD_LANGUAGE_VERSION=$1
+
+if [ "$BUILD_LANGUAGE_VERSION" == "11" ]; then
+    echo "Language version specified. Installing Java 11..."
+    apk --no-cache add openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 else
-    exit 99
+    echo "No language version specified. Defaulting to Java 8..."
+    apk add openjdk8
 fi
