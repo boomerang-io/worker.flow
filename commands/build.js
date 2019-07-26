@@ -33,10 +33,11 @@ module.exports = {
       log.ci("Initializing Dependencies");
       if (taskProps['system.mode'] === "lib.jar" || taskProps['system.mode'] === "java") {
         await exec(shellDir + '/common/initialize-dependencies-java.sh ' + taskProps['language.version']);
-        log.ci("Initializing Language Dependencies");
         await exec(shellDir + '/common/initialize-dependencies-java-tool.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version']);
-      } else if (taskProps['system.mode'] === "nodejs-nextgen") {
+      } else if (taskProps['system.mode'] === "nodejs") {
         await exec(shellDir + '/common/initialize-dependencies-node.sh ' + taskProps['build.tool'] + ' ' + JSON.stringify(taskProps['global/artifactory.url']) + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
+      } else if (taskProps['system.mode'] === "python") {
+        await exec(shellDir + '/common/initialize-dependencies-python.sh ' + taskProps['language.version']);
       }
       log.ci("Retrieving Source Code");
       await exec(shellDir + '/common/git-clone.sh ' + taskProps['component/repoSshUrl'] + ' ' + taskProps['component/repoUrl'] + ' ' + taskProps['git.commit.id']);
@@ -47,9 +48,12 @@ module.exports = {
       } else if (taskProps['system.mode'] === "java") {
         log.ci("Compile Artifact(s)");
         await exec(shellDir + '/build/compile-java.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version'] + ' ' + taskProps['version.name'] + ' ' + JSON.stringify(taskProps['global/maven.repo.url']) + ' ' + taskProps['global/maven.repo.id'] + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
-      } else if (taskProps['system.mode'] === "nodejs-nextgen") {
+      } else if (taskProps['system.mode'] === "nodejs") {
         log.ci("Compile Artifact(s)");
         await exec(shellDir + '/build/compile-node.sh ' + taskProps['build.tool']);
+      } else if (taskProps['system.mode'] === "python") {
+        log.ci("Compile Artifact(s)");
+        await exec(shellDir + '/build/compile-python.sh ' + taskProps['language.version']);
       }
       if (taskProps['docker.enable']) {
         log.ci("Packaging for Docker registry")
