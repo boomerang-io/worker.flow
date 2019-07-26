@@ -62,7 +62,7 @@ module.exports = {
     const { url, token, org, repos } = taskProps;
 
     try {
-      // reposArray = repos !== null ? repos.split("\n") : [];
+      reposArray = repos !== null ? repos.split("\n") : [];
       if (process.env.HTTP_PROXY) {
         httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
       } else {
@@ -77,30 +77,39 @@ module.exports = {
         request: {
           agent: httpsAgent
         }
-      })
-      let teamIds = [];
-      await octokit.repos.listTeams({
-        owner: org,
-        repo: repos
-      }).then(({ data }) => {
-        log.good("Successful retrieval of repositories teams");
-        Object.entries(data)
-          .forEach(team => {
-            log.debug(team[1]);
-            teamIds.push({ id: team[1].id, repo: repos });
+      });
+      const teamsDataRequests = Object.values(reposArray).map(repo => {
+        return octokit.repos.listTeams({
+          owner: org,
+          repo: repo
+        })
+          .then(teamData => {
+            log.debug(teamData.data);
+            return {
+              ids: Object.values(teamData.data).map(team => {
+                log.debug("Found Id: ", team.id);
+                return team.id
+              }), repo: repo
+            };
           });
-      })
-      log.debug(teamIds);
-      await teamIds.forEach(({ id, repo }) => {
-        log.debug(id + ":" + repo);
-        // TODO: how do i handle promise error when inside a function inside a function
-        // TODO: if you get back a 404 it means the Access Token doesn't have permissions to teams.
-        octokit.teams.createDiscussion({
-          team_id: id,
-          title: "Repository Marked As Private",
-          body: "Your friendly neighborhood bot, Boomerang Joe, has marked **" + repo + "** as **private**.\n\n_If you have any questions or concerns please contact your Boomerang DevOps representative._"
+      });
+      const teamsData = await Promise.all(teamsDataRequests);
+      log.good("Successful retrieval of repositories and team ids");
+      const teamIdRequests = teamsData.map(({ ids, repo }) => {
+        log.debug(ids, ":", repo);
+        Object.values(ids).forEach(id => {
+          log.debug(id, ":", repo);
+          return octokit.teams.createDiscussion({
+            team_id: id,
+            title: "Repository Marked As Private",
+            body: "Your friendly neighborhood bot, Boomerang Joe, has marked **" + repo + "** as **private**.\n\n_If you have any questions or concerns please contact your Boomerang DevOps representative._"
+          });
         });
-      })
+        // TODO: if you get back a 404 it means the Access Token doesn't have permissions to teams.
+      });
+
+      // dispatch all of the promises asynchronously
+      await Promise.all(teamIdRequests);
     } catch (error) {
       log.err(error);
       process.exit(1);

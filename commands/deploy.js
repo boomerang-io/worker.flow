@@ -31,6 +31,7 @@ module.exports = {
       shell.cd("/data");
       log.ci("Initializing Dependencies");
       await exec(shellDir + '/deploy/initialize-dependencies.sh ' + taskProps['deploy.type'] + ' ' + taskProps['deploy.kube.version'] + ' ' + taskProps['deploy.kube.namespace'] + ' ' + taskProps['deploy.kube.host'] + ' ' + taskProps['deploy.kube.ip'] + ' ' + taskProps['deploy.kube.token']);
+      log.ci("Deploy Artifacts");
       if (taskProps['deploy.type'] === "kubernetes") {
         var kubePort = "8080";
         if (taskProps['system.mode'] === "nodejs") {
@@ -43,13 +44,13 @@ module.exports = {
         await exec('less ' + shellDir + '/deploy/kube.yaml');
         await exec(shellDir + '/deploy/kubernetes.sh ' + shellDir + '/deploy/kube.yaml' + ' ' + taskProps['deploy.kube.namespace'] + ' ' + taskProps['deploy.kube.host'] + ' ' + taskProps['deploy.kube.ip'] + ' ' + taskProps['deploy.kube.token']);
       } else if (taskProps['deploy.type'] === "helm") {
-        await exec(shellDir + '/deploy/helm.sh ' + taskProps['global/helm.repo.url'] + ' ' + taskProps['global/deploy.helm.chart'] + ' ' + taskProps['global/deploy.helm.release'] + ' ' + taskProps['global/helm.image.tag'] + ' ' + taskProps['version.name']);
+        await exec(shellDir + '/deploy/helm.sh ' + taskProps['global/helm.repo.url'] + ' ' + taskProps['deploy.helm.chart'] + ' ' + taskProps['deploy.helm.release'] + ' ' + taskProps['helm.image.tag'] + ' ' + taskProps['version.name'] + ' ' + taskProps['deploy.kube.host'] + ' ' + taskProps['deploy.kube.namespace']);
       }
-      await exec(shellDir + '/common/footer.sh');
     } catch (e) {
       log.err("  Error encountered. Code: " + e.code + ", Message:", e.message);
       process.exit(1);
     } finally {
+      await exec(shellDir + '/common/footer.sh');
       log.debug("Finished CICD Deploy Activity");
     }
   }

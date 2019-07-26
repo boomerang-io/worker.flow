@@ -55,11 +55,11 @@ module.exports = {
         log.ci("Packaging for Docker registry")
         await exec(shellDir + '/build/package-docker.sh ' + taskProps['docker.image.name'] + ' ' + taskProps['version.name'] + ' ' + JSON.stringify(taskProps['team.name']) + ' ' + JSON.stringify(taskProps['global/container.registry.host']) + ' ' + taskProps['global/container.registry.port'] + ' ' + taskProps['global/container.registry.user'] + ' ' + taskProps['global/container.registry.password']);
       }
-      await exec(shellDir + '/common/footer.sh');
     } catch (e) {
       log.err("  Error encountered. Code: " + e.code + ", Message:", e.message);
       process.exit(1);
     } finally {
+      await exec(shellDir + '/common/footer.sh');
       log.debug("Finished CICD Build Activity");
     }
   },
