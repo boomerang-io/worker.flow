@@ -39,10 +39,19 @@ module.exports = (function () {
         "utf8"
       );
       log.debug("  File: " + file + " Original Content: " + contents);
+      // Updated strict options for parsing multiline properties from textarea boxes.
       var options = {
         comments: "#",
         separators: "=",
-        strict: true
+        strict: true,
+        reviver: function (key, value, section) {
+          if (key != null && value == null) {
+            return '';
+          } else {
+            //Returns all the lines
+            return this.assert();
+          }
+        }
       };
       const parsedProps = properties.parse(contents, options);
       log.debug("  File: " + file + " Parsed Content: ", parsedProps);

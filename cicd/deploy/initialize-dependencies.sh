@@ -39,12 +39,27 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
     BUILD_HARNESS_OS=$(uname -s | tr '[:upper:]' '[:lower:]')
     BUILD_HARNESS_ARCH=$(uname -m | sed 's/x86_64/amd64/g')
 
+    # NOTE:
+    #  THe following variables are shared with helm.sh for deploy step
     K8S_CLUSTER_NAME=wdc3.cloud.boomerangplatform.net
+    HELM_RESOURCE_PATH=/tmp/.helm 
+    HELM_CLUSTER_CONFIG_PATH=$HELM_RESOURCE_PATH/$K8S_CLUSTER_NAME
+    HELM_TLS_STRING="--tls --tls-ca-cert $HELM_CLUSTER_CONFIG_PATH/ca.crt --tls-cert $HELM_CLUSTER_CONFIG_PATH/admin.crt --tls-key $HELM_CLUSTER_CONFIG_PATH/admin.key"
+    # END
+
+    
     K8S_CLUSTER_MASTER_IP=10.190.20.176
     K8S_CLUSTER_VERSION=$DEPLOY_KUBE_VERSION
     K8S_CLUSTER_MAJOR_VERSION=`echo $K8S_CLUSTER_VERSION | cut -d "." -f 1`
     K8S_CLUSTER_SSH_USER=root
-    K8S_CLUSTER_SSH_PRIVATE_KEY=/cli/scripts/config/rsa-bmrgicp
+    K8S_CLUSTER_SSH_PRIVATE_KEY=/cli/cicd/config/rsa-bmrgicp
+    if [ -f "$K8S_CLUSTER_SSH_PRIVATE_KEY" ]; then
+        echo "Adjusting permissions and checking SSH key exists."
+        chmod 700 $K8S_CLUSTER_SSH_PRIVATE_KEY
+    else
+        echo "SSH Key not found."
+        exit 1
+    fi
 
     HELM_VERSION=v2.7.2
     if [ "$K8S_CLUSTER_MAJOR_VERSION" = "2" ]
@@ -66,10 +81,6 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
     HELM_SSH_SOCK=/tmp/helm-$HELM_SSH_TUNNEL
     HELM_SSH_OPTS="-A -o LogLevel=error -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $HELM_SSH_PRIVATE_KEY -S $HELM_SSH_SOCK"
     HELM_SSH_CMD="ssh $HELM_SSH_OPTS $HELM_SSH_TUNNEL"
-
-    HELM_RESOURCE_PATH=/tmp/.helm #needed for deploy step
-    HELM_CLUSTER_CONFIG_PATH=$HELM_RESOURCE_PATH/$K8S_CLUSTER_NAME
-    HELM_TLS_STRING="--tls --tls-ca-cert $HELM_CLUSTER_CONFIG_PATH/ca.crt --tls-cert $HELM_CLUSTER_CONFIG_PATH/admin.crt --tls-key $HELM_CLUSTER_CONFIG_PATH/admin.key"  #needed for deploy step
 
     echo "Installing Helm $HELM_VERSION ($HELM_PLATFORM-$HELM_ARCH) from $HELM_URL"
     curl '-#' -fL -o /tmp/helm.tar.gz --retry 5 $HELM_URL
@@ -94,7 +105,7 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
     cat >> ~/.ssh/config <<EOL
 host $GIT_REPO_HOST
     StrictHostKeyChecking no
-    IdentityFile ./scripts/rsa-bmrgicp
+    IdentityFile $K8S_CLUSTER_SSH_PRIVATE_KEY
 EOL
 
     echo "Copying K8S certificates to Helm config folder for ICP v$K8S_CLUSTER_VERSION"
