@@ -46,7 +46,7 @@ module.exports = (function () {
         strict: true,
         reviver: function (key, value, section) {
           if (key != null && value == null) {
-            return '';
+            return '""';
           } else {
             //Returns all the lines
             return this.assert();

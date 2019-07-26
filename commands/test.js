@@ -40,7 +40,7 @@ module.exports = {
           await exec(shellDir + '/common/initialize-dependencies-java.sh ' + taskProps['language.version']);
           log.ci("Initializing Language Dependencies");
           await exec(shellDir + '/common/initialize-dependencies-java-tool.sh ' + taskProps['build.tool'] + ' ' + taskProps['build.tool.version']);
-        } else if (taskProps['system.mode'] === "nodejs-nextgen") {
+        } else if (taskProps['system.mode'] === "nodejs") {
           await exec(shellDir + '/common/initialize-dependencies-node.sh ' + taskProps['build.tool'] + ' ' + JSON.stringify(taskProps['global/artifactory.url']) + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
         }
         log.ci("Retrieving Source Code");
@@ -75,7 +75,7 @@ module.exports = {
             log.debug("Commencing unit tests");
             await exec(shellDir + '/test/unit-java.sh ' + taskProps['build.tool'] + ' ' + taskProps['version.name'] + ' ' + taskProps['global/sonar.url'] + ' ' + taskProps['global/sonar.api.key'] + ' ' + taskProps['system.component.id'] + ' ' + taskProps['system.component.name']);
           }
-        } else if (taskProps['system.mode'] === "nodejs-nextgen") {
+        } else if (taskProps['system.mode'] === "nodejs") {
           if (testTypes.includes("static")) {
             log.debug("Commencing static tests");
             await exec(shellDir + '/test/static-node.sh ' + taskProps['build.tool'] + ' ' + taskProps['version.name'] + ' ' + taskProps['global/sonar.url'] + ' ' + taskProps['global/sonar.api.key'] + ' ' + taskProps['system.component.id'] + ' ' + taskProps['system.component.name']);
