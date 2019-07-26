@@ -19,12 +19,12 @@ IMG_OPTS=
 #     mkdir -p /cache/img
 #     # Note: Need to set permissons as if the cache has previously been saved then a different user will own
 #     chmod -R 755 /cache/img 
-#     IMG_OPTS="-s /cache/img"
+#     IMG_OPTS+="-s /cache/img"
 #     ls -ltr /cache
 # fi
 if [ "$DEBUG" == "true" ]; then
     echo "Enabling debug logging..."
-    IMG_OPTS=$IMG_OPTS "-d"
+    IMG_OPTS+="-d"
 fi
 
 if  [ -f "Dockerfile" ]; then
