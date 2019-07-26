@@ -4,6 +4,15 @@ class CICDError extends Error {
   constructor(code, stack) {
     var definedMessage = "An unknown error occurred. Please speak to your support representative.";
     switch (code) {
+      case 92:
+        definedMessage = "Helm chart release is required to auto detect the helm chart. To override specify the helm chart(s) in your CI stage as a comma delimited list."
+        break;
+      case 93:
+        definedMessage = "Kubernetes namespace is required to auto detect helm release. To override specify helm release in your CI stage."
+        break;
+      case 94:
+        definedMessage = "Unable to detect helm chart version."
+        break;
       case 95:
         definedMessage = "Unable to find test command."
         break;
