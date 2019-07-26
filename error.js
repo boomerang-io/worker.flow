@@ -26,7 +26,7 @@ class CICDError extends Error {
         definedMessage = "Unknown property encountered."
         break;
       case 99:
-        definedMessage = "No build tool specified but required."
+        definedMessage = "No build tool and/or language specified but required."
         break;
       case 127:
         definedMessage = "A file required was not found."
