@@ -7,11 +7,6 @@ RUN apk add --no-cache bash sed grep curl coreutils nodejs yarn ca-certificates 
 WORKDIR /opt/bin
 RUN curl -fSL "https://github.com/genuinetools/img/releases/download/v0.5.7/img-linux-amd64" -o "/opt/bin/img" && chmod a+x "/opt/bin/img"
 
-COPY ./props /props/
-RUN ls -ltr /props
-COPY ./data/uploadfile.txt /data/
-RUN ls -ltr /data
-
 WORKDIR /cli
 ADD ./cli.js ./log.js ./error.js ./utils.js ./config.js ./package.json ./
 ADD ./cicd ./cicd
