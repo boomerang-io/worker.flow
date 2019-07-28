@@ -14,17 +14,14 @@ KUBE_CLUSTER_HOST=$DEPLOY_KUBE_HOST
 K8S_CLUSTER_NAME=$DEPLOY_KUBE_HOST
 HELM_RESOURCE_PATH="/tmp/.helm"
 HELM_CLUSTER_CONFIG_PATH=$HELM_RESOURCE_PATH/$K8S_CLUSTER_NAME
-HELM_TLS_STRING="--tls --tls-ca-cert $HELM_CLUSTER_CONFIG_PATH/ca.crt --tls-cert $HELM_CLUSTER_CONFIG_PATH/admin.crt --tls-key $HELM_CLUSTER_CONFIG_PATH/admin.key"
+HELM_TLS_STRING="--tls --tls-ca-cert \"$HELM_CLUSTER_CONFIG_PATH/ca.crt\" --tls-cert \"$HELM_CLUSTER_CONFIG_PATH/admin.crt\" --tls-key \"$HELM_CLUSTER_CONFIG_PATH/admin.key\""
 # END
 
 helm --home $HELM_RESOURCE_PATH repo add boomerang-charts $HELM_REPO_URL
 
 if [ -z "$CHART_NAME" ] && [ ! -z "$CHART_RELEASE" ]; then
     echo "Auto detecting chart name..."
-    if [ "$DEBUG" == "true" ]; then
-        echo "helm list --home $HELM_RESOURCE_PATH $HELM_TLS_STRING --kube-context $KUBE_CLUSTER_HOST-context ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk '{print $2}' | cut -d '-' -f 2- | rev"
-    fi
-    CHART_NAME=`helm list --home $HELM_RESOURCE_PATH $HELM_TLS_STRING --kube-context $KUBE_CLUSTER_HOST-context ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk '{print $2}' | cut -d '-' -f 2- | rev`
+    CHART_NAME=`helm list --home $HELM_RESOURCE_PATH --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk '{print $2}' | cut -d '-' -f 2- | rev`
 elif [ -z "$CHART_NAME" ] && [ -z "$CHART_RELEASE" ]; then
     exit 92
 fi
@@ -37,24 +34,18 @@ for CHART in "${HELM_CHARTS_ARRAY[@]}"; do
     if [[ -z "$CHART_RELEASE" ]] && [ ! -z "$DEPLOY_KUBE_NAMESPACE" ]; then
         echo "Auto detecting chart release..."
         echo "Note: This only works if there is only one release of the chart in the provided namespace."
-        if [ "$DEBUG" == "true" ]; then
-            echo "helm list --home $HELM_RESOURCE_PATH $HELM_TLS_STRING --kube-context $KUBE_CLUSTER_HOST-context | grep $CHART | grep $DEPLOY_KUBE_NAMESPACE | awk '{print $1}'"
-        fi
-        CHART_RELEASE=`helm list --home $HELM_RESOURCE_PATH $HELM_TLS_STRING --kube-context $KUBE_CLUSTER_HOST-context | grep $CHART | grep $DEPLOY_KUBE_NAMESPACE | awk '{print $1}'`
+        CHART_RELEASE=`helm list --home $HELM_RESOURCE_PATH --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" | grep $CHART | grep $DEPLOY_KUBE_NAMESPACE | awk '{print $1}'`
     elif [ -z "$CHART_RELEASE" ] && [ -z "$DEPLOY_KUBE_NAMESPACE" ]; then
         exit 93
     fi
-    echo "Chart Release: $CHART_RELEASE"
+    echo "Current Chart Release: $CHART_RELEASE"
 
-    if [ "$DEBUG" == "true" ]; then
-        echo "helm list --home $HELM_RESOURCE_PATH $HELM_TLS_STRING -kube-context $KUBE_CLUSTER_HOST-context ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk '{print $2}' | cut -d '-' -f 1 | rev"
-    fi
-    CHART_VERSION=`helm list --home $HELM_RESOURCE_PATH $HELM_TLS_STRING -kube-context $KUBE_CLUSTER_HOST-context ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk '{print $2}' | cut -d '-' -f 1 | rev`
-    echo "Chart Version: $CHART_VERSION"
+    CHART_VERSION=`helm list --home $HELM_RESOURCE_PATH --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk '{print $2}' | cut -d '-' -f 1 | rev`
+    echo "Current Chart Version: $CHART_VERSION"
     if [ -z "$CHART_VERSION" ]; then
         exit 94
     fi
 
-    helm upgrade --home $HELM_RESOURCE_PATH $HELM_TLS_STRING_UPGRADE --debug --kube-context $KUBE_CLUSTER_HOST-context --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
+    helm upgrade --home $HELM_RESOURCE_PATH --debug --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
 done
 IFS=' '
