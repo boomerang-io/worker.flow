@@ -27,8 +27,10 @@ if [ "$DEBUG" == "true" ]; then
     IMG_OPTS+="-d"
 fi
 
+/opt/bin/img build -h
+
 if  [ -f "Dockerfile" ]; then
-    /opt/bin/img build -t $IMAGE_NAME:$VERSION_NAME $IMG_OPTS --build-arg BMRG_TAG=$VERSION_NAME --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg NO_PROXY=$NO_PROXY --build-arg no_proxy=$NO_PROXY .
+    /opt/bin/img build -t $IMAGE_NAME:$VERSION_NAME $IMG_OPTS --add-host $REGISTRY_HOST:$REGISTRY_PORT --build-arg BMRG_TAG=$VERSION_NAME --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg NO_PROXY=$NO_PROXY --build-arg no_proxy=$NO_PROXY .
 else
     exit 96
 fi
