@@ -54,6 +54,9 @@ module.exports = {
       } else if (taskProps['system.mode'] === "python") {
         log.ci("Compile Artifact(s)");
         await exec(shellDir + '/build/compile-python.sh ' + taskProps['language.version']);
+      } else if (taskProps['system.mode'] === "lib.wheel") {
+    	log.ci("Compile & Package Artifact(s)");
+    	await exec(shellDir + '/build/compile-package-python-wheel.sh ' + taskProps['language.version'] + ' ' + taskProps['version.name'].substr(0, taskProps['version.name'].lastIndexOf("-")) + ' ' + JSON.stringify(taskProps['global/pypi.repo.url']) + ' ' + taskProps['global/pypi.repo.id'] + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
       }
       if (taskProps['docker.enable']) {
         log.ci("Packaging for Docker registry")
