@@ -9,16 +9,17 @@ const {
 } = config;
 //const axios = require("axios");
 const fetch = require("node-fetch");
-const Promise = require("bluebird");
 const fs = require("fs");
 
 /**
  * Use IFFE to enscapsulate properties
  */
-module.exports = (function () {
+module.exports = (function() {
   // Read in property files
   const files = fs.readdirSync(workflowProps.WF_PROPS_PATH);
   log.debug("Property Files Found:", files);
+
+  log.debug("Environment Variables\n", process.env);
 
   /**
    * Filter out files that don't match
@@ -44,7 +45,7 @@ module.exports = (function () {
         comments: "#",
         separators: "=",
         strict: true,
-        reviver: function (key, value, section) {
+        reviver: function(key, value, section) {
           if (key != null && value == null) {
             return '""';
           } else {
@@ -60,7 +61,7 @@ module.exports = (function () {
     }, {});
   return {
     /** @todo implement */
-    substituteTaskInputValueForWFInputsProperty(taskProp) { },
+    substituteTaskInputValueForWFInputsProperty(taskProp) {},
     /**
      * Substitute task props that have workflow property notation with corrsponding workflow props
      * @returns Object
@@ -74,14 +75,20 @@ module.exports = (function () {
         props[PROPS_FILES_CONFIG.WORKFLOW_INPUT_PROPS_FILENAME];
       //log.debug(taskInputProps);
       const substitutedTaskInputProps = Object.entries(taskInputProps)
-        .filter(taskInputEntry =>
-          log.debug("Value Found:", taskInputEntry[1]) ||
-          workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])
+        .filter(
+          taskInputEntry =>
+            log.debug("Value Found:", taskInputEntry[1]) ||
+            workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])
           //typeof taskInputEntry[1] == "string" && !!taskInputEntry[1].match(workflowProps.WF_PROPS_PATTERN)
         ) //Test the value, and return arrays that match pattern
         .map(filteredProps => {
-          log.debug("Task property found requiring substitutions:", filteredProps);
-          const matchedProps = filteredProps[1].match(workflowProps.WF_PROPS_PATTERN_GLOBAL); //Get value from entries array, find match for our property pattern, pull out first matching group
+          log.debug(
+            "Task property found requiring substitutions:",
+            filteredProps
+          );
+          const matchedProps = filteredProps[1].match(
+            workflowProps.WF_PROPS_PATTERN_GLOBAL
+          ); //Get value from entries array, find match for our property pattern, pull out first matching group
           log.debug("Property references in match:", matchedProps);
 
           for (var property of matchedProps) {
@@ -119,7 +126,10 @@ module.exports = (function () {
                 "with:",
                 replacementStr
               );
-              filteredProps[1] = filteredProps[1].replace(property, replacementStr);
+              filteredProps[1] = filteredProps[1].replace(
+                property,
+                replacementStr
+              );
             }
           }
           return filteredProps;
@@ -138,16 +148,20 @@ module.exports = (function () {
     },
     resolveCICDTaskInputProps() {
       log.debug("Resolving properties");
-      const taskInputProps = props[PROPS_FILES_CONFIG.TASK_INPUT_PROPS_FILENAME];
+      const taskInputProps =
+        props[PROPS_FILES_CONFIG.TASK_INPUT_PROPS_FILENAME];
       const substitutedTaskInputProps = Object.entries(taskInputProps)
-        .filter(taskInputEntry =>
-          log.debug(taskInputEntry[0], "=", taskInputEntry[1]) ||
-          workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])
+        .filter(
+          taskInputEntry =>
+            log.debug(taskInputEntry[0], "=", taskInputEntry[1]) ||
+            workflowProps.WF_PROPS_PATTERN.test(taskInputEntry[1])
           //typeof taskInputEntry[1] == "string" && !!taskInputEntry[1].match(workflowProps.WF_PROPS_PATTERN)
         ) //Test the value, and return arrays that match pattern
         .map(filteredEntry => {
           log.debug("Property found requiring substitutions:", filteredEntry);
-          const matchedProps = filteredEntry[1].match(workflowProps.WF_PROPS_PATTERN_GLOBAL); //Get value from entries array, find match for our property pattern, pull out first matching group
+          const matchedProps = filteredEntry[1].match(
+            workflowProps.WF_PROPS_PATTERN_GLOBAL
+          ); //Get value from entries array, find match for our property pattern, pull out first matching group
           log.debug("Property references in match:", matchedProps);
           for (var property of matchedProps) {
             /** @todo use original regex for capture group of key*/
@@ -156,7 +170,10 @@ module.exports = (function () {
               ? taskInputProps[`${propertyKey}`]
               : "";
             log.debug("Replacing property:", property, "with:", replacementStr);
-            filteredEntry[1] = filteredEntry[1].replace(property, replacementStr);
+            filteredEntry[1] = filteredEntry[1].replace(
+              property,
+              replacementStr
+            );
           }
           return filteredEntry;
         })
