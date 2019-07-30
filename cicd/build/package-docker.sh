@@ -11,6 +11,9 @@ REGISTRY_HOST=$4
 REGISTRY_PORT=$5
 REGISTRY_USER=$6
 REGISTRY_PASSWORD=$7
+ART_URL=$8
+ART_USER=$9
+ART_PASSWORD=${10}
 
 IMG_OPTS=
 # Note: currently disabled as it actually slows the build down copying out to the mounted PVC.
@@ -27,17 +30,13 @@ if [ "$DEBUG" == "true" ]; then
     IMG_OPTS+="-d"
 fi
 
-/opt/bin/img build -h
-
 if  [ -f "Dockerfile" ]; then
-    /opt/bin/img build -t $IMAGE_NAME:$VERSION_NAME $IMG_OPTS --add-host $REGISTRY_HOST:$REGISTRY_PORT --build-arg BMRG_TAG=$VERSION_NAME --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg NO_PROXY=$NO_PROXY --build-arg no_proxy=$NO_PROXY .
+    /opt/bin/img build -t $IMAGE_NAME:$VERSION_NAME $IMG_OPTS --build-arg BMRG_TAG=$VERSION_NAME --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg NO_PROXY=$NO_PROXY --build-arg no_proxy=$NO_PROXY --build-arg ART_USER=$ART_USER --build-arg ART_PASSWORD=$ART_PASSWORD --build-arg ART_URL=$ART_URL .
 else
     exit 96
 fi
 
-#ping -c 3 $REGISTRY_HOST
-
-/opt/bin/img ls $IMG_OPTS "$IMAGE_NAME:$VERSION_NAME"       
+/opt/bin/img ls $IMG_OPTS "$IMAGE_NAME:$VERSION_NAME"
 /opt/bin/img tag $IMG_OPTS "$IMAGE_NAME:$VERSION_NAME" "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
 /opt/bin/img ls $IMG_OPTS "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
 /opt/bin/img login $IMG_OPTS -u=$REGISTRY_USER -p=$REGISTRY_PASSWORD "$REGISTRY_HOST:$REGISTRY_PORT"   
@@ -45,4 +44,6 @@ fi
 #https://github.com/genuinetools/img/issues/128?_pjax=%23js-repo-pjax-container
 #/opt/bin/img push -d ${p:docker.registry.host}:${p:docker.registry.port}/${p:bmrg.org}/${p:bmrg.image.name}:${p:version.name}
 /opt/bin/img save $IMG_OPTS -o $IMAGE_NAME_$VERSION_NAME.tar "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
+
+ping -c 3 $REGISTRY_HOST
 skopeo --debug copy --dest-tls-verify=false docker-archive:$IMAGE_NAME_$VERSION_NAME.tar docker://"$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
