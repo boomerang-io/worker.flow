@@ -1,11 +1,11 @@
 #Import the base docker image built on top of Alpine
-FROM alpine:3.9 
-
-#Add Packages
-RUN apk add --no-cache bash sed grep curl coreutils nodejs yarn ca-certificates make openssh-client git socat && apk add -v skopeo --repository http://dl-cdn.alpinelinux.org/alpine/edge/community
+FROM alpine:3.9
 
 WORKDIR /opt/bin
-RUN curl -fSL "https://github.com/genuinetools/img/releases/download/v0.5.7/img-linux-amd64" -o "/opt/bin/img" && chmod a+x "/opt/bin/img"
+
+#Add Packages
+RUN apk add --no-cache bash sed grep curl coreutils nodejs yarn ca-certificates make openssh-client git socat skopeo && \
+    curl -fSL "https://github.com/genuinetools/img/releases/download/v0.5.7/img-linux-amd64" -o "/opt/bin/img" && chmod a+x "/opt/bin/img"
 
 WORKDIR /cli
 ADD ./cli.js ./log.js ./error.js ./utils.js ./config.js ./package.json ./
