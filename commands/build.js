@@ -29,7 +29,7 @@ module.exports = {
     }
 
     try {
-      shell.cd("/data");
+      await exec(shellDir + '/common/initialize.sh ' + taskProps['language.version']);
       log.ci("Initializing Dependencies");
       if (taskProps['system.mode'] === "lib.jar" || taskProps['system.mode'] === "java") {
         await exec(shellDir + '/common/initialize-dependencies-java.sh ' + taskProps['language.version']);
@@ -57,7 +57,7 @@ module.exports = {
       }
       if (taskProps['docker.enable']) {
         log.ci("Packaging for Docker registry")
-        await exec(shellDir + '/build/package-docker.sh ' + taskProps['docker.image.name'] + ' ' + taskProps['version.name'] + ' ' + JSON.stringify(taskProps['team.name']) + ' ' + JSON.stringify(taskProps['global/container.registry.host']) + ' ' + taskProps['global/container.registry.port'] + ' ' + taskProps['global/container.registry.user'] + ' ' + taskProps['global/container.registry.password']);
+        await exec(shellDir + '/build/package-docker.sh ' + taskProps['docker.image.name'] + ' ' + taskProps['version.name'] + ' ' + JSON.stringify(taskProps['team.name']) + ' ' + JSON.stringify(taskProps['global/container.registry.host']) + ' ' + taskProps['global/container.registry.port'] + ' ' + taskProps['global/container.registry.user'] + ' ' + taskProps['global/container.registry.password'] + ' ' + JSON.stringify(taskProps['global/artifactory.url']) + ' ' + taskProps['global/artifactory.user'] + ' ' + taskProps['global/artifactory.password']);
       }
     } catch (e) {
       log.err("  Error encountered. Code: " + e.code + ", Message:", e.message);

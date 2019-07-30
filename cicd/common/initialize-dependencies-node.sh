@@ -16,10 +16,10 @@ else
     exit 99
 fi
 
-curl --insecure -u $ART_USER:$ART_PASSWORD $ART_URL/api/npm/boomeranglib-npm/auth/boomerang -o .npmrc
+curl -k -u $ART_USER:$ART_PASSWORD $ART_URL/api/npm/boomeranglib-npm/auth/boomerang -o ~/.npmrc
 
 if [ $DEBUG ]; then
-    less .npmrc
+    less ~/.npmrc
 fi
 
 yarn --version
