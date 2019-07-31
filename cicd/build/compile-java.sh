@@ -38,7 +38,6 @@ EOL
     fi
     echo "MAVEN_OPTS=$MAVEN_OPTS"
     mvn clean package -Dmaven.test.skip=true -Dversion.name=$VERSION_NAME
-    ls -ltr target
 elif [ "$BUILD_TOOL" == "gradle" ]; then
     if [ "$HTTP_PROXY" != "" ]; then
         # Swap , for |
