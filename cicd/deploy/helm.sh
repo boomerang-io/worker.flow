@@ -26,6 +26,8 @@ elif [ -z "$CHART_NAME" ] && [ -z "$CHART_RELEASE" ]; then
     exit 92
 fi
 echo "Chart Name(s): $CHART_NAME"
+echo "Chart Image Tag: $HELM_IMAGE_KEY"
+echo "Chart Image Version: $VERSION_NAME"
 
 IFS=',' # comma (,) is set as delimiter
 read -ra HELM_CHARTS_ARRAY <<< "$CHART_NAME"
@@ -47,5 +49,10 @@ for CHART in "${HELM_CHARTS_ARRAY[@]}"; do
     fi
 
     helm upgrade --home $HELM_RESOURCE_PATH --debug --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
+    RESULT=$?
+    if [ $RESULT -ne 0 ] ; then
+        exit 91
+    fi
+    CHART_RELEASE=
 done
 IFS=' '
