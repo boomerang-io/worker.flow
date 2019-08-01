@@ -47,7 +47,9 @@ git clone --progress --verbose -n $GIT_CLONE_URL $WORKSPACE_FOLDER
 
 if  [ -d "$WORKSPACE_FOLDER" ]; then
     cd $WORKSPACE_FOLDER
-    ls -ltr
+    if [ "$DEBUG" == "true" ]; then
+        ls -ltr
+    fi
     git checkout --progress --recurse-submodules $GIT_COMMIT_ID
 else
     echo "Git workspace does not exist"
