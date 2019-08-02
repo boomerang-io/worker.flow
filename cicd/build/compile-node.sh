@@ -20,8 +20,7 @@ else
 fi
 
 SCRIPT=$(node -pe "require('./package.json').scripts.build");
-if [ "$SCRIPT" != "undefined" ]
-then
+if [ "$SCRIPT" != "undefined" ]; then
     if [ "$BUILD_TOOL" == "npm" ]; then
         npm run build
     elif [ "$BUILD_TOOL" == "yarn" ]; then
@@ -30,6 +29,6 @@ then
         exit 97
     fi
 else
-    exit 97
+    # exit 97
+    echo "Build script not defined in package.json. Skipping."
 fi
-
