@@ -1,6 +1,7 @@
 const log = require("../log.js");
 const utils = require("../utils.js");
-const Octokit = require('@octokit/rest');
+const Octokit = require("@octokit/rest");
+// https://octokit.github.io/rest.js/
 const HttpsProxyAgent = require("https-proxy-agent");
 
 module.exports = {
@@ -21,33 +22,33 @@ module.exports = {
 
       const octokit = Octokit({
         auth: token,
-        userAgent: 'Boomerang Flow Joe Bot',
+        userAgent: "Boomerang Flow Joe Bot",
         baseUrl: url,
         log: console,
         request: {
           agent: httpsAgent
         }
-      })
-      await octokit.repos.listForOrg({
-        org: org,
-        type: 'public'
-      }).then(({ data }) => {
-        log.good("Successful retrieval of public repositories");
-        log.debug("Repositories to skip:", skipReposArray);
-        filteredRepos = Object.entries(data)
-          .filter(entry =>
-            !skipReposArray.includes(entry[1].name)
-          )
-          .map(entry => {
-            log.debug(JSON.stringify(entry[1]));
-            return entry[1].name;
-          });
-        log.good("Public Repositories:", filteredRepos);
-        let outputProperties = {};
-        outputProperties["repositories"] = JSON.stringify(filteredRepos);
-        outputProperties["repositoriesPrettyPrint"] = "- " + filteredRepos.join("\n- ");
-        utils.setOutputProperties(outputProperties);
-      })
+      });
+      await octokit.repos
+        .listForOrg({
+          org: org,
+          type: "public"
+        })
+        .then(({ data }) => {
+          log.good("Successful retrieval of public repositories");
+          log.debug("Repositories to skip:", skipReposArray);
+          filteredRepos = Object.entries(data)
+            .filter(entry => !skipReposArray.includes(entry[1].name))
+            .map(entry => {
+              log.debug(JSON.stringify(entry[1]));
+              return entry[1].name;
+            });
+          log.good("Public Repositories:", filteredRepos);
+          let outputProperties = {};
+          outputProperties["repositories"] = JSON.stringify(filteredRepos);
+          outputProperties["repositoriesPrettyPrint"] = "- " + filteredRepos.join("\n- ");
+          utils.setOutputProperties(outputProperties);
+        });
     } catch (error) {
       log.err(error);
       process.exit(1);
@@ -71,7 +72,7 @@ module.exports = {
 
       const octokit = Octokit({
         auth: token,
-        userAgent: 'Boomerang Flow Joe Bot',
+        userAgent: "Boomerang Flow Joe Bot",
         baseUrl: url,
         log: console,
         request: {
@@ -79,17 +80,19 @@ module.exports = {
         }
       });
       const teamsDataRequests = Object.values(reposArray).map(repo => {
-        return octokit.repos.listTeams({
-          owner: org,
-          repo: repo
-        })
+        return octokit.repos
+          .listTeams({
+            owner: org,
+            repo: repo
+          })
           .then(teamData => {
             log.debug(teamData.data);
             return {
               ids: Object.values(teamData.data).map(team => {
                 log.debug("Found Id: ", team.id);
-                return team.id
-              }), repo: repo
+                return team.id;
+              }),
+              repo: repo
             };
           });
       });
