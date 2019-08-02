@@ -85,7 +85,17 @@ module.exports = {
         await exec(shellDir + "/build/compile-node.sh " + taskProps["build.tool"]);
       } else if (taskProps["system.mode"] === "python") {
         log.ci("Compile Artifact(s)");
-        await exec(shellDir + "/build/compile-python.sh " + taskProps["language.version"]);
+        await exec(
+          shellDir + "/build/compile-python.sh " + taskProps["language.version"] +
+            " " +
+            JSON.stringify(taskProps["global/pypi.registry.host"]) +
+            " " +
+            taskProps["global/pypi.repo.id"] +
+            " " +
+            taskProps["global/pypi.repo.user"] +
+            " " +
+            taskProps["global/pypi.repo.password"]
+        );
       } else if (taskProps["system.mode"] === "lib.wheel") {
         log.ci("Compile & Package Artifact(s)");
         await exec(
