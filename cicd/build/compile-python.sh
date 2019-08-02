@@ -9,6 +9,11 @@ ART_REPO_USER=$4
 ART_REPO_PASSWORD=$5
 ART_REPO_HOME=~/.pip/pip.conf
 
+# Create pip home directory
+ART_REPO_DIR=`echo $ART_REPO_HOME | rev | cut -d '/' -f2- | rev`
+mkdir -p $ART_REPO_DIR
+
+# Create Artifactory references for library download
 cat >> $ART_REPO_HOME <<EOL
 [global]
 extra-index-url=https://$ART_REPO_USER:$ART_REPO_PASSWORD@$ART_REGISTRY_HOST/$ART_REPO_ID/simple
@@ -16,6 +21,7 @@ extra-index-url=https://$ART_REPO_USER:$ART_REPO_PASSWORD@$ART_REGISTRY_HOST/$AR
 extra-index-url=https://$ART_REPO_USER:$ART_REPO_PASSWORD@$ART_REGISTRY_HOST/$ART_REPO_ID/simple
 EOL
 
+# Build
 if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
 	pip install --upgrade pip
 
