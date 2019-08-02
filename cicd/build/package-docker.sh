@@ -30,6 +30,9 @@ if [ "$DEBUG" == "true" ]; then
     IMG_OPTS+="-d"
 fi
 
+# Login first in case someone is using a docker base image from our registry
+/opt/bin/img login $IMG_OPTS -u=$REGISTRY_USER -p=$REGISTRY_PASSWORD "$REGISTRY_HOST:$REGISTRY_PORT"
+
 if  [ -f "Dockerfile" ]; then
     /opt/bin/img build -t $IMAGE_NAME:$VERSION_NAME $IMG_OPTS --build-arg BMRG_TAG=$VERSION_NAME --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg NO_PROXY=$NO_PROXY --build-arg no_proxy=$NO_PROXY --build-arg ART_USER=$ART_USER --build-arg ART_PASSWORD=$ART_PASSWORD --build-arg ART_URL=$ART_URL .
     RESULT=$?
@@ -42,8 +45,7 @@ fi
 
 /opt/bin/img ls $IMG_OPTS "$IMAGE_NAME:$VERSION_NAME"
 /opt/bin/img tag $IMG_OPTS "$IMAGE_NAME:$VERSION_NAME" "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
-/opt/bin/img ls $IMG_OPTS "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
-/opt/bin/img login $IMG_OPTS -u=$REGISTRY_USER -p=$REGISTRY_PASSWORD "$REGISTRY_HOST:$REGISTRY_PORT"   
+# /opt/bin/img ls $IMG_OPTS "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
 #img push currently returns 404 every now and then when working with docker registries
 #https://github.com/genuinetools/img/issues/128?_pjax=%23js-repo-pjax-container
 #/opt/bin/img push -d ${p:docker.registry.host}:${p:docker.registry.port}/${p:bmrg.org}/${p:bmrg.image.name}:${p:version.name}
