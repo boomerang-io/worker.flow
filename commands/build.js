@@ -133,7 +133,7 @@ module.exports = {
       }
     } catch (e) {
       log.err("  Error encountered. Code: " + e.code + ", Message:", e.message);
-      process.exit(1);
+      process.exit(e.code);
     } finally {
       await exec(shellDir + "/common/footer.sh");
       log.debug("Finished CICD Build Activity");
