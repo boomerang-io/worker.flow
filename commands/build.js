@@ -105,7 +105,7 @@ module.exports = {
         );
       }
       await exec("ls -ltR");
-      if (taskProps["docker.enable"]) {
+      if (taskProps["system.mode"] === "docker" || taskProps["docker.enable"]) {
         log.ci("Packaging for Docker registry");
         await exec(
           shellDir +
