@@ -16,9 +16,9 @@ mkdir -p $ART_REPO_DIR
 # Create Artifactory references for library download
 cat >> $ART_REPO_HOME <<EOL
 [global]
-extra-index-url=https://$ART_REPO_USER:$ART_REPO_PASSWORD@$ART_REGISTRY_HOST/api/pypi/$ART_REPO_ID/simple
+extra-index-url=https://$ART_REPO_USER:$ART_REPO_PASSWORD@$ART_REGISTRY_HOST/artifactory/api/pypi/$ART_REPO_ID/simple
 [install]
-extra-index-url=https://$ART_REPO_USER:$ART_REPO_PASSWORD@$ART_REGISTRY_HOST/api/pypi/$ART_REPO_ID/simple
+extra-index-url=https://$ART_REPO_USER:$ART_REPO_PASSWORD@$ART_REGISTRY_HOST/artifactory/api/pypi/$ART_REPO_ID/simple
 EOL
 
 # Build python application
