@@ -25,7 +25,7 @@ EOL
 if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
 	pip install --upgrade pip
 
-	if [-f Dockerfile] && [grep -q "requirements.txt" Dockerfile]; then
+	if [ -f Dockerfile ] && [ grep -q "requirements.txt" Dockerfile ]; then
 		echo "requirements.txt in Dockerfile"
 	else:
 		if [ -f requirements.txt ]; then
@@ -38,7 +38,7 @@ if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
 elif [ "$BUILD_LANGUAGE_VERSION" == "3" ]; then
 	pip3 install --upgrade pip
 
-	if [-f Dockerfile] && [grep -q "requirements.txt" Dockerfile]; then
+	if [ -f Dockerfile ] && [ grep -q "requirements.txt" Dockerfile ]; then
 		echo "requirements.txt in Dockerfile"
 	else:
 		if [ -f requirements.txt ]; then
