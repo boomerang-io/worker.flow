@@ -21,13 +21,15 @@ extra-index-url=https://$ART_REPO_USER:$ART_REPO_PASSWORD@$ART_REGISTRY_HOST/$AR
 extra-index-url=https://$ART_REPO_USER:$ART_REPO_PASSWORD@$ART_REGISTRY_HOST/$ART_REPO_ID/simple
 EOL
 
-# Build
+# Build python application
 if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
 	pip install --upgrade pip
 
-	if [ -f Dockerfile ] && [ grep -q "requirements.txt" Dockerfile ]; then
-		echo "requirements.txt in Dockerfile"
-	else:
+	if [ -f "Dockerfile" ]; then
+		if grep -q "requirements.txt" Dockerfile; then
+			echo "requirements.txt in Dockerfile"
+		fi
+	else
 		if [ -f requirements.txt ]; then
 		    echo "Using requirements.txt file found in project to install dependencies"
 		    pip install -r requirements.txt
@@ -38,9 +40,11 @@ if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
 elif [ "$BUILD_LANGUAGE_VERSION" == "3" ]; then
 	pip3 install --upgrade pip
 
-	if [ -f Dockerfile ] && [ grep -q "requirements.txt" Dockerfile ]; then
-		echo "requirements.txt in Dockerfile"
-	else:
+	if [ -f Dockerfile ]; then
+	 	if grep -q "requirements.txt" Dockerfile; then
+			echo "requirements.txt in Dockerfile"
+		fi
+	else
 		if [ -f requirements.txt ]; then
 		    echo "Using requirements.txt file found in project to install dependencies"
 		    pip3 install -r requirements.txt
