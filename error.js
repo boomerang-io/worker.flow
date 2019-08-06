@@ -11,7 +11,7 @@ class CICDError extends Error {
         definedMessage = "Helm chart upgrade failed. Please review the error message.";
         break;
       case 92:
-        definedMessage = "Helm chart release is required to auto detect the helm chart. To override specify the helm chart(s) in your CI stage as a comma delimited list.";
+        definedMessage = "Helm chart release is required to auto detect the helm chart. To override specify the helm chart(s) in your CI stage, component, or version properties as a comma delimited list.";
         break;
       case 93:
         definedMessage = "Kubernetes namespace is required to auto detect helm release. To override specify helm release in your CI stage.";
