@@ -9,8 +9,6 @@ DEPLOY_KUBE_HOST=$4
 DEPLOY_KUBE_IP=$5
 DEPLOY_KUBE_TOKEN=$6
 
-env
-
 if [ "$DEPLOY_TYPE" == "helm" ] || [ "$DEPLOY_TYPE" == "kubernetes" ]; then
     echo "Configuring Kubernetes..."
     KUBE_HOME=/opt/bin
@@ -79,7 +77,11 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
     HELM_SSH_PRIVATE_KEY=$K8S_CLUSTER_SSH_PRIVATE_KEY
     HELM_SSH_TUNNEL=$HELM_SSH_USER@$HELM_SSH_BASTION
     HELM_SSH_SOCK=/tmp/helm-$HELM_SSH_TUNNEL
-    HELM_SSH_OPTS="-A -o LogLevel=debug -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $HELM_SSH_PRIVATE_KEY -S $HELM_SSH_SOCK"
+    HELM_SSH_OPTS="-A -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $HELM_SSH_PRIVATE_KEY -S $HELM_SSH_SOCK"
+    if [ "$DEBUG" == "true" ]; then
+        echo "Enabling debug logging..."
+        HELM_SSH_OPTS+=" -o LogLevel=debug"
+    fi
     HELM_SSH_CMD="ssh $HELM_SSH_OPTS $HELM_SSH_TUNNEL"
 
     echo "Installing Helm $HELM_VERSION ($HELM_PLATFORM-$HELM_ARCH) from $HELM_URL"

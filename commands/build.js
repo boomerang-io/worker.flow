@@ -85,17 +85,7 @@ module.exports = {
         await exec(shellDir + "/build/compile-node.sh " + taskProps["build.tool"]);
       } else if (taskProps["system.mode"] === "python") {
         log.ci("Compile Artifact(s)");
-        await exec(
-          shellDir + "/build/compile-python.sh " + taskProps["language.version"] +
-            " " +
-            JSON.stringify(taskProps["global/pypi.registry.host"]) +
-            " " +
-            taskProps["global/pypi.repo.id"] +
-            " " +
-            taskProps["global/pypi.repo.user"] +
-            " " +
-            taskProps["global/pypi.repo.password"]
-        );
+        await exec(shellDir + "/build/compile-python.sh " + taskProps["language.version"] + " " + JSON.stringify(taskProps["global/pypi.registry.host"]) + " " + taskProps["global/pypi.repo.id"] + " " + taskProps["global/pypi.repo.user"] + " " + taskProps["global/pypi.repo.password"]);
       } else if (taskProps["system.mode"] === "lib.wheel") {
         log.ci("Compile & Package Artifact(s)");
         await exec(
@@ -114,7 +104,8 @@ module.exports = {
             taskProps["global/pypi.repo.password"]
         );
       }
-      await exec("ls -ltR");
+      // Used if debugging. TODO: wrap in debug flag.
+      // await exec("ls -ltR");
       if (taskProps["system.mode"] === "docker" || taskProps["docker.enable"]) {
         log.ci("Packaging for Docker registry");
         await exec(
@@ -143,7 +134,7 @@ module.exports = {
       }
     } catch (e) {
       log.err("  Error encountered. Code: " + e.code + ", Message:", e.message);
-      process.exit(e.code);
+      process.exit(1);
     } finally {
       await exec(shellDir + "/common/footer.sh");
       log.debug("Finished CICD Build Activity");
