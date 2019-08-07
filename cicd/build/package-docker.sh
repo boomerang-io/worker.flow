@@ -14,6 +14,7 @@ REGISTRY_PASSWORD=$7
 ART_URL=$8
 ART_USER=$9
 ART_PASSWORD=${10}
+DOCKER_FILE=${11}
 
 IMG_OPTS=
 # Note: currently disabled as it actually slows the build down copying out to the mounted PVC.
@@ -33,8 +34,13 @@ fi
 # Login first in case someone is using a docker base image from our registry
 /opt/bin/img login $IMG_OPTS -u=$REGISTRY_USER -p=$REGISTRY_PASSWORD "$REGISTRY_HOST:$REGISTRY_PORT"
 
-if  [ -f "Dockerfile" ]; then
-    /opt/bin/img build -t $IMAGE_NAME:$VERSION_NAME $IMG_OPTS --build-arg BMRG_TAG=$VERSION_NAME --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg NO_PROXY=$NO_PROXY --build-arg no_proxy=$NO_PROXY --build-arg ART_USER=$ART_USER --build-arg ART_PASSWORD=$ART_PASSWORD --build-arg ART_URL=$ART_URL .
+# Check for custom Dockerfile path
+if [ -z "$DOCKER_FILE" ]; then
+    DOCKER_FILE=./Dockerfile
+fi
+
+if  [ -f "$DOCKER_FILE" ]; then
+    /opt/bin/img build -t $IMAGE_NAME:$VERSION_NAME $IMG_OPTS --build-arg BMRG_TAG=$VERSION_NAME --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg NO_PROXY=$NO_PROXY --build-arg no_proxy=$NO_PROXY --build-arg ART_USER=$ART_USER --build-arg ART_PASSWORD=$ART_PASSWORD --build-arg ART_URL=$ART_URL $DOCKER_FILE
     RESULT=$?
     if [ $RESULT -ne 0 ] ; then
         exit 90
