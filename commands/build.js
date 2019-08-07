@@ -129,7 +129,9 @@ module.exports = {
             " " +
             taskProps["global/artifactory.user"] +
             " " +
-            taskProps["global/artifactory.password"]
+            taskProps["global/artifactory.password"] +
+            " " +
+            taskProps["docker.file"]
         );
       }
     } catch (e) {
