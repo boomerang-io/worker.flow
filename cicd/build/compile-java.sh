@@ -37,7 +37,7 @@ EOL
         export MAVEN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttp.nonProxyHosts='$MAVEN_PROXY_IGNORE' -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT -Dhttps.nonProxyHosts='$MAVEN_PROXY_IGNORE'"
     fi
     echo "MAVEN_OPTS=$MAVEN_OPTS"
-    mvn clean package -Dmaven.test.skip=true -Dversion.name=$VERSION_NAME
+    mvn clean package --batch-mode -Dmaven.test.skip=true -Dversion.name=$VERSION_NAME
 elif [ "$BUILD_TOOL" == "gradle" ]; then
     if [ "$HTTP_PROXY" != "" ]; then
         # Swap , for |
