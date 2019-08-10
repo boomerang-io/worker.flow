@@ -40,7 +40,7 @@ EOL
     fi
     echo "MAVEN_OPTS=$MAVEN_OPTS"
     mvn versions:set versions:commit -DnewVersion=$VERSION_NAME
-    mvn clean package deploy -DaltDeploymentRepository=$ART_REPO_ID::default::$ART_URL/$ART_REPO_ID -DrepositoryId=$ART_REPO_ID -DskipTests=true
+    mvn clean package deploy --batch-mode -DaltDeploymentRepository=$ART_REPO_ID::default::$ART_URL/$ART_REPO_ID -DrepositoryId=$ART_REPO_ID -DskipTests=true
 elif [ "$BUILD_TOOL" == "gradle" ]; then
     echo "Gradle has not yet been implemented for this mode. Please speak to your DevOps representative."
     exit 1
