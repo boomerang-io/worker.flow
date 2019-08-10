@@ -35,12 +35,17 @@ fi
 /opt/bin/img login $IMG_OPTS -u=$REGISTRY_USER -p=$REGISTRY_PASSWORD "$REGISTRY_HOST:$REGISTRY_PORT"
 
 # Check for custom Dockerfile path
+DOCKERFILE_OPTS=
 if [ -z "$DOCKER_FILE" ]; then
-    DOCKER_FILE=./Dockerfile
+    echo "Defaulting Dockerfile..."
+    DOCKER_FILE=Dockerfile
+else
+    DOCKERFILE_OPTS="-f $DOCKER_FILE"
 fi
+# echo "Dockerfile: $DOCKER_FILE"
 
 if  [ -f "$DOCKER_FILE" ]; then
-    /opt/bin/img build -t $IMAGE_NAME:$VERSION_NAME $IMG_OPTS --build-arg BMRG_TAG=$VERSION_NAME --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg NO_PROXY=$NO_PROXY --build-arg no_proxy=$NO_PROXY --build-arg ART_USER=$ART_USER --build-arg ART_PASSWORD=$ART_PASSWORD --build-arg ART_URL=$ART_URL $DOCKER_FILE
+    /opt/bin/img build -t $IMAGE_NAME:$VERSION_NAME $IMG_OPTS --build-arg BMRG_TAG=$VERSION_NAME --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg NO_PROXY=$NO_PROXY --build-arg no_proxy=$NO_PROXY --build-arg ART_USER=$ART_USER --build-arg ART_PASSWORD=$ART_PASSWORD --build-arg ART_URL=$ART_URL $DOCKERFILE_OPTS .
     RESULT=$?
     if [ $RESULT -ne 0 ] ; then
         exit 90
