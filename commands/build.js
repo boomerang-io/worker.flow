@@ -108,6 +108,7 @@ module.exports = {
       // await exec("ls -ltR");
       if (taskProps["system.mode"] === "docker" || taskProps["docker.enable"]) {
         log.ci("Packaging for Docker registry");
+        var dockerFile = taskProps["docker.file"] !== undefined && taskProps["docker.file"] !== null ? taskProps["docker.file"] : "";
         await exec(
           shellDir +
             "/build/package-docker.sh " +
@@ -131,7 +132,7 @@ module.exports = {
             " " +
             taskProps["global/artifactory.password"] +
             " " +
-            taskProps["docker.file"]
+            dockerFile
         );
       }
     } catch (e) {
