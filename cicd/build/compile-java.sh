@@ -38,6 +38,10 @@ EOL
     fi
     echo "MAVEN_OPTS=$MAVEN_OPTS"
     mvn clean package --batch-mode -Dmaven.test.skip=true -Dversion.name=$VERSION_NAME
+    RESULT=$?
+    if [ $RESULT -ne 0 ] ; then
+        exit 89
+    fi
 elif [ "$BUILD_TOOL" == "gradle" ]; then
     if [ "$HTTP_PROXY" != "" ]; then
         # Swap , for |
@@ -47,6 +51,10 @@ elif [ "$BUILD_TOOL" == "gradle" ]; then
     echo "GRADLE_OPTS=$GRADLE_OPTS"
     export PATH=$PATH:/opt/gradle/gradle-$BUILD_TOOL_VERSION/bin
     gradle clean assemble -x test
+    RESULT=$?
+    if [ $RESULT -ne 0 ] ; then
+        exit 89
+    fi
 else
     echo "ERROR: no build tool specified."
     exit 1
