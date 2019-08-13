@@ -4,8 +4,11 @@ class CICDError extends Error {
   constructor(code, stack) {
     var definedMessage = "An unknown error occurred. Please speak to your support representative.";
     switch (code) {
+      case 89:
+        definedMessage = "An error occurred during the build. Please review the error messsage or speak to your support representative.";
+        break;
       case 90:
-        definedMessage = "An error occurred during the build of the Dockerfile. Please review the error messsage or speak to your support representative.";
+        definedMessage = "An error occurred during the package and building of the Dockerfile. Please review the error messsage or speak to your support representative.";
         break;
       case 91:
         definedMessage = "Helm chart upgrade failed. Please review the error message.";
