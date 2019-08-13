@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# ( printf '\n'; printf '%.0s-' {1..30}; printf ' Initialize Dependencies '; printf '%.0s-' {1..30}; printf '\n\n' )
+# https://github.com/flapdoodle-oss/de.flapdoodle.embed.mongo/issues/281#issuecomment-485158021
 
 LANG=en_US.UTF-8
 LANGUAGE=en_US.UTF-8
