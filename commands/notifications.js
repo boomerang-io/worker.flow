@@ -11,7 +11,7 @@ module.exports = {
 
     if (type === undefined || type === null) {
       log.err("No type has been specified");
-      return process.exit(1);
+      process.exit(1);
     }
 
     bodyString = JSON.stringify({
@@ -27,15 +27,23 @@ module.exports = {
       }
     });
     try {
-      fetch("http://bmrg-core-services-notifications.bmrg-live/notifications/core/submit" + to, {
+      fetch("http://bmrg-core-services-notifications.bmrg-live/notifications/submit", {
         method: "POST",
         body: bodyString,
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "x-access-token": "96f0b5a2-2e23-4561-a877-005c24df9805"
         }
-      });
+      })
+        .then(res => res.json())
+        .then(json => log.debug(json))
+        .catch(err => {
+          log.err(err);
+          process.exit(1);
+        });
     } catch (e) {
       log.err(e);
+      process.exit(1);
     }
 
     log.debug("Finished Platform Notification Plugin");
