@@ -9,6 +9,9 @@ BUILD_LANGUAGE_VERSION=$1
 if [ "$BUILD_LANGUAGE_VERSION" == "11" ]; then
     echo "Language version specified. Installing Java 11..."
     apk --no-cache add openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+elif [ "$BUILD_LANGUAGE_VERSION" == "12" ]; then
+    echo "Language version specified. Installing Java 11..."
+    apk --no-cache add openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 else
     echo "No language version specified. Defaulting to Java 8..."
     apk add openjdk8
