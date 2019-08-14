@@ -17,7 +17,12 @@ if [ "$BUILD_TOOL" == "maven" ]; then
         export MAVEN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttp.nonProxyHosts='$MAVEN_PROXY_IGNORE' -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT -Dhttps.nonProxyHosts='$MAVEN_PROXY_IGNORE'"
     fi
     echo "MAVEN_OPTS=$MAVEN_OPTS"
-    mvn clean test sonar:sonar --debug -Dversion.name=$VERSION_NAME -Dsonar.login=$SONAR_APIKEY -Dsonar.host.url="$SONAR_URL" -Dsonar.projectKey=$COMPONENT_ID -Dsonar.projectName="$COMPONENT_NAME" -Dsonar.projectVersion=$VERSION_NAME -Dsonar.verbose=true -Dsonar.scm.disabled=true -Dsonar.junit.reportPaths=target/surefire-reports -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-ut/jacoco.xml
+    DEBUG_OPTS=
+    if [ "$DEBUG" == "true" ]; then
+        echo "Enabling debug logging..."
+        DEBUG_OPTS+="--debug"
+    fi
+    mvn clean test sonar:sonar -Dversion.name=$VERSION_NAME -Dsonar.login=$SONAR_APIKEY -Dsonar.host.url="$SONAR_URL" -Dsonar.projectKey=$COMPONENT_ID -Dsonar.projectName="$COMPONENT_NAME" -Dsonar.projectVersion=$VERSION_NAME -Dsonar.verbose=true -Dsonar.scm.disabled=true -Dsonar.junit.reportPaths=target/surefire-reports -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-ut/jacoco.xml $DEBUG_OPTS
 elif [ "$BUILD_TOOL" == "gradle" ]; then
     echo "ERROR: Gradle not implemented yet."
     exit 1
