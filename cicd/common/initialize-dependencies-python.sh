@@ -6,16 +6,12 @@ BUILD_LANGUAGE_VERSION=$1
 
 if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
     echo "Installing Python 2 ..."
-    apk add python
-    apk add python-dev
-    apk add py-pip
+    apk add python python-dev py-pip
 elif [ "$BUILD_LANGUAGE_VERSION" == "3" ]; then
     echo "Installing Python 3 ..."
-    apk add python3
-    apk add python3-dev
+    apk add python3 python3-dev
 else
 	exit 99
 fi
 
-apk add gcc
-apk add g++
+apk add gcc g++
