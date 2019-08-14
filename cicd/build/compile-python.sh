@@ -24,6 +24,10 @@ EOL
 # Build python application
 if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
 	pip install --upgrade pip
+	RESULT=$?
+	if [ $RESULT -ne 0 ] ; then
+		exit 89
+	fi
 
 	if [ -f "Dockerfile" ]; then
 		if grep -q "requirements.txt" Dockerfile; then
@@ -33,6 +37,10 @@ if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
 		if [ -f requirements.txt ]; then
 		    echo "Using requirements.txt file found in project to install dependencies"
 		    pip install -r requirements.txt
+			RESULT=$?
+			if [ $RESULT -ne 0 ] ; then
+				exit 89
+			fi
 		else
 		    echo "No requirements.txt file found in project"
 		fi
@@ -48,6 +56,10 @@ elif [ "$BUILD_LANGUAGE_VERSION" == "3" ]; then
 		if [ -f requirements.txt ]; then
 		    echo "Using requirements.txt file found in project to install dependencies"
 		    pip3 install -r requirements.txt
+			RESULT=$?
+			if [ $RESULT -ne 0 ] ; then
+				exit 89
+			fi
 		else
 		    echo "No requirements.txt file found in project"
 		fi
