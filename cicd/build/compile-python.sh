@@ -27,7 +27,6 @@ if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
 	if [ $RESULT -ne 0 ] ; then
 		exit 89
 	fi
-
 	if [ -f "Dockerfile" ]; then
 		echo "Dockerfile exists in project"
 		if grep -q "requirements.txt" Dockerfile; then
