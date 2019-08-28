@@ -33,13 +33,13 @@ if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
 		if grep -q "requirements.txt" Dockerfile; then
 			echo "requirements.txt in Dockerfile"
 			if grep -q "PIP_CONFIG_FILE" Dockerfile; then
-			  echo "pip config file already set"
-			else
-				echo "copy Dockerfile"
-				cp Dockerfile Dockerfile.copy
-				echo "add pip config to Dockerfile"
-				sed '/^FROM.*/a ADD pip.conf /\nENV PIP_CONFIG_FILE pip.conf' Dockerfile.copy > Dockerfile
-			fi
+        echo "pip config file already set"
+      else
+        echo "copy Dockerfile"
+        cp Dockerfile Dockerfile.copy
+        echo "add pip config to Dockerfile"
+        sed '/^FROM.*/a ADD pip.conf /\nENV PIP_CONFIG_FILE pip.conf' Dockerfile.copy > Dockerfile
+      fi
 		else
 			if [ -f requirements.txt ]; then
 			    echo "Using requirements.txt file found in project to install dependencies"
@@ -73,16 +73,15 @@ elif [ "$BUILD_LANGUAGE_VERSION" == "3" ]; then
 	if [ -f Dockerfile ]; then
 		echo "Dockerfile exists in project"
 		if grep -q "requirements.txt" Dockerfile; then
-			echo "requirements.txt in Dockerfile"
-
-			if grep -q "PIP_CONFIG_FILE" Dockerfile; then
-			  echo "pip config file already set"
-			else
-				echo "copy Dockerfile"
-				cp Dockerfile Dockerfile.copy
-				echo "add pip config to Dockerfile"
-				sed '/^FROM.*/a ADD pip.conf /\nENV PIP_CONFIG_FILE pip.conf' Dockerfile.copy > Dockerfile
-			fi
+      echo "requirements.txt in Dockerfile"
+      if grep -q "PIP_CONFIG_FILE" Dockerfile; then
+        echo "pip config file already set"
+      else
+        echo "copy Dockerfile"
+        cp Dockerfile Dockerfile.copy
+        echo "add pip config to Dockerfile"
+        sed '/^FROM.*/a ADD pip.conf /\nENV PIP_CONFIG_FILE pip.conf' Dockerfile.copy > Dockerfile
+      fi
 		else
 			if [ -f requirements.txt ]; then
 			    echo "Using requirements.txt file found in project to install dependencies"
