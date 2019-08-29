@@ -7,19 +7,18 @@ ART_REGISTRY_HOST=$2
 ART_REPO_ID=$3
 ART_REPO_USER=$4
 ART_REPO_PASSWORD=$5
-ART_REPO_HOME=~/.pip/pip.conf
-
-# Create pip home directory
-ART_REPO_DIR=`echo $ART_REPO_HOME | rev | cut -d '/' -f2- | rev`
-mkdir -p $ART_REPO_DIR
 
 # Create Artifactory references for library download
-cat >> $ART_REPO_HOME <<EOL
+PIP_CONF=pip.conf
+cat >> $PIP_CONF <<EOL
 [global]
 extra-index-url=https://$ART_REPO_USER:$ART_REPO_PASSWORD@$ART_REGISTRY_HOST/artifactory/api/pypi/$ART_REPO_ID/simple
 [install]
 extra-index-url=https://$ART_REPO_USER:$ART_REPO_PASSWORD@$ART_REGISTRY_HOST/artifactory/api/pypi/$ART_REPO_ID/simple
 EOL
+
+# Export pip config home
+export PIP_CONFIG_FILE=$PIP_CONF
 
 # Build python application
 if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
@@ -28,11 +27,18 @@ if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
 	if [ $RESULT -ne 0 ] ; then
 		exit 89
 	fi
-
 	if [ -f "Dockerfile" ]; then
 		echo "Dockerfile exists in project"
 		if grep -q "requirements.txt" Dockerfile; then
 			echo "requirements.txt in Dockerfile"
+			if grep -q "PIP_CONFIG_FILE" Dockerfile; then
+        echo "pip config file already set"
+      else
+        echo "copy Dockerfile"
+        cp Dockerfile Dockerfile.copy
+        echo "add pip config to Dockerfile"
+        sed '/^FROM.*/a ADD pip.conf /\nENV PIP_CONFIG_FILE pip.conf' Dockerfile.copy > Dockerfile
+      fi
 		else
 			if [ -f requirements.txt ]; then
 			    echo "Using requirements.txt file found in project to install dependencies"
@@ -43,7 +49,7 @@ if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
 				fi
 			else
 			    echo "No requirements.txt file found in project"
-			fi			
+			fi
 		fi
 	else
 		if [ -f requirements.txt ]; then
@@ -63,11 +69,18 @@ elif [ "$BUILD_LANGUAGE_VERSION" == "3" ]; then
 	if [ $RESULT -ne 0 ] ; then
 		exit 89
 	fi
-
 	if [ -f Dockerfile ]; then
 		echo "Dockerfile exists in project"
 		if grep -q "requirements.txt" Dockerfile; then
-			echo "requirements.txt in Dockerfile"
+      echo "requirements.txt in Dockerfile"
+      if grep -q "PIP_CONFIG_FILE" Dockerfile; then
+        echo "pip config file already set"
+      else
+        echo "copy Dockerfile"
+        cp Dockerfile Dockerfile.copy
+        echo "add pip config to Dockerfile"
+        sed '/^FROM.*/a ADD pip.conf /\nENV PIP_CONFIG_FILE pip.conf' Dockerfile.copy > Dockerfile
+      fi
 		else
 			if [ -f requirements.txt ]; then
 			    echo "Using requirements.txt file found in project to install dependencies"
