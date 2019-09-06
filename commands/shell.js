@@ -16,9 +16,11 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { path, script } = taskProps;
 
-    let dir = path;
-    if (!path) {
+    if (!path || path === '""') {
       dir = "/tmp";
+      log.debug("No directory specified. Defaulting...");
+    } else {
+      dir = path;
     }
     shell.config.silent = true; //set to silent otherwise CD will print out no such file or directory if the directory doesn't exist
     shell.cd(dir);
