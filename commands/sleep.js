@@ -10,8 +10,8 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { duration } = taskProps;
 
-    if (!duration) {
-      log.err("No duration has been specified");
+    if (!duration || duration === '""') {
+      log.err("No duration has been specified or was 0");
       return process.exit(1);
     }
 
