@@ -42,7 +42,7 @@ else
     exit 99
 fi
 
-SCRIPT=$(node -pe "require('./package.json').scripts.test:ci");
+SCRIPT=$(node -pe "require('./package.json').scripts.test");
 if [ "$SCRIPT" != "undefined" ]; then
     if [ "$BUILD_TOOL" == "npm" ]; then
         npm run test:ci
