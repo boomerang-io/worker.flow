@@ -20,9 +20,7 @@ When a method fails, we need to set or return (depending on the type of method) 
 
 ## How to Build and Push Flow
 
-`docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:0.0.1 .`
-
-`docker push tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:0.0.1`
+`docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:0.0.1 . && docker push tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:0.0.1`
 
 ## How to Build and Push CICD
 
@@ -50,6 +48,7 @@ _Note 2:_ The test Dockerfile will try to immitate the peices that Kubernetes Co
 
 1. Ensure that you have the package cross-env installed
 2. Run the node:cli script and pass in arguments
+
 ```
 npm run node:cli slack sendWebhook
 ```
