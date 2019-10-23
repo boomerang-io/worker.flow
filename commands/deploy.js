@@ -63,9 +63,11 @@ module.exports = {
             '" "' +
             taskProps["version.name"] +
             '" "' +
-            taskProps["deploy.kube.host"] +
+            taskProps["deploy.kube.version"] +
             '" "' +
             taskProps["deploy.kube.namespace"] +
+            '" "' +
+            taskProps["deploy.kube.host"] +
             '"'
         );
       }
