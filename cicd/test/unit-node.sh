@@ -45,9 +45,9 @@ fi
 SCRIPT=$(node -pe "require('./package.json').scripts.test");
 if [ "$SCRIPT" != "undefined" ]; then
     if [ "$BUILD_TOOL" == "npm" ]; then
-        npm run test:ci
+        npm run test
     elif [ "$BUILD_TOOL" == "yarn" ]; then
-        yarn test:ci
+        yarn test
     else
         exit 99
     fi
