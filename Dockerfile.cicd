@@ -4,13 +4,13 @@ FROM alpine:3.9
 WORKDIR /opt/bin
 
 #Add Packages
-RUN apk add --no-cache bash sed grep curl coreutils nodejs yarn ca-certificates make openssh-client git socat skopeo && \
+RUN apk add --no-cache bash sed grep curl coreutils nodejs npm ca-certificates make openssh-client git socat skopeo && \
     curl -fSL "https://github.com/genuinetools/img/releases/download/v0.5.7/img-linux-amd64" -o "/opt/bin/img" && chmod a+x "/opt/bin/img"
 
 WORKDIR /cli
 ADD ./cli.js ./log.js ./error.js ./utils.js ./config.js ./package.json ./
 ADD ./cicd ./cicd
 ADD ./commands ./commands
-RUN yarn install
+RUN npm install
 
 ENTRYPOINT [ "node", "cli" ]
