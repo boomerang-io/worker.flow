@@ -42,6 +42,8 @@ module.exports = {
           await exec(shellDir + "/common/initialize-dependencies-java-tool.sh " + taskProps["build.tool"] + " " + taskProps["build.tool.version"]);
         } else if (taskProps["system.mode"] === "nodejs") {
           await exec(shellDir + "/common/initialize-dependencies-node.sh " + taskProps["build.tool"] + " " + JSON.stringify(taskProps["global/artifactory.url"]) + " " + taskProps["global/artifactory.user"] + " " + taskProps["global/artifactory.password"]);
+        } else if (taskProps["system.mode"] === "python") {
+          await exec(shellDir + "/common/initialize-dependencies-python.sh " + taskProps["language.version"]);
         }
         log.ci("Retrieving Source Code");
         await exec(shellDir + "/common/git-clone.sh " + taskProps["component/repoSshUrl"] + " " + taskProps["component/repoUrl"] + " " + taskProps["git.commit.id"]);
@@ -84,6 +86,14 @@ module.exports = {
           if (testTypes.includes("unit")) {
             log.debug("Commencing static tests");
             await exec(shellDir + "/test/unit-node.sh " + taskProps["build.tool"] + " " + taskProps["version.name"] + " " + taskProps["global/sonar.url"] + " " + taskProps["global/sonar.api.key"] + " " + taskProps["system.component.id"] + " " + taskProps["system.component.name"]);
+          }
+        } else if (taskProps["system.mode"] === "python") {
+          if (testTypes.includes("static")) {
+            log.debug("Commencing static tests");
+            await exec(shellDir + "/test/static-python.sh " + taskProps["build.tool"] + " " + taskProps["version.name"] + " " + taskProps["global/sonar.url"] + " " + taskProps["global/sonar.api.key"] + " " + taskProps["system.component.id"] + " " + taskProps["system.component.name"]);
+          }
+          if (testTypes.includes("unit")) {
+            log.debug("Not yet implemented");
           }
         }
       }
