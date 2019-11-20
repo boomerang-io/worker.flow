@@ -24,7 +24,7 @@ When a method fails, we need to set or return (depending on the type of method) 
 
 ## How to Build and Push CICD
 
-`docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-cicd:0.0.1 -f Dockerfile.cicd . && docker push tools.boomerangplatform.net:8500/ise/bmrg-worker-cicd:0.0.1`
+`VERSION=4.0.1 && docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-cicd:$VERSION -f Dockerfile.cicd . && docker push tools.boomerangplatform.net:8500/ise/bmrg-worker-cicd:$VERSION`
 
 ## Update Version of CLI
 
