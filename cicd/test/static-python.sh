@@ -22,6 +22,7 @@ curl --insecure -o /opt/sonarscanner.zip -L https://binaries.sonarsource.com/Dis
 unzip -o /opt/sonarscanner.zip -d /opt
 SONAR_FOLDER=`ls /opt | grep sonar-scanner`
 SONAR_HOME=/opt/$SONAR_FOLDER
+SONAR_FLAGS=
 if [ $DEBUG ]; then
     SONAR_FLAGS="-Dsonar.verbose=true"
 else
@@ -31,5 +32,5 @@ fi
 pylint --generate-rcfile > .pylintrc
 pylint --rcfile=.pylintrc $(find . -iname "*.py" -print) -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" > pylint-report.txt
 
-$SONAR_FLAGS="$SONAR_FLAGS -Dsonar.python.pylint.reportPath=pylint-report.txt"
+SONAR_FLAGS="$SONAR_FLAGS -Dsonar.python.pylint.reportPath=pylint-report.txt"
 $SONAR_HOME/bin/sonar-scanner -Dsonar.host.url=$SONAR_URL -Dsonar.sources= -Dsonar.login=$SONAR_APIKEY -Dsonar.projectKey=$COMPONENT_ID -Dsonar.projectName="$COMPONENT_NAME" -Dsonar.projectVersion=$VERSION_NAME -Dsonar.scm.disabled=true $SONAR_FLAGS
