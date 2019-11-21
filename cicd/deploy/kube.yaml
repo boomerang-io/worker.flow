@@ -70,12 +70,12 @@ spec:
   tls:
   - hosts:
     - @deploy.kube.host@
-    ${p?:bmrg.kubernetes.tls.secretname}
+    iap-tls-cloud-rtp4
   rules:
     - host: @deploy.kube.host@
       http:
         paths:
-          - path: ${p:kubernetes.ingress.root}/${p:bmrg.component}
+          - path: /dev/@process/org@-@process/component.name@
             backend:
               serviceName: @process/org@-@process/component.name@
               servicePort: port-svc
