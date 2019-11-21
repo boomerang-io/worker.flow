@@ -32,4 +32,14 @@ if [ "$SCRIPT" != "undefined" ]; then
     npm run lint
     $SONAR_FLAGS="$SONAR_FLAGS -Dsonar.eslint.reportPaths=report.json"
 fi
-$SONAR_HOME/bin/sonar-scanner -Dsonar.host.url=$SONAR_URL -Dsonar.sources=. -Dsonar.login=$SONAR_APIKEY -Dsonar.projectKey=$COMPONENT_ID -Dsonar.projectName="$COMPONENT_NAME" -Dsonar.projectVersion=$VERSION_NAME -Dsonar.scm.disabled=true $SONAR_FLAGS
+
+SRC_FOLDER=
+if [ -d "src" ]; then
+    echo "Source folder 'src' exists."
+    SRC_FOLDER=src
+else
+    echo "Source folder 'src' does not exist - defaulting to root folder of project and will scan all sub-folders."
+    SRC_FOLDER=.
+fi
+
+$SONAR_HOME/bin/sonar-scanner -Dsonar.host.url=$SONAR_URL -Dsonar.sources=$SRC_FOLDER -Dsonar.login=$SONAR_APIKEY -Dsonar.projectKey=$COMPONENT_ID -Dsonar.projectName="$COMPONENT_NAME" -Dsonar.projectVersion=$VERSION_NAME -Dsonar.scm.disabled=true $SONAR_FLAGS
