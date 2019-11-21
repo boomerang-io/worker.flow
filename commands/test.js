@@ -90,7 +90,7 @@ module.exports = {
         } else if (taskProps["system.mode"] === "python") {
           if (testTypes.includes("static")) {
             log.debug("Commencing static tests");
-            await exec(shellDir + "/test/initialize-dependencies-static-python.sh");
+            await exec(shellDir + "/test/initialize-dependencies-static-python.sh " + taskProps["language.version"]);
             await exec(shellDir + "/test/static-python.sh " + taskProps["build.tool"] + " " + taskProps["version.name"] + " " + taskProps["global/sonar.url"] + " " + taskProps["global/sonar.api.key"] + " " + taskProps["system.component.id"] + " " + taskProps["system.component.name"]);
           }
           if (testTypes.includes("unit")) {
