@@ -5,9 +5,9 @@
 BUILD_LANGUAGE_VERSION=$1
 
 if [ "$BUILD_LANGUAGE_VERSION" == "2" ]; then
-    pip install pylint
+    pip install pylint coverage
 elif [ "$BUILD_LANGUAGE_VERSION" == "3" ]; then
-    pip3 install pylint
+    pip3 install pylint coverage
 else
 	exit 99
 fi
