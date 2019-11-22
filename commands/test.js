@@ -43,7 +43,7 @@ module.exports = {
         } else if (taskProps["system.mode"] === "nodejs") {
           await exec(shellDir + "/common/initialize-dependencies-node.sh " + taskProps["build.tool"] + " " + JSON.stringify(taskProps["global/artifactory.url"]) + " " + taskProps["global/artifactory.user"] + " " + taskProps["global/artifactory.password"]);
         } else if (taskProps["system.mode"] === "python") {
-          await exec(shellDir + "/common/initialize-dependencies-python.sh " + taskProps["language.version"]);
+          await exec(shellDir + "/common/initialize-dependencies-python.sh " + taskProps["language.version"] + " " + JSON.stringify(taskProps["global/pypi.registry.host"]) + " " + taskProps["global/pypi.repo.id"] + " " + taskProps["global/pypi.repo.user"] + " " + taskProps["global/pypi.repo.password"]);
         }
         log.ci("Retrieving Source Code");
         await exec(shellDir + "/common/git-clone.sh " + taskProps["component/repoSshUrl"] + " " + taskProps["component/repoUrl"] + " " + taskProps["git.commit.id"]);
