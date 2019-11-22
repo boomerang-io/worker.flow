@@ -34,14 +34,7 @@ pylint --rcfile=.pylintrc $(find . -iname "*.py" -print) -r n --msg-template="{p
 
 ls *.py | xargs coverage run
 coverage xml
-
 nosetests -sv --with-xunit --xunit-file=nosetests.xml --with-xcoverage --xcoverage-file=coverage.xml
-
-echo "-----------------------------------nosetests.xml--------------------------------------------"
-cat nosetests.xml
-echo "-----------------------------------coverage.xml---------------------------------------------"
-cat coverage.xml
-echo "--------------------------------------------------------------------------------------------"
 
 SONAR_FLAGS="$SONAR_FLAGS -Dsonar.python.pylint.reportPath=pylint-report.txt -Dsonar.python.xunit.reportPath=nosetests.xml -Dsonar.python.coverage.reportPath=coverage.xml"
 $SONAR_HOME/bin/sonar-scanner -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_APIKEY -Dsonar.projectKey=$COMPONENT_ID -Dsonar.projectName="$COMPONENT_NAME" -Dsonar.projectVersion=$VERSION_NAME -Dsonar.verbose=true -Dsonar.scm.disabled=true -Dsonar.sources=. -Dsonar.language=py $SONAR_FLAGS
