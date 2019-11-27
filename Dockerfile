@@ -2,11 +2,11 @@
 FROM alpine:3.9 
 
 #Add Packages
-RUN apk add --no-cache bash sed grep curl coreutils nodejs yarn
+RUN apk add --no-cache bash sed grep curl coreutils nodejs npm
 
 WORKDIR /cli
 ADD ./cli.js ./log.js ./error.js ./utils.js ./config.js ./package.json ./
 ADD ./commands ./commands
-RUN yarn install
+RUN npm install
 
 ENTRYPOINT [ "node", "cli" ]
