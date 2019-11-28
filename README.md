@@ -20,7 +20,11 @@ When a method fails, we need to set or return (depending on the type of method) 
 
 ## How to Build and Push Flow
 
-`docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:0.0.1 . && docker push tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:0.0.1`
+`VERSION=1.2.1 && docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:$VERSION . && docker push tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:$VERSION`
+
+## How to Build and Push Flow Lifecycle
+
+`VERSION=1.0.0 && docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-lifecycle:$VERSION -f Dockerfile.lifecycle . && docker push tools.boomerangplatform.net:8500/ise/bmrg-worker-lifecycle:$VERSION`
 
 ## How to Build and Push CICD
 
