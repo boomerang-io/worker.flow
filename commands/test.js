@@ -71,7 +71,23 @@ module.exports = {
           }
           if (testTypes.includes("static")) {
             log.debug("Commencing static tests");
-            await exec(shellDir + "/test/static-java.sh " + taskProps["build.tool"] + " " + taskProps["version.name"] + " " + taskProps["global/sonar.url"] + " " + taskProps["global/sonar.api.key"] + " " + taskProps["system.component.id"] + " " + taskProps["system.component.name"]);
+            await exec(
+              shellDir +
+                "/test/static-java.sh " +
+                taskProps["build.tool"] +
+                " " +
+                taskProps["version.name"] +
+                " " +
+                taskProps["global/sonar.url"] +
+                " " +
+                taskProps["global/sonar.api.key"] +
+                " " +
+                taskProps["system.component.id"] +
+                " " +
+                taskProps["system.component.name"] +
+                " " +
+                taskProps["sonar.exclusions"]
+            );
           }
           if (testTypes.includes("unit")) {
             log.debug("Commencing unit tests");
