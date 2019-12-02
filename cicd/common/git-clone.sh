@@ -8,6 +8,11 @@ GIT_REPO_URL=$2
 GIT_REPO_HOST=`echo "$GIT_REPO_URL" | cut -d '/' -f 3`
 GIT_CLONE_URL=$GIT_SSH_URL
 GIT_COMMIT_ID=$3
+GIT_LFS=false
+if [ "$4" != "" ]; then
+    GIT_LFS=$4
+fi 
+
 mkdir -p ~/.ssh
 
 if [[ "$GIT_SSH_URL" =~ ^http.* ]]; then
@@ -40,6 +45,11 @@ host $GIT_REPO_HOST
     StrictHostKeyChecking no
     IdentityFile /cli/cicd/config/rsa-git
 EOL
+fi
+
+if [ "$GIT_LFS" ]; then
+    echo "Enabling Git LFS"
+    apk add git-lfs
 fi
 
 echo "Repository URL:" $GIT_CLONE_URL
