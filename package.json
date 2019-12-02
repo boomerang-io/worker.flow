@@ -19,7 +19,8 @@
     "properties": "^1.2.1",
     "require-all": "^3.0.0",
     "shelljs": "^0.8.2",
-    "system-sleep": "^1.3.6"
+    "system-sleep": "^1.3.6",
+    "wait-on": "^3.3.0"
   },
   "scripts": {
     "node:cli": "cross-env NODE_ENV=local DEBUG=true node cli",
