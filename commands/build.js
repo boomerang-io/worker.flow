@@ -40,7 +40,7 @@ module.exports = {
         await exec(shellDir + "/common/initialize-dependencies-python.sh " + taskProps["language.version"]);
       }
       log.ci("Retrieving Source Code");
-      await exec(shellDir + "/common/git-clone.sh " + taskProps["component/repoSshUrl"] + " " + taskProps["component/repoUrl"] + " " + taskProps["git.commit.id"]);
+      await exec(shellDir + "/common/git-clone.sh " + taskProps["component/repoSshUrl"] + " " + taskProps["component/repoUrl"] + " " + taskProps["git.commit.id"] + " " + taskProps["git.lfs"]);
       shell.cd("/data/workspace");
       if (taskProps["system.mode"] === "lib.jar") {
         log.ci("Compile & Package Artifact(s)");
