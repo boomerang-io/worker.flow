@@ -7,6 +7,11 @@ CHART_VERSION=$4
 DEPLOY_KUBE_VERSION=$5
 DEPLOY_KUBE_NAMESPACE=$6
 DEPLOY_KUBE_HOST=$7
+GIT_REF=$8
+
+if [[ ! "$GIT_REF" =~ "refs/tags/" ]]; then
+    exit 94
+fi
 
 # NOTE:
 #  THe following variables are shared with helm.sh for deploy step
