@@ -44,7 +44,10 @@ module.exports = {
           await exec(shellDir + "/common/initialize-dependencies-node.sh " + taskProps["build.tool"] + " " + JSON.stringify(taskProps["global/artifactory.url"]) + " " + taskProps["global/artifactory.user"] + " " + taskProps["global/artifactory.password"]);
         } else if (taskProps["system.mode"] === "python") {
           await exec(shellDir + "/common/initialize-dependencies-python.sh " + taskProps["language.version"]);
+        } else if (taskProps["system.mode"] === "helm.chart") {
+          await exec(shellDir + "/common/initialize-dependencies-helm.sh " + taskProps["kube.version"]);
         }
+
         log.ci("Retrieving Source Code");
         await exec(shellDir + "/common/git-clone.sh " + taskProps["component/repoSshUrl"] + " " + taskProps["component/repoUrl"] + " " + taskProps["git.commit.id"]);
         shell.cd("/data/workspace");
@@ -106,11 +109,18 @@ module.exports = {
         } else if (taskProps["system.mode"] === "python") {
           if (testTypes.includes("static")) {
             log.debug("Commencing static tests");
-            await exec(shellDir + "/test/initialize-dependencies-static-python.sh " + taskProps["language.version"] + " " + JSON.stringify(taskProps["global/pypi.registry.host"]) + " " + taskProps["global/pypi.repo.id"] + " " + taskProps["global/pypi.repo.user"] + " " + taskProps["global/pypi.repo.password"]);
+            await exec(
+              shellDir + "/test/initialize-dependencies-static-python.sh " + taskProps["language.version"] + " " + JSON.stringify(taskProps["global/pypi.registry.host"]) + " " + taskProps["global/pypi.repo.id"] + " " + taskProps["global/pypi.repo.user"] + " " + taskProps["global/pypi.repo.password"]
+            );
             await exec(shellDir + "/test/static-python.sh " + taskProps["build.tool"] + " " + taskProps["version.name"] + " " + taskProps["global/sonar.url"] + " " + taskProps["global/sonar.api.key"] + " " + taskProps["system.component.id"] + " " + taskProps["system.component.name"]);
           }
           if (testTypes.includes("unit")) {
             log.debug("Not yet implemented");
+          }
+        } else if (taskProps["system.mode"] === "helm.chart") {
+          if (testTypes.includes("static")) {
+            log.debug("Linting Helm Chart(s)");
+            await exec(shellDir + "/test/lint-helm.sh " + taskProps["helm.chart.directory"] + " " + taskProps["helm.chart.ignore"]);
           }
         }
       }
