@@ -66,7 +66,8 @@ module.exports = {
             taskProps["deploy.kube.namespace"] +
             '" "' +
             taskProps["deploy.kube.host"] +
-            '"'
+            '" "' +
+            taskProps["git.ref"]
         );
       } else if (taskProps["deploy.type"] === "helm") {
         await exec(
