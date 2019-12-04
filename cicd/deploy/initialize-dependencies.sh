@@ -40,7 +40,6 @@ fi
 
 if [ "$DEPLOY_TYPE" == "helm" ]; then
     # Forked from reference: https://github.ibm.com/ICP-DevOps/build-harness/blob/master/modules/helm/Makefile
-    BUILD_HARNESS_PATH=/root
     BUILD_HARNESS_OS=$(uname -s | tr '[:upper:]' '[:lower:]')
     BUILD_HARNESS_ARCH=$(uname -m | sed 's/x86_64/amd64/g')
 

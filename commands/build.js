@@ -38,12 +38,16 @@ module.exports = {
         await exec(shellDir + "/common/initialize-dependencies-node.sh " + taskProps["build.tool"] + " " + JSON.stringify(taskProps["global/artifactory.url"]) + " " + taskProps["global/artifactory.user"] + " " + taskProps["global/artifactory.password"]);
       } else if (taskProps["system.mode"] === "python" || taskProps["system.mode"] === "lib.wheel") {
         await exec(shellDir + "/common/initialize-dependencies-python.sh " + taskProps["language.version"]);
+      } else if (taskProps["system.mode"] === "helm.chart") {
+        await exec(shellDir + "/common/initialize-dependencies-helm.sh " + taskProps["kube.version"]);
       }
+
       log.ci("Retrieving Source Code");
       await exec(shellDir + "/common/git-clone.sh " + taskProps["component/repoSshUrl"] + " " + taskProps["component/repoUrl"] + " " + taskProps["git.commit.id"] + " " + taskProps["git.lfs"]);
+
       shell.cd("/data/workspace");
+      log.ci("Compile & Package Artifact(s)");
       if (taskProps["system.mode"] === "lib.jar") {
-        log.ci("Compile & Package Artifact(s)");
         await exec(
           shellDir +
             "/build/compile-package-jar.sh " +
@@ -62,7 +66,6 @@ module.exports = {
             taskProps["global/artifactory.password"]
         );
       } else if (taskProps["system.mode"] === "java") {
-        log.ci("Compile Artifact(s)");
         await exec(
           shellDir +
             "/build/compile-java.sh " +
@@ -81,13 +84,10 @@ module.exports = {
             taskProps["global/artifactory.password"]
         );
       } else if (taskProps["system.mode"] === "nodejs") {
-        log.ci("Compile Artifact(s)");
         await exec(shellDir + "/build/compile-node.sh " + taskProps["build.tool"]);
       } else if (taskProps["system.mode"] === "python") {
-        log.ci("Compile Artifact(s)");
         await exec(shellDir + "/build/compile-python.sh " + taskProps["language.version"] + " " + JSON.stringify(taskProps["global/pypi.registry.host"]) + " " + taskProps["global/pypi.repo.id"] + " " + taskProps["global/pypi.repo.user"] + " " + taskProps["global/pypi.repo.password"]);
       } else if (taskProps["system.mode"] === "lib.wheel") {
-        log.ci("Compile & Package Artifact(s)");
         await exec(
           shellDir +
             "/build/compile-package-python-wheel.sh " +
@@ -103,11 +103,27 @@ module.exports = {
             " " +
             taskProps["global/pypi.repo.password"]
         );
+      } else if (taskProps["system.mode"] === "helm.chart") {
+        await exec(
+          shellDir +
+            "/build/package-helm.sh " +
+            taskProps["version.name"] +
+            " " +
+            taskProps["global/helm.repo.url"] +
+            " " +
+            taskProps["helm.chart.directory"] +
+            " " +
+            taskProps["helm.chart.ignore"] +
+            " " +
+            taskProps["helm.chart.version.increment"] +
+            " " +
+            taskProps["helm.chart.version.tag"] +
+            " " +
+            taskProps["git.ref"]
+        );
+        await exec(shellDir + "/build/validate-sync-helm.sh " + taskProps["global/helm.repo.url"] + " " + JSON.stringify(taskProps["global/artifactory.url"]) + +" " + taskProps["global/artifactory.user"] + " " + taskProps["global/artifactory.password"]);
       }
-      // Used if debugging. TODO: wrap in debug flag.
-      // await exec("ls -ltR");
       if (taskProps["system.mode"] === "docker" || taskProps["docker.enable"]) {
-        log.ci("Packaging for Docker registry");
         var dockerFile = taskProps["docker.file"] !== undefined && taskProps["docker.file"] !== null ? taskProps["docker.file"] : "";
         await exec(
           shellDir +
