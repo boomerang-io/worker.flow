@@ -43,15 +43,6 @@ do
         fi
         printf "  Chart Version: $chartVersion\n"
         helm dependency update ./$chartFolder/$chartName/
-        RESULT=$?
-        if [ $RESULT -ne 0 ] ; then
-            exit 89
-        fi
-        helm lint ./$chartFolder/$chartName/
-        RESULT=$?
-        if [ $RESULT -ne 0 ] ; then
-            exit 89
-        fi
         helm package --version $chartVersion -d $chartStableDir/ ./$chartFolder/$chartName/
         RESULT=$?
         if [ $RESULT -ne 0 ] ; then
