@@ -52,8 +52,13 @@ if [ "$GIT_LFS" ]; then
     apk add git-lfs
 fi
 
+GIT_OPTS=
+if [ $DEBUG ]; then
+    GIT_OPTS+=--verbose
+fi
+
 echo "Repository URL:" $GIT_CLONE_URL
-git clone --progress --verbose -n $GIT_CLONE_URL $WORKSPACE_FOLDER
+git clone --depth 1 --progress $GIT_OPTS -n $GIT_CLONE_URL $WORKSPACE_FOLDER
 
 if  [ -d "$WORKSPACE_FOLDER" ]; then
     cd $WORKSPACE_FOLDER
@@ -64,4 +69,9 @@ if  [ -d "$WORKSPACE_FOLDER" ]; then
 else
     echo "Git workspace does not exist"
     exit 1
+fi
+
+if [ $DEBUG ]; then
+    echo "Retrieving worker size..."
+    df -h
 fi

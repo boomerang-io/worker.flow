@@ -20,9 +20,9 @@ if [ "$BUILD_TOOL" == "maven" ]; then
     DEBUG_OPTS=
     if [ "$DEBUG" == "true" ]; then
         echo "Enabling debug logging..."
-        DEBUG_OPTS+="--debug"
+        DEBUG_OPTS+="--debug -Dsonar.verbose=true"
     fi
-    mvn clean test sonar:sonar -Dversion.name=$VERSION_NAME -Dsonar.login=$SONAR_APIKEY -Dsonar.host.url="$SONAR_URL" -Dsonar.projectKey=$COMPONENT_ID -Dsonar.projectName="$COMPONENT_NAME" -Dsonar.projectVersion=$VERSION_NAME -Dsonar.verbose=true -Dsonar.scm.disabled=true -Dsonar.junit.reportPaths=target/surefire-reports -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-ut/jacoco.xml $DEBUG_OPTS $MAVEN_OPTS
+    mvn clean test sonar:sonar -Dversion.name=$VERSION_NAME -Dsonar.login=$SONAR_APIKEY -Dsonar.host.url="$SONAR_URL" -Dsonar.projectKey=$COMPONENT_ID -Dsonar.projectName="$COMPONENT_NAME" -Dsonar.projectVersion=$VERSION_NAME -Dsonar.scm.disabled=true -Dsonar.junit.reportPaths=target/surefire-reports -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-ut/jacoco.xml $DEBUG_OPTS $MAVEN_OPTS
 elif [ "$BUILD_TOOL" == "gradle" ]; then
     echo "ERROR: Gradle not implemented yet."
     exit 1

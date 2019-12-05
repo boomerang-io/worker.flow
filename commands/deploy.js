@@ -38,6 +38,7 @@ module.exports = {
           kubePort = "3000";
         }
         taskProps["process/port"] = kubePort;
+
         taskProps["process/org"] = taskProps["team.name"]
           .toString()
           .replace(/[^a-zA-Z0-0]/g, "")
@@ -52,21 +53,21 @@ module.exports = {
       } else if (taskProps["deploy.type"] === "helm" && taskProps["system.mode"] === "helm.chart") {
         await exec(
           shellDir +
-            '/deploy/helm-chart.sh "' +
-            taskProps["global/helm.repo.url"] +
-            '" "' +
+            "/deploy/helm-chart.sh " +
+            JSON.stringify(taskProps["global/helm.repo.url"]) +
+            " " +
             taskProps["deploy.helm.chart"] +
-            '" "' +
+            " " +
             taskProps["deploy.helm.release"] +
-            '" "' +
+            " " +
             taskProps["version.name"].substr(0, taskProps["version.name"].lastIndexOf("-")) +
-            '" "' +
+            " " +
             taskProps["deploy.kube.version"] +
-            '" "' +
+            " " +
             taskProps["deploy.kube.namespace"] +
-            '" "' +
+            " " +
             taskProps["deploy.kube.host"] +
-            '" "' +
+            " " +
             taskProps["git.ref"]
         );
       } else if (taskProps["deploy.type"] === "helm") {
