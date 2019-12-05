@@ -10,7 +10,15 @@ ART_REPO_PASSWORD=$4
 chartStableDir=/data/charts/stable
 chartCurrentDir=/data/charts/current
 mkdir -p $chartCurrentDir
-ls -ltr /data/charts
+if [ "$DEBUG" == "true" ]; then
+    echo "Checking /data/charts folder..."
+    ls -ltr /data/charts
+fi
+
+# NOTE:
+#  THe following variables are shared with helm.sh for deploy step
+HELM_RESOURCE_PATH=/tmp/.helm
+# END
 
 # Validate charts have correct version
 for chartPackage in `ls -1 $chartStableDir/*tgz | rev | cut -f1 -d/ | rev`
@@ -21,9 +29,9 @@ do
     chartName=`echo $chartPackage | sed 's/\(.*\)-.*/\1/'`
     chartVersion=`echo $chartPackage | rev | sed '/\..*\./s/^[^.]*\.//' | cut -d '-' -f 1 | rev`
     
-    helm fetch --version $chartVersion --destination $chartCurrentDir boomerang-charts/$chartName
+    helm fetch --home $HELM_RESOURCE_PATH --version $chartVersion --destination $chartCurrentDir boomerang-charts/$chartName
     
-    if [ -f $chartStableDir/$chartPackage ]; then
+    if [ -f $chartCurrentDir/$chartPackage ]; then
         # If there is an existing file, a check will be made to see if the content of the old tar and new tar are the exact same. 
         # The digest and sha of the tar are not trustworthy when containing tgz files. 
         # The code below will sort the list of files in the tgz, then decompress each file to stdout, passing the content thru sha1sum. 
