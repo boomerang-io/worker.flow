@@ -121,7 +121,7 @@ module.exports = {
             " " +
             taskProps["git.ref"]
         );
-        await exec(shellDir + "/build/validate-sync-helm.sh " + taskProps["global/helm.repo.url"] + " " + JSON.stringify(taskProps["global/artifactory.url"]) + +" " + taskProps["global/artifactory.user"] + " " + taskProps["global/artifactory.password"]);
+        await exec(shellDir + "/build/validate-sync-helm.sh " + taskProps["global/helm.repo.url"] + " " + JSON.stringify(taskProps["global/artifactory.url"]) + " " + taskProps["global/artifactory.user"] + " " + taskProps["global/artifactory.password"]);
       }
       if (taskProps["system.mode"] === "docker" || taskProps["docker.enable"]) {
         var dockerFile = taskProps["docker.file"] !== undefined && taskProps["docker.file"] !== null ? taskProps["docker.file"] : "";

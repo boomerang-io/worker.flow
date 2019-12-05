@@ -120,7 +120,7 @@ module.exports = {
         } else if (taskProps["system.mode"] === "helm.chart") {
           if (testTypes.includes("static")) {
             log.debug("Linting Helm Chart(s)");
-            await exec(shellDir + "/test/lint-helm.sh " + taskProps["helm.chart.directory"] + " " + taskProps["helm.chart.ignore"]);
+            await exec(shellDir + "/test/lint-helm.sh " + taskProps["global/helm.repo.url"] + " " + taskProps["helm.chart.directory"] + " " + taskProps["helm.chart.ignore"]);
           }
         }
       }

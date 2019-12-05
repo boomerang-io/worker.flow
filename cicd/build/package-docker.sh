@@ -17,6 +17,7 @@ ART_PASSWORD=${10}
 DOCKER_FILE=${11}
 
 IMG_OPTS=
+SKOPEO_OPTS=
 # Note: currently disabled as it actually slows the build down copying out to the mounted PVC.
 # if [ -d "/cache" ]; then
 #     echo "Setting cache..."
@@ -29,6 +30,7 @@ IMG_OPTS=
 if [ "$DEBUG" == "true" ]; then
     echo "Enabling debug logging..."
     IMG_OPTS+="-d"
+    SKOPEO_OPTS+="--debug "
 fi
 
 # Login first in case someone is using a docker base image from our registry
@@ -44,8 +46,10 @@ else
 fi
 # echo "Dockerfile: $DOCKER_FILE"
 
+IMG_STATE=/data/img
+mkdir -p $IMG_STATE
 if  [ -f "$DOCKER_FILE" ]; then
-    /opt/bin/img build -t $IMAGE_NAME:$VERSION_NAME $IMG_OPTS --build-arg BMRG_TAG=$VERSION_NAME --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg NO_PROXY=$NO_PROXY --build-arg no_proxy=$NO_PROXY --build-arg ART_USER=$ART_USER --build-arg ART_PASSWORD=$ART_PASSWORD --build-arg ART_URL=$ART_URL $DOCKERFILE_OPTS .
+    /opt/bin/img build -s "$IMG_STATE" -t $IMAGE_NAME:$VERSION_NAME $IMG_OPTS --build-arg BMRG_TAG=$VERSION_NAME --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg NO_PROXY=$NO_PROXY --build-arg no_proxy=$NO_PROXY --build-arg ART_USER=$ART_USER --build-arg ART_PASSWORD=$ART_PASSWORD --build-arg ART_URL=$ART_URL $DOCKERFILE_OPTS .
     RESULT=$?
     if [ $RESULT -ne 0 ] ; then
         exit 90
@@ -54,13 +58,24 @@ else
     exit 96
 fi
 
-/opt/bin/img ls $IMG_OPTS "$IMAGE_NAME:$VERSION_NAME"
-/opt/bin/img tag $IMG_OPTS "$IMAGE_NAME:$VERSION_NAME" "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
+# /opt/bin/img ls -s "$IMG_STATE" $IMG_OPTS "$IMAGE_NAME:$VERSION_NAME"
+/opt/bin/img tag -s "$IMG_STATE" $IMG_OPTS "$IMAGE_NAME:$VERSION_NAME" "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
 # /opt/bin/img ls $IMG_OPTS "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
 #img push currently returns 404 every now and then when working with docker registries
 #https://github.com/genuinetools/img/issues/128?_pjax=%23js-repo-pjax-container
 #/opt/bin/img push -d ${p:docker.registry.host}:${p:docker.registry.port}/${p:bmrg.org}/${p:bmrg.image.name}:${p:version.name}
-/opt/bin/img save $IMG_OPTS -o $IMAGE_NAME_$VERSION_NAME.tar "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
+/opt/bin/img save -s "$IMG_STATE" $IMG_OPTS -o $IMAGE_NAME_$VERSION_NAME.tar "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
 
-# ping -c 3 $REGISTRY_HOST
-skopeo --debug copy --dest-tls-verify=false docker-archive:$IMAGE_NAME_$VERSION_NAME.tar docker://"$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
+if [ $DEBUG ]; then
+    echo "Retrieving worker size..."
+    df -h
+    ls -lhtr $IMAGE_NAME_$VERSION_NAME.tar
+    # ping -c 3 $REGISTRY_HOST
+fi
+
+skopeo $SKOPEO_OPTS copy --dest-tls-verify=false docker-archive:$IMAGE_NAME_$VERSION_NAME.tar docker://"$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
+
+if [ $DEBUG ]; then
+    echo "Retrieving worker size..."
+    df -h
+fi
