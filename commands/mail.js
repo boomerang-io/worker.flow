@@ -14,17 +14,13 @@ module.exports = {
       body: message
     });
     try {
-      fetch(
-        "http://bmrg-core-services-mail.bmrg-live/mail/send/emailUser?memberId=" +
-        to,
-        {
-          method: "POST",
-          body: bodyString,
-          headers: {
-            "Content-Type": "application/json"
-          }
+      fetch("http://bmrg-core-services-messaging.bmrg-live/messaging/mail/send/emailUser?memberId=" + to, {
+        method: "POST",
+        body: bodyString,
+        headers: {
+          "Content-Type": "application/json"
         }
-      );
+      });
     } catch (e) {
       log.err(e);
     }
