@@ -6,7 +6,7 @@
 mkdir -p /data
 cd /data
 
-if [ $DEBUG ]; then
+if [ "$DEBUG" == "true" ]; then
     echo "Retrieving worker size..."
     df -h
 fi

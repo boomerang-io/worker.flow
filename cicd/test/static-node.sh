@@ -22,7 +22,7 @@ curl --insecure -o /opt/sonarscanner.zip -L https://binaries.sonarsource.com/Dis
 unzip -o /opt/sonarscanner.zip -d /opt
 SONAR_FOLDER=`ls /opt | grep sonar-scanner`
 SONAR_HOME=/opt/$SONAR_FOLDER
-if [ $DEBUG ]; then
+if [ "$DEBUG" == "true" ]; then
     SONAR_FLAGS="-Dsonar.verbose=true"
 else
     SONAR_FLAGS=

@@ -23,7 +23,7 @@ unzip -o /opt/sonarscanner.zip -d /opt
 SONAR_FOLDER=`ls /opt | grep sonar-scanner`
 SONAR_HOME=/opt/$SONAR_FOLDER
 SONAR_FLAGS=
-if [ $DEBUG ]; then
+if [ "$DEBUG" == "true" ]; then
     SONAR_FLAGS="-Dsonar.verbose=true"
 else
     SONAR_FLAGS=

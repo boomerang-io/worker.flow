@@ -18,7 +18,7 @@ fi
 
 curl -k -u $ART_USER:$ART_PASSWORD $ART_URL/api/npm/boomeranglib-npm/auth/boomerang -o ~/.npmrc
 
-if [ $DEBUG ]; then
+if [ "$DEBUG" == "true" ]; then
     less ~/.npmrc
 fi
 
