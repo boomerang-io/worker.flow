@@ -66,7 +66,7 @@ fi
 #/opt/bin/img push -d ${p:docker.registry.host}:${p:docker.registry.port}/${p:bmrg.org}/${p:bmrg.image.name}:${p:version.name}
 /opt/bin/img save -s "$IMG_STATE" $IMG_OPTS -o $IMAGE_NAME_$VERSION_NAME.tar "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
 
-if [ $DEBUG ]; then
+if [ "$DEBUG" == "true" ]; then
     echo "Retrieving worker size..."
     df -h
     ls -lhtr $IMAGE_NAME_$VERSION_NAME.tar
@@ -75,7 +75,7 @@ fi
 
 skopeo $SKOPEO_OPTS copy --dest-tls-verify=false docker-archive:$IMAGE_NAME_$VERSION_NAME.tar docker://"$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
 
-if [ $DEBUG ]; then
+if [ "$DEBUG" == "true" ]; then
     echo "Retrieving worker size..."
     df -h
 fi
