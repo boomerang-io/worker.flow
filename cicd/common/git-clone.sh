@@ -47,13 +47,13 @@ host $GIT_REPO_HOST
 EOL
 fi
 
-if [ "$GIT_LFS" ]; then
+if [ "$GIT_LFS" == "true" ]; then
     echo "Enabling Git LFS"
     apk add git-lfs
 fi
 
 GIT_OPTS=
-if [ $DEBUG ]; then
+if [ "$DEBUG" == "true" ]; then
     GIT_OPTS+=--verbose
 fi
 
@@ -71,7 +71,7 @@ else
     exit 1
 fi
 
-if [ $DEBUG ]; then
+if [ "$DEBUG" == "true" ]; then
     echo "Retrieving worker size..."
     df -h
 fi
