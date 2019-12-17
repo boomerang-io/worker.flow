@@ -13,6 +13,15 @@ if [ "$4" != "" ]; then
     GIT_LFS=$4
 fi 
 
+if [ "$DEBUG" == "true" ]; then
+    echo "GIT_SSH_URL=$GIT_SSH_URL"
+    echo "GIT_REPO_URL=$GIT_REPO_URL"
+    echo "GIT_REPO_HOST=$GIT_REPO_HOST"
+    echo "GIT_CLONE_URL=$GIT_CLONE_URL"
+    echo "GIT_COMMIT_ID=$GIT_COMMIT_ID"
+    echo "GIT_LFS=$GIT_LFS"
+fi
+
 mkdir -p ~/.ssh
 
 if [[ "$GIT_SSH_URL" =~ ^http.* ]]; then
@@ -58,7 +67,12 @@ if [ "$DEBUG" == "true" ]; then
 fi
 
 echo "Repository URL:" $GIT_CLONE_URL
-git clone --depth 1 --progress $GIT_OPTS -n $GIT_CLONE_URL $WORKSPACE_FOLDER
+if [ "$GIT_CLONE_URL" == "undefined" ]; then
+    echo "Repository URL is undefined."
+    exit 1
+fi
+# git clone --depth 1 --progress $GIT_OPTS -n $GIT_CLONE_URL $WORKSPACE_FOLDER
+git clone --progress $GIT_OPTS -n $GIT_CLONE_URL $WORKSPACE_FOLDER
 
 if  [ -d "$WORKSPACE_FOLDER" ]; then
     cd $WORKSPACE_FOLDER
