@@ -177,6 +177,7 @@ EOL
         # less $HELM_CLUSTER_CONFIG_PATH/admin.key
         # ls -ltr $HELM_CLUSTER_CONFIG_PATH
     else
+        echo "Retrieving clusters certificates..."
         $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/'$HELM_CA_CRT_PATH'/ca.crt'"'"'' > $HELM_CLUSTER_CONFIG_PATH/ca.crt
         $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.crt'"'"'' > $HELM_CLUSTER_CONFIG_PATH/admin.crt
         $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.key'"'"'' > $HELM_CLUSTER_CONFIG_PATH/admin.key
