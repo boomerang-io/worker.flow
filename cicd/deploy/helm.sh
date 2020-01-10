@@ -69,6 +69,11 @@ echo "Chart Image Version: $VERSION_NAME"
 
 IFS=',' # comma (,) is set as delimiter
 read -ra HELM_CHARTS_ARRAY <<< "$CHART_NAME"
+HELM_CHARTS_ARRAY_SIZE=${#HELM_CHARTS_ARRAY[@]}
+if [ $HELM_CHARTS_ARRAY_SIZE > 1 ]; then
+    echo "Multiple charts ($HELM_CHARTS_ARRAY_SIZE) found. Enabling WARNINGS for some failures if one or more charts succeed."
+    HELM_CHARTS_EXITCODE=
+fi
 for CHART in "${HELM_CHARTS_ARRAY[@]}"; do
     echo "Current Chart Name: $CHART"
     if [[ -z "$CHART_RELEASE" ]] && [ ! -z "$DEPLOY_KUBE_NAMESPACE" ]; then
@@ -77,32 +82,46 @@ for CHART in "${HELM_CHARTS_ARRAY[@]}"; do
         if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
             CHART_RELEASE=`helm list --tls | grep $CHART | grep $DEPLOY_KUBE_NAMESPACE | awk '{print $1}'`
         else
+            # helm list --home $HELM_RESOURCE_PATH --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key"
             CHART_RELEASE=`helm list --home $HELM_RESOURCE_PATH --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" | grep $CHART | grep $DEPLOY_KUBE_NAMESPACE | awk '{print $1}'`
         fi 
     elif [ -z "$CHART_RELEASE" ] && [ -z "$DEPLOY_KUBE_NAMESPACE" ]; then
         exit 93
     fi
-    echo "Current Chart Release: $CHART_RELEASE"
+    if [ ! -z "$CHART_RELEASE" ]; then
+        echo "Current Chart Release: $CHART_RELEASE"
 
-    if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
-        CHART_VERSION=`helm list --tls ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 1 | rev`
+        if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
+            CHART_VERSION=`helm list --tls ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 1 | rev`
+        else
+            CHART_VERSION=`helm list --home $HELM_RESOURCE_PATH --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 1 | rev`
+        fi
+        echo "Current Chart Version: $CHART_VERSION"
+        if [ -z "$CHART_VERSION" ]; then
+            exit 94
+        fi
+
+        if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
+            helm upgrade --tls --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
+        else
+            helm upgrade --home $HELM_RESOURCE_PATH $DEBUG_OPTS --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
+        fi
+        RESULT=$?
+        if [ $RESULT -ne 0 ] ; then
+            exit 91
+        fi
+        HELM_CHARTS_EXITCODE=0
+    elif [ $HELM_CHARTS_ARRAY_SIZE > 1 ]; then
+        echo "WARNING - No chart release found. Trapping error as there are multiple charts. Will exit with warning if any chart is successful."
     else
-        CHART_VERSION=`helm list --home $HELM_RESOURCE_PATH --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 1 | rev`
-    fi
-    echo "Current Chart Version: $CHART_VERSION"
-    if [ -z "$CHART_VERSION" ]; then
         exit 94
     fi
-
-    if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
-        helm upgrade --tls --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
-    else
-        helm upgrade --home $HELM_RESOURCE_PATH $DEBUG_OPTS --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
-    fi
-    RESULT=$?
-    if [ $RESULT -ne 0 ] ; then
-        exit 91
-    fi
     CHART_RELEASE=
+    echo "Exit Code: $HELM_CHARTS_EXITCODE"
 done
 IFS=' ' # return to default delimiter
+
+if [ $HELM_CHARTS_EXITCODE -ne 0 ] ; then
+    echo "No charts were successful. Untrapping error."
+    exit 94
+fi

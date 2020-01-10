@@ -20,7 +20,7 @@ class CICDError extends Error {
         definedMessage = "Kubernetes namespace is required to auto detect helm release. To override specify helm release in your CI stage.";
         break;
       case 94:
-        definedMessage = "Unable to detect helm chart version.";
+        definedMessage = "Unable to detect helm chart release or version.";
         break;
       case 95:
         definedMessage = "Unable to find test command.";
