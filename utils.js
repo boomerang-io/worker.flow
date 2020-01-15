@@ -9,7 +9,7 @@ const fs = require("fs");
 /**
  * Use IFFE to enscapsulate properties
  */
-module.exports = (function() {
+module.exports = (function () {
   // Read in property files
   const files = fs.readdirSync(workflowProps.WF_PROPS_PATH);
   log.debug("Property Files Found:", files);
@@ -33,7 +33,7 @@ module.exports = (function() {
         comments: "#",
         separators: "=",
         strict: true,
-        reviver: function(key, value, section) {
+        reviver: function (key, value, section) {
           if (key != null && value == null) {
             return '""';
           } else {
@@ -49,7 +49,7 @@ module.exports = (function() {
     }, {});
   return {
     /** @todo implement */
-    substituteTaskInputValueForWFInputsProperty(taskProp) {},
+    substituteTaskInputValueForWFInputsProperty(taskProp) { },
     /**
      * Substitute task props that have workflow property notation with corrsponding workflow props
      * @returns Object
@@ -155,7 +155,7 @@ module.exports = (function() {
       const workflowSystemProps = props[WORKFLOW_SYSTEM_PROPS_FILENAME];
       return workflowSystemProps[key];
     },
-    setOutputProperty(key, value) {
+    async setOutputProperty(key, value) {
       log.debug("Inside setOutputProperty Utility");
 
       /**
@@ -163,9 +163,9 @@ module.exports = (function() {
        * To set a object key using a variable it needs to be between [] (computed property)
        * this." is necessary in order to call a different function of this module
        */
-      this.setOutputProperties({ [key]: value });
+      await this.setOutputProperties({ [key]: value });
     },
-    setOutputPropertiesFromEnv(fileName) {
+    async setOutputPropertiesFromEnv(fileName) {
       /**
        * Call internal method
        * To set a object key using a variable it needs to be between [] (computed property)
@@ -178,7 +178,7 @@ module.exports = (function() {
         comments: "#",
         separators: "=",
         strict: true,
-        reviver: function(key, value, section) {
+        reviver: function (key, value, section) {
           if (key != null && value == null) {
             return '""';
           } else {
@@ -189,9 +189,9 @@ module.exports = (function() {
       };
       const parsedProps = properties.parse(contents, options);
       log.debug("  File: " + file + " Parsed Content: ", parsedProps);
-      this.setOutputProperties(parsedProps);
+      await this.setOutputProperties(parsedProps);
     },
-    setOutputProperties(properties) {
+    async setOutputProperties(properties) {
       log.debug("Inside setOutputProperties Utility");
       /**
        * Please note the current limitation that this method can only be called once.
