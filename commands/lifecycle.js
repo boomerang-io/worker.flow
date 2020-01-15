@@ -30,23 +30,28 @@ module.exports = {
     /**
      * Read the environment variables from custom task populated env file
      */
-    const contents = fs.readFileSync(lifecycleFileEnv, "utf8");
-    log.debug("  File: " + lifecycleFileEnv + " Original Content: " + contents);
-    // Updated strict options for parsing multiline properties from textarea boxes.
-    var parseOpts = {
-      comments: "#",
-      separators: "=",
-      strict: true,
-      reviver: function(key, value, section) {
-        if (key != null && value == null) {
-          return '""';
-        } else {
-          //Returns all the lines
-          return this.assert();
+    var parsedProps
+    if (!fs.existsSync(lifecycleFileEnv)) {
+      log.warn("File not found");
+    } else {
+      const contents = fs.readFileSync(lifecycleFileEnv, "utf8");
+      log.debug("  File: " + lifecycleFileEnv + " Original Content: " + contents);
+      // Updated strict options for parsing multiline properties from textarea boxes.
+      var parseOpts = {
+        comments: "#",
+        separators: "=",
+        strict: true,
+        reviver: function (key, value, section) {
+          if (key != null && value == null) {
+            return '""';
+          } else {
+            //Returns all the lines
+            return this.assert();
+          }
         }
-      }
-    };
-    var parsedProps = properties.parse(contents, parseOpts);
+      };
+      parsedProps = properties.parse(contents, parseOpts);
+    }
     log.debug("  Parsed Environment Output Properties: " + JSON.stringify(parsedProps));
 
     /**
@@ -62,7 +67,7 @@ module.exports = {
         log.debug("  File: " + file + " Original Content: " + contents);
         const encodedProp = new Buffer(contents).toString("base64");
         log.debug("  File: " + file + " Encoded Content: ", encodedProp);
-        accum[file] = encodedProp;
+        accum[file.replace(".", "_")] = encodedProp;
         return accum;
       }, {});
     log.debug("  Encoded File Output Properties: " + JSON.stringify(fileProps));

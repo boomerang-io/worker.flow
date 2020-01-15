@@ -10,7 +10,6 @@ if [ "$DEBUG" == "true" ]; then
     DEBUG_OPTS+="--verbose"
 fi
 
-# TODO: wrap --verbose in debug flag.
 if [ "$BUILD_TOOL" == "npm" ] || [ "$BUILD_TOOL" == "yarn" ]; then
     if [ -e 'yarn.lock' ]; then
         echo "Running YARN install..."

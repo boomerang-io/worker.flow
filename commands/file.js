@@ -27,7 +27,7 @@ module.exports = {
 
     log.debug("Finished Create File Plugin");
   },
-  readFileToProperty() {
+  async readFileToProperty() {
     //Read in a file and set contents as an output property
     log.debug("Started Read File to Property Plugin");
 
@@ -35,7 +35,7 @@ module.exports = {
     const { path: path, propertyName: propertyName } = taskProps;
     try {
       const file = fs.readFileSync(path, "utf8");
-      utils.setOutputProperty(propertyName, file);
+      await utils.setOutputProperty(propertyName, file);
       log.good("The file was succesfully read!");
     } catch (e) {
       log.err(e);
