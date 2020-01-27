@@ -19,21 +19,21 @@ fi
 if [ "$BUILD_TOOL" == "npm" ] || [ "$BUILD_TOOL" == "yarn" ]; then
     if [ -e 'yarn.lock' ]; then
         echo "Running YARN install..."
-        yarn install $DEBUG_OPTS
+        CYPRESS_INSTALL_BINARY=0 yarn install $DEBUG_OPTS
         RESULT=$?
         if [ $RESULT -ne 0 ] ; then
             exit 89
         fi
     elif [ -e 'package-lock.json' ]; then
         echo "Running NPM ci..."
-        npm ci $DEBUG_OPTS
+        CYPRESS_INSTALL_BINARY=0 npm ci $DEBUG_OPTS
         RESULT=$?
         if [ $RESULT -ne 0 ] ; then
             exit 89
         fi
     else
         echo "Running NPM install..."
-        npm install $DEBUG_OPTS
+        CYPRESS_INSTALL_BINARY=0 npm install $DEBUG_OPTS
         RESULT=$?
         if [ $RESULT -ne 0 ] ; then
             exit 89
