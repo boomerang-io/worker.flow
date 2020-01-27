@@ -3,11 +3,17 @@
 # ( printf '\n'; printf '%.0s-' {1..30}; printf ' Build Artifact '; printf '%.0s-' {1..30}; printf '\n\n' )
 
 BUILD_TOOL=$1
+CYPRESS_INSTALL_BINARY=$2
 
 DEBUG_OPTS=
 if [ "$DEBUG" == "true" ]; then
     echo "Enabling debug logging..."
     DEBUG_OPTS+="--verbose"
+fi
+
+if [ -z "$CYPRESS_INSTALL_BINARY" ]; then
+    echo "Defaulting Cypress Install Binary to 0..."
+    CYPRESS_INSTALL_BINARY=0
 fi
 
 if [ "$BUILD_TOOL" == "npm" ] || [ "$BUILD_TOOL" == "yarn" ]; then
