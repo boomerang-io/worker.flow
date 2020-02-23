@@ -1,5 +1,6 @@
 const HttpsProxyAgent = require("https-proxy-agent");
 const { IncomingWebhook } = require("@slack/webhook");
+const { WebClient } = require("@slack/web-api");
 const datetime = require("node-datetime");
 const log = require("./../log.js");
 const utils = require("../utils.js");
@@ -14,15 +15,24 @@ async function ContentChunker(content, limit) {
 
   var tempLine = "";
   contentByLines.forEach(line => {
-    if (line.length != 0 && line.length <= limitIter && (limitIter + line.length) < limit) {
-      tempLine += line + "\n";
-      limitIter += tempLine.length;
-    } else {
-      chunkIter++;
-      tempLine = line + "\n";
-      limitIter = tempLine.length;
+    if (line.length != 0) {
+      if (limitIter + line.length < limit) {
+        tempLine += line + "\n";
+        limitIter += tempLine.length;
+      } else if (limitIter + line.length > limit) {
+        tempLines = line.split(char[2999]);
+        chunkIter++;
+        tempLines.forEach(l => {
+          contentChunks[chunkIter] = l;
+          chunkIter++;
+        });
+      } else {
+        chunkIter++;
+        tempLine = line + "\n";
+        limitIter = tempLine.length;
+      }
+      contentChunks[chunkIter] = tempLine;
     }
-    contentChunks[chunkIter] = tempLine;
   });
 
   log.debug("Content by chunks:", contentChunks);
@@ -69,24 +79,21 @@ module.exports = {
       icon_emoji: icon,
       text: message,
       ts: datetime.create().epoch()
-    }
+    };
     if (!channel || channel === '""') {
       log.warn("Channel or user has not been set. Leaving empty to default to the channel or user configured as part of the webhook.");
       delete payload.channel;
     }
     log.debug("Payload:", payload);
-    await webhook.send(
-      payload,
-      function (err, res) {
-        if (err) {
-          /** @todo Catch HTTP error for timeout so we can return better exits */
-          log.err("Slack sendWebhook error", err);
-          process.exit(1);
-        } else {
-          log.good("Message sent: " + res.text);
-        }
+    await webhook.send(payload, function(err, res) {
+      if (err) {
+        /** @todo Catch HTTP error for timeout so we can return better exits */
+        log.err("Slack sendWebhook error", err);
+        process.exit(1);
+      } else {
+        log.good("Message sent: " + res.text);
       }
-    );
+    });
   },
   async sendRichMessage() {
     log.debug("Inside Send Rich Slack Webhook Plugin");
@@ -130,20 +137,17 @@ module.exports = {
       ts: datetime.create().epoch(),
       text: fallback,
       blocks: JSON.parse(blocks)
-    }
+    };
     log.debug("Payload:", payload);
-    await webhook.send(
-      payload,
-      function (err, res) {
-        if (err) {
-          /** @todo Catch HTTP error for timeout so we can return better exits */
-          log.err("Slack sendWebhook error", err);
-          process.exit(1);
-        } else {
-          log.good("Message sent: " + res.text);
-        }
+    await webhook.send(payload, function(err, res) {
+      if (err) {
+        /** @todo Catch HTTP error for timeout so we can return better exits */
+        log.err("Slack sendWebhook error", err);
+        process.exit(1);
+      } else {
+        log.good("Message sent: " + res.text);
       }
-    );
+    });
   },
   async sendCustomMessage() {
     log.debug("Inside Send Custom Slack Webhook Plugin");
@@ -174,25 +178,22 @@ module.exports = {
 
     payload = JSON.parse(message);
     log.debug("Payload:", payload);
-    await webhook.send(
-      payload,
-      function (err, res) {
-        if (err) {
-          /** @todo Catch HTTP error for timeout so we can return better exits */
-          log.err("Slack sendWebhook error", err);
-          process.exit(1);
-        } else {
-          log.good("Message sent: " + res.text);
-        }
+    await webhook.send(payload, function(err, res) {
+      if (err) {
+        /** @todo Catch HTTP error for timeout so we can return better exits */
+        log.err("Slack sendWebhook error", err);
+        process.exit(1);
+      } else {
+        log.good("Message sent: " + res.text);
       }
-    );
+    });
   },
-  async sendLogMessage() {
+  async sendFileMessage() {
     log.debug("Inside Send Log Slack Webhook Plugin");
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { url, channel, icon, username, message, logContent, encoded, context } = taskProps;
+    const { url, channel, icon, username, message, content, encoded, context } = taskProps;
 
     //Variable Checks
     if (!url) {
@@ -207,12 +208,12 @@ module.exports = {
       log.debug("Setting default icon to :boomerang:");
       icon == ":boomerang:";
     }
-    var logContentDecoded
+    var contentDecoded;
     if (!encoded || encoded !== true) {
-      logContentDecoded = logContent;
+      contentDecoded = content;
     } else {
       log.debug("Decoding log content...");
-      logContentDecoded = Buffer.from(logContent, 'base64').toString('utf-8');
+      contentDecoded = Buffer.from(content, "base64").toString("utf-8");
     }
 
     let webhook = new IncomingWebhook(url);
@@ -226,7 +227,7 @@ module.exports = {
     }
 
     // Need to break content up as Slack has a 3000 character limit on each block
-    var chunkedContent = await ContentChunker(logContentDecoded, 3000);
+    var chunkedContent = await ContentChunker(contentDecoded, 3000);
     var blocks = [];
     blocks.push(
       {
@@ -238,14 +239,17 @@ module.exports = {
       },
       {
         type: "divider"
-      })
-    chunkedContent.forEach(chunk => blocks.push({
-      type: "section",
-      text: {
-        type: "plain_text",
-        text: chunk
       }
-    }));
+    );
+    chunkedContent.forEach(chunk =>
+      blocks.push({
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: chunk
+        }
+      })
+    );
     blocks.push(
       {
         type: "divider"
@@ -254,11 +258,12 @@ module.exports = {
         type: "context",
         elements: [
           {
-            "type": "mrkdwn",
-            "text": context
+            type: "mrkdwn",
+            text: context
           }
         ]
-      })
+      }
+    );
 
     payload = {
       channel: channel,
@@ -267,23 +272,67 @@ module.exports = {
       ts: datetime.create().epoch(),
       text: message,
       blocks: blocks
-    }
+    };
     if (!channel || channel === '""') {
       log.warn("Channel or user has not been set. Leaving empty to default to the channel or user configured as part of the webhook.");
       delete payload.channel;
     }
     log.debug("Payload:", payload);
-    await webhook.send(
-      payload,
-      function (err, res) {
-        if (err) {
-          /** @todo Catch HTTP error for timeout so we can return better exits */
-          log.err("Slack sendWebhook error", err);
-          process.exit(1);
-        } else {
-          log.good("Message sent: " + res.text);
-        }
+    await webhook.send(payload, function(err, res) {
+      if (err) {
+        /** @todo Catch HTTP error for timeout so we can return better exits */
+        log.err("Slack upload file error", err);
+        process.exit(1);
+      } else {
+        log.good("Message sent: " + res.text);
       }
-    );
+    });
+  },
+  async uploadFileMessage() {
+    log.debug("Inside Send File Slack Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const { token, channel, username, icon, message, encoded, fileName, fileContent } = taskProps;
+
+    //Variable Checks
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+    if (!username) {
+      log.debug("Setting default username to Boomerang Joe");
+      username == "Boomerang Joe";
+    }
+    if (!icon) {
+      log.debug("Setting default icon to :boomerang:");
+      icon == ":boomerang:";
+    }
+    var fileContentDecoded;
+    if (!encoded || encoded !== true) {
+      fileContentDecoded = fileContent;
+    } else {
+      log.debug("Decoding log content...");
+      fileContentDecoded = Buffer.from(fileContent, "base64").toString("utf-8");
+    }
+
+    var web = new WebClient(token);
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
+    }
+
+    try {
+      const response = await web.files.upload({
+        filename: fileName,
+        content: fileContentDecoded,
+        channels: channel,
+        initial_comment: message,
+        title: "File"
+      });
+      log.debug(response);
+    } catch (error) {
+      log.err("Well, that was unexpected.", error);
+    }
   }
 };

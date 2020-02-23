@@ -43,7 +43,7 @@ module.exports = {
       }
 
       log.ci("Retrieving Source Code");
-      await exec(shellDir + "/common/git-clone.sh " + JSON.stringify(taskProps["component/repoSshUrl"]) + " " + JSON.stringify(taskProps["component/repoUrl"]) + " " + taskProps["git.commit.id"] + " " + taskProps["git.lfs"]);
+      await exec(shellDir + "/common/git-clone.sh " + JSON.stringify(taskProps["component/git.private.key"]) + " " + JSON.stringify(taskProps["component/repoSshUrl"]) + " " + JSON.stringify(taskProps["component/repoUrl"]) + " " + taskProps["git.commit.id"] + " " + taskProps["git.lfs"]);
 
       shell.cd("/data/workspace");
       log.ci("Compile & Package Artifact(s)");

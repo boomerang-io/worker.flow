@@ -4,6 +4,9 @@ class CICDError extends Error {
   constructor(code, stack) {
     var definedMessage = "An unknown error occurred. Please speak to your support representative.";
     switch (code) {
+      case 88:
+        definedMessage = "Error occurred in deploying to chosen target. Please review the error messsage or speak to your support representative.";
+        break;
       case 89:
         definedMessage = "An error occurred during the build. Please review the error messsage or speak to your support representative.";
         break;
