@@ -70,7 +70,7 @@ echo "Chart Image Version: $VERSION_NAME"
 IFS=',' # comma (,) is set as delimiter
 read -ra HELM_CHARTS_ARRAY <<< "$CHART_NAME"
 HELM_CHARTS_ARRAY_SIZE=${#HELM_CHARTS_ARRAY[@]}
-if [ $HELM_CHARTS_ARRAY_SIZE > 1 ]; then
+if [[ $HELM_CHARTS_ARRAY_SIZE > 1 ]]; then
     echo "Multiple charts ($HELM_CHARTS_ARRAY_SIZE) found. Enabling WARNINGS for some failures if one or more charts succeed."
     HELM_CHARTS_EXITCODE=
 fi
@@ -121,7 +121,7 @@ for CHART in "${HELM_CHARTS_ARRAY[@]}"; do
 done
 IFS=' ' # return to default delimiter
 
-if [ $HELM_CHARTS_EXITCODE -ne 0 ] ; then
+if [[ $HELM_CHARTS_EXITCODE -ne 0 ]] ; then
     echo "No charts were successful. Untrapping error."
     exit 94
 fi
