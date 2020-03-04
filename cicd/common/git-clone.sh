@@ -3,14 +3,15 @@
 # ( printf '\n'; printf '%.0s-' {1..30}; printf ' Retrieving Source Code '; printf '%.0s-' {1..30}; printf '\n\n' )
 
 WORKSPACE_FOLDER=/data/workspace
-GIT_SSH_URL=$1
-GIT_REPO_URL=$2
+GIT_SSH_KEY=$1
+GIT_SSH_URL=$2
+GIT_REPO_URL=$3
 GIT_REPO_HOST=`echo "$GIT_REPO_URL" | cut -d '/' -f 3`
-GIT_CLONE_URL=$GIT_SSH_URL
-GIT_COMMIT_ID=$3
+GIT_CLONE_URL=`echo "$GIT_SSH_URL" | tr '[:upper:]' '[:lower:]'`
+GIT_COMMIT_ID=$4
 GIT_LFS=false
-if [ "$4" != "" ]; then
-    GIT_LFS=$4
+if [ "$5" != "" ]; then
+    GIT_LFS=$5
 fi 
 
 if [ "$DEBUG" == "true" ]; then
@@ -26,23 +27,21 @@ mkdir -p ~/.ssh
 
 if [[ "$GIT_SSH_URL" =~ ^http.* ]]; then
     echo "Adjusting clone for http/s"
-    GIT_CLONE_URL=`echo "$GIT_SSH_URL" | sed 's#^\(.*://\)\(.*\)\(\.git\)\{0,1\}$#\git@\2.git#' | sed 's/\//:/'`
+    GIT_CLONE_URL=`echo "$GIT_SSH_URL" | sed 's#^\(.*://\)\(.*\)\(\.git\)\{0,1\}$#\git@\2.git#' | sed 's/\//:/' | tr '[:upper:]' '[:lower:]'`
 fi
 
-if [ -f "/cli/cicd/config/rsa-git" ]; then
-    echo "Adjusting permissions and checking Git SSH key exists."
-    chmod 700 /cli/cicd/config/rsa-git
-else
-    echo "Git SSH Key not found."
-    exit 1
-fi
+echo "Creating Git SSH key and adjusting permissions..."
+echo "$GIT_SSH_KEY" > ~/.ssh/id_rsa
+chmod 700 ~/.ssh/id_rsa
 
-if [ "$HTTP_PROXY" != "" ]; then
+GIT_REPO_HOST_ESCAPED=`echo $GIT_REPO_HOST | sed 's/\./\\\./g'`
+
+if [[ "$HTTP_PROXY" != "" ]] && [[ ! "$NO_PROXY" =~ ($GIT_REPO_HOST_ESCAPED) ]]; then
     echo "Setting Git SSH Config with Proxy"
     cat >> ~/.ssh/config <<EOL
 host $GIT_REPO_HOST
     StrictHostKeyChecking no
-    IdentityFile /cli/cicd/config/rsa-git
+    IdentityFile ~/.ssh/id_rsa
     hostname $GIT_REPO_HOST
     port 22
     proxycommand socat - PROXY:$PROXY_HOST:%h:%p,proxyport=$PROXY_PORT
@@ -52,7 +51,7 @@ else
     cat >> ~/.ssh/config <<EOL
 host $GIT_REPO_HOST
     StrictHostKeyChecking no
-    IdentityFile /cli/cicd/config/rsa-git
+    IdentityFile ~/.ssh/id_rsa
 EOL
 fi
 
