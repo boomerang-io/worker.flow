@@ -97,6 +97,11 @@ module.exports = {
             await exec(shellDir + "/test/initialize-dependencies-unit-java.sh");
             await exec(shellDir + "/test/unit-java.sh " + taskProps["build.tool"] + " " + taskProps["version.name"] + " " + taskProps["global/sonar.url"] + " " + taskProps["global/sonar.api.key"] + " " + taskProps["system.component.id"] + " " + taskProps["system.component.name"]);
           }
+          if (testTypes.includes("security")) {
+            log.debug("Commencing security tests");
+            await exec(shellDir + "/test/initialize-dependencies-unit-java.sh");
+            await exec(shellDir + "/test/security-java.sh " + taskProps["system.component.name"] + " " + taskProps["version.name"] + " " + JSON.stringify(taskProps["global/asoc.repo.url"]) + " " + taskProps["global/asoc.repo.user"] + " " + taskProps["global/asoc.repo.password"] + " " + taskProps["global/asoc.app.id"] + " " + taskProps["global/asoc.login.key.id"] + " " + taskProps["global/asoc.login.secret"]);
+          }
         } else if (taskProps["system.mode"] === "nodejs") {
           if (testTypes.includes("static")) {
             log.debug("Commencing static tests");
