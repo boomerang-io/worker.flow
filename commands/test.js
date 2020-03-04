@@ -49,7 +49,7 @@ module.exports = {
         }
 
         log.ci("Retrieving Source Code");
-        await exec(shellDir + "/common/git-clone.sh " + taskProps["component/repoSshUrl"] + " " + taskProps["component/repoUrl"] + " " + taskProps["git.commit.id"]);
+        await exec(shellDir + '/common/git-clone.sh "' + taskProps["component/git.private.key"] + '" "' + taskProps["component/repoSshUrl"] + '" "' + taskProps["component/repoUrl"] + '" "' + taskProps["git.commit.id"] + '"');
         shell.cd("/data/workspace");
         if (taskProps["system.mode"] === "lib.jar" || taskProps["system.mode"] === "java") {
           if (!fileCommand.checkFileContainsStringWithProps("/data/workspace/pom.xml", "<plugins>", undefined, false)) {
