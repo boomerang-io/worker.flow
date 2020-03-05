@@ -66,10 +66,10 @@ while [ "$(SAClientUtil/bin/appscan.sh status -i $ASOC_SCAN_ID)" != "Ready" ] &&
   NOW=`date +%s`
   DIFF=`expr $NOW - $START_SCAN`
   if [ $DIFF -gt 300 ]; then
-    echo "Timed out waiting for ASoC job to complete"
+    echo "Timed out waiting for ASoC job to complete [$DIFF/300]"
     RUN_SCAN=false
   else
-    echo "ASoC job execution not completed ... waiting 10 seconds they retrying"
+    echo "ASoC job execution not completed ... waiting 10 seconds they retrying [$DIFF/300]"
     sleep 10
   fi
 done
