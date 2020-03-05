@@ -11,10 +11,12 @@ ASOC_APP_ID=$6
 ASOC_LOGIN_KEY_ID=$7
 ASOC_LOGIN_SECRET=$8
 
+echo "No Proxy in ASoC: $NO_PROXY"
+
 # Download ASoC CLI
 ART_REPO_ZIP_FOLDER=asoc
 ART_REPO_ZIP_FILE=SAClientUtil_7.0.1313_linux.zip
-curl --noproxy "*" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ART_REPO_ZIP_FOLDER/$ART_REPO_ZIP_FILE" -o SAClientUtil.zip
+curl --noproxy $NO_PROXY --insecure --max-time 120 -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ART_REPO_ZIP_FOLDER/$ART_REPO_ZIP_FILE" -o SAClientUtil.zip
 
 # Unzip ASoC CLI
 unzip SAClientUtil.zip
