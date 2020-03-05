@@ -11,14 +11,14 @@ ASOC_APP_ID=$6
 ASOC_LOGIN_KEY_ID=$7
 ASOC_LOGIN_SECRET=$8
 
-echo "No Proxy in ASoC: $NO_PROXY"
-
 # Download ASoC CLI
 ART_REPO_ZIP_FOLDER=asoc
 ART_REPO_ZIP_FILE=SAClientUtil_7.0.1313_linux.zip
-curl --noproxy $NO_PROXY --insecure --max-time 120 -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ART_REPO_ZIP_FOLDER/$ART_REPO_ZIP_FILE" -o SAClientUtil.zip
+echo "No Proxy in ASoC: $NO_PROXY"
+curl --noproxy "tools.boomerangplatform.net" --insecure --max-time 120 -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ART_REPO_ZIP_FOLDER/$ART_REPO_ZIP_FILE" -o SAClientUtil.zip
 
 # Unzip ASoC CLI
+ls -al
 unzip SAClientUtil.zip
 rm -f SAClientUtil.zip
 SAC_DIR=`ls -d SAClientUtil*`
@@ -46,19 +46,31 @@ EOL
 SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n $COMPONENT_NAME_$VERSION_NAME.irx
 
 # Start Static Analyzer ASoC Scan
-echo $ASOC_APP_ID
-echo $ASOC_LOGIN_KEY_ID
-echo $ASOC_LOGIN_SECRET
+echo "ASoC App ID: $ASOC_APP_ID"
+echo "ASoC Login Key ID: $ASOC_LOGIN_KEY_ID"
+echo "ASoC Login Secret ID: $ASOC_LOGIN_SECRET"
 
 SAClientUtil/bin/appscan.sh api_login -u $ASOC_LOGIN_KEY_ID  -P $ASOC_LOGIN_SECRET
 ASOC_SCAN_ID=$(SAClientUtil/bin/appscan.sh queue_analysis -a $ASOC_APP_ID -f $COMPONENT_NAME_$VERSION_NAME.irx -n $COMPONENT_NAME_$VERSION_NAME |  tail -n 1)
 echo $ASOC_SCAN_ID
-while [ "$(SAClientUtil/bin/appscan.sh status -i $ASOC_SCAN_ID)" != "Ready" ]
-    do
-        echo "asoc job execution not ready"
-        sleep 10
-    done
-echo "done"
+
+START_SCAN=`date +%s`
+RUN_SCAN=true
+while [ "$(SAClientUtil/bin/appscan.sh status -i $ASOC_SCAN_ID)" != "Ready" ] && [ "$RUN_SCAN" == "true" ]; do
+  NOW=`date +%s`
+  DIFF=`expr $NOW - $START_SCAN`
+  if [ $DIFF -gt 300 ]; then
+    echo "Timed out waiting for ASoC job to complete"
+    RUN_SCAN=false
+  else
+    echo "ASoC job execution not completed ... waiting 10 seconds they retrying"
+    sleep 10
+  fi
+done
+
+if [ "$RUN_SCAN" == "false" ]; then
+  exit 1
+fi
 
 #Get ASoC execution summary
 SAClientUtil/bin/appscan.sh info -i $ASOC_SCAN_ID -json >> ASOC_Summary.json
