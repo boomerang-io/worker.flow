@@ -15,7 +15,7 @@ ASOC_LOGIN_SECRET=$8
 ART_REPO_ZIP_FOLDER=asoc
 ART_REPO_ZIP_FILE=SAClientUtil_7.0.1313_linux.zip
 echo "No Proxy in ASoC: $NO_PROXY"
-curl --noproxy "tools.boomerangplatform.net" --insecure --max-time 120 -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ART_REPO_ZIP_FOLDER/$ART_REPO_ZIP_FILE" -o SAClientUtil.zip
+curl --noproxy "$NO_PROXY" --insecure --max-time 120 -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ART_REPO_ZIP_FOLDER/$ART_REPO_ZIP_FILE" -o SAClientUtil.zip
 
 # Unzip ASoC CLI
 ls -al
@@ -24,11 +24,17 @@ rm -f SAClientUtil.zip
 SAC_DIR=`ls -d SAClientUtil*`
 mv $SAC_DIR SAClientUtil
 
-# Compile Source
-mvn compile dependency:copy-dependencies
-
 # Check JAVA_HOME is set
 echo "JAVA_HOME=$JAVA_HOME"
+
+# Compile Source
+if [ "$HTTP_PROXY" != "" ]; then
+    # Swap , for |
+    MAVEN_PROXY_IGNORE=`echo "$NO_PROXY" | sed -e 's/ //g' -e 's/\"\,\"/\|/g' -e 's/\,\"/\|/g' -e 's/\"$//' -e 's/\,/\|/g'`
+    export MAVEN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttp.nonProxyHosts='$MAVEN_PROXY_IGNORE' -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT -Dhttps.nonProxyHosts='$MAVEN_PROXY_IGNORE'"
+fi
+echo "MAVEN_OPTS=$MAVEN_OPTS"
+mvn compile dependency:copy-dependencies $MAVEN_OPTS
 
 # Create appscan-config.xml
 cat >> appscan-config.xml <<EOL
