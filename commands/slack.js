@@ -364,9 +364,9 @@ module.exports = {
       })
       .then(body => {
         log.debug("Response Received:", JSON.stringify(body));
-        const display_name = body.user.profile.display_name;
-        log.sys("userName Found:", display_name);
-        utils.setOutputProperty("slackDisplayName", display_name);
+        const user_id = body.user.id;
+        log.sys("slackUserId Found:", user_id);
+        utils.setOutputProperty("slackUserId", user_id);
         log.good("Response successfully received!");
       })
       .catch(err => {

@@ -57,6 +57,14 @@ _Note 2:_ The test Dockerfile will try to immitate the peices that Kubernetes Co
 npm run node:cli slack sendWebhook
 ```
 
+### Setting input Variables for Testing
+
+Under the `props` folder, you can set input variables:
+`task.input.properties` -> set variables that will be the input for a task plugin
+`workflow.input.properties` -> these variables will be available across tasks
+
+These files are designed to replicate the properties that would be mounted in confimaps by the controller service.
+
 ## Clean up
 
 ### Cleaning up jobs in Kubernetes
