@@ -49,16 +49,18 @@ cat >> appscan-config.xml <<EOL
 EOL
 
 # Generate IRX file
-SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n $COMPONENT_NAME_$VERSION_NAME.irx
-ls -al $COMPONENT_NAME_$VERSION_NAME.irx
+export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
+echo "APPSCAN_OPTS=$APPSCAN_OPTS"
+SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+ls -al ${COMPONENT_NAME}_${VERSION_NAME}.irx
 
 # Start Static Analyzer ASoC Scan
 echo "ASoC App ID: $ASOC_APP_ID"
 echo "ASoC Login Key ID: $ASOC_LOGIN_KEY_ID"
 echo "ASoC Login Secret ID: $ASOC_LOGIN_SECRET"
 
-SAClientUtil/bin/appscan.sh api_login -u $ASOC_LOGIN_KEY_ID  -P $ASOC_LOGIN_SECRET
-ASOC_SCAN_ID=$(SAClientUtil/bin/appscan.sh queue_analysis -a $ASOC_APP_ID -f $COMPONENT_NAME_$VERSION_NAME.irx -n $COMPONENT_NAME_$VERSION_NAME |  tail -n 1)
+SAClientUtil/bin/appscan.sh api_login -u $ASOC_LOGIN_KEY_ID -P $ASOC_LOGIN_SECRET
+ASOC_SCAN_ID=$(SAClientUtil/bin/appscan.sh queue_analysis -a $ASOC_APP_ID -f ${COMPONENT_NAME}_${VERSION_NAME}.irx -n ${COMPONENT_NAME}_${VERSION_NAME} | tail -n 1)
 echo "ASoC Scan ID: $ASOC_SCAN_ID"
 
 START_SCAN=`date +%s`
@@ -83,9 +85,9 @@ fi
 SAClientUtil/bin/appscan.sh info -i $ASOC_SCAN_ID -json >> ASOC_Summary.json
 
 # Download ASoC report
-SAClientUtil/bin/appscan.sh get_result -d ASOC_SCAN_RESULTS_$COMPONENT_NAME_$VERSION_NAME.html -i $ASOC_SCAN_ID
+SAClientUtil/bin/appscan.sh get_result -d ASOC_SCAN_RESULTS_${COMPONENT_NAME}_${VERSION_NAME}.html -i $ASOC_SCAN_ID
 
-cat ASOC_SCAN_RESULTS_$COMPONENT_NAME_$VERSION_NAME.html
+cat ASOC_SCAN_RESULTS_${COMPONENT_NAME}_${VERSION_NAME}.html
 
 # Upload Scan Results
 #ASOC_SCAN_RESULTS_$COMPONENT_NAME_$VERSION_NAME.html
