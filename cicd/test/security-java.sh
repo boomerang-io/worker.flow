@@ -58,6 +58,11 @@ echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 
 ls -al
 
+curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+
+cp glen.test.java_0.0.30-5.failed ${COMPONENT_NAME}_${VERSION_NAME}.irx
+
 echo "========================================================================================="
 #cat appscan-config.xml
 echo "========================================================================================="
