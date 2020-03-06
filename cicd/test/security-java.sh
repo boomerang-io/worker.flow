@@ -10,14 +10,12 @@ ART_REPO_PASSWORD=$5
 ASOC_APP_ID=$6
 ASOC_LOGIN_KEY_ID=$7
 ASOC_LOGIN_SECRET=$8
+ASOC_CLIENT_CLI=$9
 
 # Download ASoC CLI
-ART_REPO_ZIP_FOLDER=asoc
-ART_REPO_ZIP_FILE=SAClientUtil_7.0.1313_linux.zip
-echo "No Proxy in ASoC: $NO_PROXY"
-echo "SAClientUtil File: $ART_URL/$ART_REPO_ZIP_FOLDER/$ART_REPO_ZIP_FILE"
+echo "SAClientUtil File: $ART_URL/$ASOC_CLIENT_CLI"
 echo "Creds: $ART_REPO_USER:$ART_REPO_PASSWORD"
-curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ART_REPO_ZIP_FOLDER/$ART_REPO_ZIP_FILE" -o SAClientUtil.zip
+curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ASOC_CLIENT_CLI" -o SAClientUtil.zip
 
 # Unzip ASoC CLI
 ls -al
