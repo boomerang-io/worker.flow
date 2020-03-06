@@ -52,7 +52,14 @@ EOL
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
-ls -al ${COMPONENT_NAME}_${VERSION_NAME}.irx
+
+ls -al SAClientUtil/logs
+
+if [ -f "${COMPONENT_NAME}_${VERSION_NAME}.irx" ]; then
+  exit 128
+fi
+
+cat ${COMPONENT_NAME}_${VERSION_NAME}.irx
 
 # Start Static Analyzer ASoC Scan
 echo "ASoC App ID: $ASOC_APP_ID"
@@ -62,6 +69,10 @@ echo "ASoC Login Secret ID: $ASOC_LOGIN_SECRET"
 SAClientUtil/bin/appscan.sh api_login -u $ASOC_LOGIN_KEY_ID -P $ASOC_LOGIN_SECRET
 ASOC_SCAN_ID=$(SAClientUtil/bin/appscan.sh queue_analysis -a $ASOC_APP_ID -f ${COMPONENT_NAME}_${VERSION_NAME}.irx -n ${COMPONENT_NAME}_${VERSION_NAME} | tail -n 1)
 echo "ASoC Scan ID: $ASOC_SCAN_ID"
+
+if [ -z "$ASOC_SCAN_ID" ]; then
+  exit 129
+fi
 
 START_SCAN=`date +%s`
 RUN_SCAN=true
@@ -78,7 +89,7 @@ while [ "$(SAClientUtil/bin/appscan.sh status -i $ASOC_SCAN_ID)" != "Ready" ] &&
 done
 
 if [ "$RUN_SCAN" == "false" ]; then
-  exit 128
+  exit 130
 fi
 
 #Get ASoC execution summary
