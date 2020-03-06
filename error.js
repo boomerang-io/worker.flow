@@ -43,6 +43,9 @@ class CICDError extends Error {
       case 127:
         definedMessage = "A file required was not found.";
         break;
+      case 128:
+        definedMessage = "ASoC scan failed to complete.";
+        break;
       default:
         break;
     }
