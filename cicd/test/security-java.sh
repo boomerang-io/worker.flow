@@ -53,9 +53,9 @@ export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 
-ls -al SAClientUtil/logs
+cat SAClientUtil/logs/client.log
 
-if [ -f "${COMPONENT_NAME}_${VERSION_NAME}.irx" ]; then
+if [ ! -f "${COMPONENT_NAME}_${VERSION_NAME}.irx" ]; then
   exit 128
 fi
 
