@@ -18,7 +18,7 @@ echo "Creds: $ART_REPO_USER:$ART_REPO_PASSWORD"
 curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ASOC_CLIENT_CLI" -o SAClientUtil.zip
 
 # Unzip ASoC CLI
-ls -al
+ls -al SAClientUtil.zip
 unzip SAClientUtil.zip
 rm -f SAClientUtil.zip
 SAC_DIR=`ls -d SAClientUtil*`
@@ -41,8 +41,8 @@ cat >> appscan-config.xml <<EOL
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
    <Targets>
-    <Target path="target\classes">
-      <CustomBuildInfo additional_classpath="target\dependency;target\classes" src_root="src\main\java;" jdk_path="$JAVA_HOME"  />
+    <Target path="target/classes">
+      <CustomBuildInfo additional_classpath="target/dependency;target/classes" src_root="src/main/java;src/test/java;src/main/resources" jdk_path="$JAVA_HOME" />
     </Target>
   </Targets>
 </Configuration>
@@ -50,6 +50,7 @@ EOL
 
 # Generate IRX file
 SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n $COMPONENT_NAME_$VERSION_NAME.irx
+ls -al $COMPONENT_NAME_$VERSION_NAME.irx
 
 # Start Static Analyzer ASoC Scan
 echo "ASoC App ID: $ASOC_APP_ID"
@@ -58,7 +59,7 @@ echo "ASoC Login Secret ID: $ASOC_LOGIN_SECRET"
 
 SAClientUtil/bin/appscan.sh api_login -u $ASOC_LOGIN_KEY_ID  -P $ASOC_LOGIN_SECRET
 ASOC_SCAN_ID=$(SAClientUtil/bin/appscan.sh queue_analysis -a $ASOC_APP_ID -f $COMPONENT_NAME_$VERSION_NAME.irx -n $COMPONENT_NAME_$VERSION_NAME |  tail -n 1)
-echo $ASOC_SCAN_ID
+echo "ASoC Scan ID: $ASOC_SCAN_ID"
 
 START_SCAN=`date +%s`
 RUN_SCAN=true
@@ -69,13 +70,13 @@ while [ "$(SAClientUtil/bin/appscan.sh status -i $ASOC_SCAN_ID)" != "Ready" ] &&
     echo "Timed out waiting for ASoC job to complete [$DIFF/300]"
     RUN_SCAN=false
   else
-    echo "ASoC job execution not completed ... waiting 10 seconds they retrying [$DIFF/300]"
-    sleep 10
+    echo "ASoC job execution not completed ... waiting 5 seconds they retrying [$DIFF/300]"
+    sleep 5
   fi
 done
 
 if [ "$RUN_SCAN" == "false" ]; then
-  exit 1
+  exit 128
 fi
 
 #Get ASoC execution summary
