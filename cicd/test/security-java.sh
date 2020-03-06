@@ -53,8 +53,8 @@ EOL
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
-#SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
-SAClientUtil/bin/appscan.sh prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+#../SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+../SAClientUtil/bin/appscan.sh prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 
 ls -al
 
@@ -62,7 +62,7 @@ echo "==========================================================================
 #cat appscan-config.xml
 echo "========================================================================================="
 
-cat SAClientUtil/logs/client.log
+cat ../SAClientUtil/logs/client.log
 
 if [ ! -f "${COMPONENT_NAME}_${VERSION_NAME}.irx" ]; then
   exit 128
