@@ -37,7 +37,7 @@ echo "MAVEN_OPTS=$MAVEN_OPTS"
 mvn compile dependency:copy-dependencies $MAVEN_OPTS
 
 # Create appscan-config.xml
-cat >> appscan-config.xml <<EOL
+cat >> glen-appscan-config.xml <<EOL
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
    <Targets>
@@ -51,7 +51,14 @@ EOL
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
-SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+#SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+SAClientUtil/bin/appscan.sh prepare
+
+ls -al
+
+echo "========================================================================================="
+cat appscan-config.xml
+echo "========================================================================================="
 
 cat SAClientUtil/logs/client.log
 
