@@ -54,14 +54,21 @@ EOL
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 #../SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
-../SAClientUtil/bin/appscan.sh prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+../SAClientUtil/bin/appscan.sh prepare -v -X -sp -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 
 ls -al
 
 curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
 curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
 
-cp glen.test.java_0.0.30-5.failed ${COMPONENT_NAME}_${VERSION_NAME}.irx
+if [ ! -f "${COMPONENT_NAME}_${VERSION_NAME}.irx" ]; then
+  file=`ls *.failed 2> /dev/null`
+  if [ -f "$file" ]; then
+    cp $file ${COMPONENT_NAME}_${VERSION_NAME}.irx
+  fi
+fi
+
+ls -al
 
 echo "========================================================================================="
 #cat appscan-config.xml
@@ -72,8 +79,6 @@ cat ../SAClientUtil/logs/client.log
 if [ ! -f "${COMPONENT_NAME}_${VERSION_NAME}.irx" ]; then
   exit 128
 fi
-
-cat ${COMPONENT_NAME}_${VERSION_NAME}.irx
 
 # Start Static Analyzer ASoC Scan
 echo "ASoC App ID: $ASOC_APP_ID"
@@ -93,12 +98,12 @@ RUN_SCAN=true
 while [ "$(../SAClientUtil/bin/appscan.sh status -i $ASOC_SCAN_ID)" != "Ready" ] && [ "$RUN_SCAN" == "true" ]; do
   NOW=`date +%s`
   DIFF=`expr $NOW - $START_SCAN`
-  if [ $DIFF -gt 300 ]; then
-    echo "Timed out waiting for ASoC job to complete [$DIFF/300]"
+  if [ $DIFF -gt 600 ]; then
+    echo "Timed out waiting for ASoC job to complete [$DIFF/600]"
     RUN_SCAN=false
   else
-    echo "ASoC job execution not completed ... waiting 5 seconds they retrying [$DIFF/300]"
-    sleep 5
+    echo "ASoC job execution not completed ... waiting 15 seconds they retrying [$DIFF/600]"
+    sleep 15
   fi
 done
 
