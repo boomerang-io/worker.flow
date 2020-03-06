@@ -44,6 +44,12 @@ class CICDError extends Error {
         definedMessage = "A file required was not found.";
         break;
       case 128:
+        definedMessage = "ASoC .irx file failed to generate.";
+        break;
+      case 129:
+        definedMessage = "ASoC scan failed to start.";
+        break;
+      case 130:
         definedMessage = "ASoC scan failed to complete.";
         break;
       default:
