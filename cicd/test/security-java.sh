@@ -38,32 +38,34 @@ echo "MAVEN_OPTS=$MAVEN_OPTS"
 mvn install $MAVEN_OPTS
 
 # Create appscan-config.xml
-cat >> glen-appscan-config.xml <<EOL
-<?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
-   <Targets>
-    <Target path="target/classes">
-      <CustomBuildInfo additional_classpath="target/dependency;target/classes" src_root="src/main/java;src/test/java;src/main/resources" jdk_path="$JAVA_HOME" />
-      <Exclude>SAClientUtil/</Exclude>
-    </Target>
-  </Targets>
-</Configuration>
-EOL
+# cat >> glen-appscan-config.xml <<EOL
+# <?xml version="1.0" encoding="UTF-8"?>
+# <Configuration>
+#    <Targets>
+#     <Target path="target/classes">
+#       <CustomBuildInfo additional_classpath="target/dependency;target/classes" src_root="src/main/java;src/test/java;src/main/resources" jdk_path="$JAVA_HOME" />
+#       <Exclude>SAClientUtil/</Exclude>
+#     </Target>
+#   </Targets>
+# </Configuration>
+# EOL
+
+# Clean workspace and recompile
+rm -Rf target
+mvn install
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 #../SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
-# ../SAClientUtil/bin/appscan.sh prepare -v -X -sp -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+../SAClientUtil/bin/appscan.sh prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 
-mvn package com.hcl.security:appscan-maven-plugin:prepare -Doutput=${COMPONENT_NAME}_${VERSION_NAME}.irx
+# mvn package com.hcl.security:appscan-maven-plugin:prepare -Doutput=${COMPONENT_NAME}_${VERSION_NAME}.irx
 
 ls -alR
 
-curl -T /data/workspace/target/service-glen_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/service-glen_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
-
-# curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
-# curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
 
 # if [ ! -f "${COMPONENT_NAME}_${VERSION_NAME}.irx" ]; then
 #   file=`ls *.failed 2> /dev/null`
