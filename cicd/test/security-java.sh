@@ -54,25 +54,27 @@ EOL
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 #../SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
-../SAClientUtil/bin/appscan.sh prepare -v -X -sp -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+# ../SAClientUtil/bin/appscan.sh prepare -v -X -sp -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+
+mvn package com.hcl.security:appscan-maven-plugin:prepare -Doutput=${COMPONENT_NAME}_${VERSION_NAME}.irx
 
 ls -al
 
-curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
-curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+# curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+# curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
 
-if [ ! -f "${COMPONENT_NAME}_${VERSION_NAME}.irx" ]; then
-  file=`ls *.failed 2> /dev/null`
-  if [ -f "$file" ]; then
-    cp $file ${COMPONENT_NAME}_${VERSION_NAME}.irx
-  fi
-fi
+# if [ ! -f "${COMPONENT_NAME}_${VERSION_NAME}.irx" ]; then
+#   file=`ls *.failed 2> /dev/null`
+#   if [ -f "$file" ]; then
+#     cp $file ${COMPONENT_NAME}_${VERSION_NAME}.irx
+#   fi
+# fi
 
 ls -al
 
-echo "========================================================================================="
-#cat appscan-config.xml
-echo "========================================================================================="
+# echo "========================================================================================="
+# cat appscan-config.xml
+# echo "========================================================================================="
 
 cat ../SAClientUtil/logs/client.log
 
