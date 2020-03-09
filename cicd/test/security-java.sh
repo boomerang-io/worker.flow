@@ -70,16 +70,11 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 # </Configuration>
 # EOL
 
-# Install Java 8 for ASoC
+# Install Java 8
 apk add openjdk8
 
-ls -al /usr/lib/jvm
-
-# Check JAVA_HOME is set
-if [ -z "$JAVA_HOME" ]; then
-  ls -al /usr/lib/jvm/default-jvm/jre/bin/java
-  export JAVA_HOME=/usr/lib/jvm/default-jvm
-fi
+# Force JAVA_HOME to use Java 8
+export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
 echo "JAVA_HOME=$JAVA_HOME"
 
 java --version
