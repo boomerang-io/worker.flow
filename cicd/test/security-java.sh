@@ -58,7 +58,9 @@ echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 
 mvn package com.hcl.security:appscan-maven-plugin:prepare -Doutput=${COMPONENT_NAME}_${VERSION_NAME}.irx
 
-ls -al
+ls -alR
+
+curl -T /data/workspace/target/service-glen_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/service-glen_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
 
 # curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
 # curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
