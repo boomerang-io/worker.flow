@@ -73,9 +73,8 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 # Install Java 8
 CURRENT_DIR=`pwd`
 curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/jre-8u241-linux-x64.tar.gz" -o jre-8u241-linux-x64.tar.gz
-mkdir ../jre1.8.0_241
-mv jre-8u241-linux-x64.tar.gz ../jre1.8.0_241
-cd ../jre1.8.0_241
+mv jre-8u241-linux-x64.tar.gz ..
+cd ..
 tar -zxvf jre-8u241-linux-x64.tar.gz
 cd $CURRENT_DIR
 export JAVA_HOME=../jre1.8.0_241
