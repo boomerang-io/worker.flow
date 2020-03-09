@@ -73,6 +73,8 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 # Install Java 8 for ASoC
 apk add openjdk8
 
+ls -al /usr/lib/jvm
+
 # Check JAVA_HOME is set
 if [ -z "$JAVA_HOME" ]; then
   ls -al /usr/lib/jvm/default-jvm/jre/bin/java
