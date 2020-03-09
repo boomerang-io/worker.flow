@@ -41,6 +41,11 @@ fi
 echo "MAVEN_OPTS=$MAVEN_OPTS"
 mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
 
+# Install jaxb-api for Java 11
+curl https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.jar -o jaxb-api-2.3.0.jar
+curl https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.pom -o jaxb-api-2.3.0.pom
+mvn install:install-file -Dfile=jaxb-api-2.3.0.jar -DpomFile=jaxb-api-2.3.0.pom
+
 # Create appscan-config.xml
 # cat >> glen-appscan-config.xml <<EOL
 # <?xml version="1.0" encoding="UTF-8"?>
@@ -59,13 +64,10 @@ export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 #../SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 ../SAClientUtil/bin/appscan.sh prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
-
 # mvn package com.hcl.security:appscan-maven-plugin:prepare -Doutput=${COMPONENT_NAME}_${VERSION_NAME}.irx
 
-ls -alR
-
-curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
-curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+# curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+# curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
 
 # if [ ! -f "${COMPONENT_NAME}_${VERSION_NAME}.irx" ]; then
 #   file=`ls *.failed 2> /dev/null`
