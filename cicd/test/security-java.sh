@@ -71,13 +71,15 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 # EOL
 
 # Install Java 8
-apk add openjdk8
-
-# Force JAVA_HOME to use Java 8
-export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
-echo "JAVA_HOME=$JAVA_HOME"
-
-java --version
+CURRENT_DIR=`pwd`
+curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/jre-8u241-linux-x64.tar.gz" -o jre-8u241-linux-x64.tar.gz
+mkdir ../jre1.8.0_241
+mv jre-8u241-linux-x64.tar.gz ../java8
+cd ../jre1.8.0_241
+tar -zxvf jre-8u241-linux-x64.tar.gz
+cd $CURRENT_DIR
+export JAVA_HOME=../jre1.8.0_241
+$JAVA_HOME/bin/java --version
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
