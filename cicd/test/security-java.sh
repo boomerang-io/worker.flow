@@ -28,9 +28,6 @@ mv SAClientUtil ../SAClientUtil
 # Check JAVA_HOME is set
 echo "JAVA_HOME=$JAVA_HOME"
 
-# Clean workspace
-mvn clean
-
 # Compile Source
 if [ "$HTTP_PROXY" != "" ]; then
     # Swap , for |
@@ -38,7 +35,7 @@ if [ "$HTTP_PROXY" != "" ]; then
     export MAVEN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttp.nonProxyHosts='$MAVEN_PROXY_IGNORE' -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT -Dhttps.nonProxyHosts='$MAVEN_PROXY_IGNORE'"
 fi
 echo "MAVEN_OPTS=$MAVEN_OPTS"
-mvn install $MAVEN_OPTS
+mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
 
 # Create appscan-config.xml
 # cat >> glen-appscan-config.xml <<EOL
