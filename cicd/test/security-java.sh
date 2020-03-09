@@ -25,13 +25,6 @@ SAC_DIR=`ls -d SAClientUtil*`
 mv $SAC_DIR SAClientUtil
 mv SAClientUtil ../SAClientUtil
 
-# Check JAVA_HOME is set
-if [ -z "$JAVA_HOME" ]; then
-  ls -al /usr/lib/jvm/default-jvm/jre/bin/java
-  export JAVA_HOME=/usr/lib/jvm/default-jvm
-fi
-echo "JAVA_HOME=$JAVA_HOME"
-
 # Compile Source
 if [ "$HTTP_PROXY" != "" ]; then
     # Swap , for |
@@ -41,21 +34,28 @@ fi
 echo "MAVEN_OPTS=$MAVEN_OPTS"
 mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
 
-# Install jaxb for Java 11
-curl https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.jar -o jaxb-api-2.3.0.jar
-curl https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.pom -o jaxb-api-2.3.0.pom
-mvn install:install-file -Dfile=jaxb-api-2.3.0.jar -DpomFile=jaxb-api-2.3.0.pom
+# # Install jaxb for Java 11
+# curl https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.jar -o jaxb-api-2.3.0.jar
+# curl https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.pom -o jaxb-api-2.3.0.pom
+# mvn install:install-file -Dfile=jaxb-api-2.3.0.jar -DpomFile=jaxb-api-2.3.0.pom
+#
+# curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-core/2.3.0/jaxb-core-2.3.0.jar -o jaxb-core-2.3.0.jar
+# curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-core/2.3.0/jaxb-core-2.3.0.pom -o jaxb-core-2.3.0.pom
+# mvn install:install-file -Dfile=jaxb-core-2.3.0.jar -DpomFile=jaxb-core-2.3.0.pom
+#
+# curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/2.3.0/jaxb-impl-2.3.0.jar -o jaxb-impl-2.3.0.jar
+# curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/2.3.0/jaxb-impl-2.3.0.pom -o jaxb-impl-2.3.0.pom
+# mvn install:install-file -Dfile=jaxb-impl-2.3.0.jar -DpomFile=jaxb-impl-2.3.0.pom
 
-curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-core/2.3.0/jaxb-core-2.3.0.jar -o jaxb-core-2.3.0.jar
-curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-core/2.3.0/jaxb-core-2.3.0.pom -o jaxb-core-2.3.0.pom
-mvn install:install-file -Dfile=jaxb-core-2.3.0.jar -DpomFile=jaxb-core-2.3.0.pom
 
-curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/2.3.0/jaxb-impl-2.3.0.jar -o jaxb-impl-2.3.0.jar
-curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/2.3.0/jaxb-impl-2.3.0.pom -o jaxb-impl-2.3.0.pom
-mvn install:install-file -Dfile=jaxb-impl-2.3.0.jar -DpomFile=jaxb-impl-2.3.0.pom
 
 # export JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-modules=java.xml.bind"
 # echo "JDK_JAVA_OPTIONS=$JDK_JAVA_OPTIONS"
+
+
+
+
+
 
 # Create appscan-config.xml
 # cat >> glen-appscan-config.xml <<EOL
@@ -69,6 +69,18 @@ mvn install:install-file -Dfile=jaxb-impl-2.3.0.jar -DpomFile=jaxb-impl-2.3.0.po
 #   </Targets>
 # </Configuration>
 # EOL
+
+# Install Java 8 for ASoC
+apk add openjdk8
+
+# Check JAVA_HOME is set
+if [ -z "$JAVA_HOME" ]; then
+  ls -al /usr/lib/jvm/default-jvm/jre/bin/java
+  export JAVA_HOME=/usr/lib/jvm/default-jvm
+fi
+echo "JAVA_HOME=$JAVA_HOME"
+
+java --version
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
