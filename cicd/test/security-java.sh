@@ -28,6 +28,9 @@ mv SAClientUtil ../SAClientUtil
 # Check JAVA_HOME is set
 echo "JAVA_HOME=$JAVA_HOME"
 
+# Clean workspace
+mvn clean
+
 # Compile Source
 if [ "$HTTP_PROXY" != "" ]; then
     # Swap , for |
@@ -49,10 +52,6 @@ mvn install $MAVEN_OPTS
 #   </Targets>
 # </Configuration>
 # EOL
-
-# Clean workspace and recompile
-rm -Rf target
-mvn install
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
