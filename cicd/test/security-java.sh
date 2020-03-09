@@ -26,6 +26,9 @@ mv $SAC_DIR SAClientUtil
 mv SAClientUtil ../SAClientUtil
 
 # Check JAVA_HOME is set
+if [ -z "$JAVA_HOME" ]; then
+  export JAVA_HOME=/usr/lib/jvm/default-jvm
+fi
 echo "JAVA_HOME=$JAVA_HOME"
 
 # Compile Source
