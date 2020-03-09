@@ -27,7 +27,7 @@ mv SAClientUtil ../SAClientUtil
 
 # Check JAVA_HOME is set
 if [ -z "$JAVA_HOME" ]; then
-  ls -alR /usr/lib/jvm/default-jvm
+  ls -al /usr/lib/jvm/default-jvm/jre/bin/java
   export JAVA_HOME=/usr/lib/jvm/default-jvm
 fi
 echo "JAVA_HOME=$JAVA_HOME"
