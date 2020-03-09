@@ -45,6 +45,8 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 curl https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.jar -o jaxb-api-2.3.0.jar
 curl https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.pom -o jaxb-api-2.3.0.pom
 mvn install:install-file -Dfile=jaxb-api-2.3.0.jar -DpomFile=jaxb-api-2.3.0.pom
+export JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-modules=java.xml.bind"
+echo "JDK_JAVA_OPTIONS=$JDK_JAVA_OPTIONS"
 
 # Create appscan-config.xml
 # cat >> glen-appscan-config.xml <<EOL
