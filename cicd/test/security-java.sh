@@ -75,10 +75,12 @@ CURRENT_DIR=`pwd`
 curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/jre-8u241-linux-x64.tar.gz" -o jre-8u241-linux-x64.tar.gz
 mv jdk-13.0.2_linux-x64_bin.tar.gz ..
 cd ..
-mkdir java
-tar -zxvf jre-8u241-linux-x64.tar.gz -C java
+mkdir jvm
+tar -zxvf jre-8u241-linux-x64.tar.gz -C jvm
+cd jvm
+JAVA_VERSION=`ls`
 cd $CURRENT_DIR
-export JAVA_HOME=../java
+export JAVA_HOME=../jvm/$JAVA_VERSION
 $JAVA_HOME/bin/java -version
 
 # Generate IRX file
