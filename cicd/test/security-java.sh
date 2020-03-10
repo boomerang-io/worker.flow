@@ -11,6 +11,7 @@ ASOC_APP_ID=$6
 ASOC_LOGIN_KEY_ID=$7
 ASOC_LOGIN_SECRET=$8
 ASOC_CLIENT_CLI=$9
+ASOC_JAVA_RUNTIME=$10
 
 # Download ASoC CLI
 echo "SAClientUtil File: $ART_URL/$ASOC_CLIENT_CLI"
@@ -72,7 +73,7 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 
 # Install Java for SAClient CLI
 CURRENT_DIR=`pwd`
-curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/jdk-8u241-linux-x64.tar.gz" -o java.tar.gz
+curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ASOC_JAVA_RUNTIME" -o java.tar.gz
 mv java.tar.gz ..
 cd ..
 mkdir jvm
@@ -81,7 +82,7 @@ cd jvm
 JAVA_VERSION=`ls`
 cd $CURRENT_DIR
 export JAVA_HOME=../jvm/$JAVA_VERSION
-$JAVA_HOME/bin/java -version
+$JAVA_HOME/jre/bin/java -version
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
