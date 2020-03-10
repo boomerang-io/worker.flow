@@ -72,13 +72,15 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 
 # Install Java 8
 CURRENT_DIR=`pwd`
-curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/jdk-11.0.6_linux-x64_bin.tar.gz" -o jdk-11.0.6_linux-x64_bin.tar.gz
-mv jdk-11.0.6_linux-x64_bin.tar.gz ..
+curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/jre-8u241-linux-x64.tar.gz" -o jre-8u241-linux-x64.tar.gz
+mv jre-8u241-linux-x64.tar.gz ..
 cd ..
-tar -zxvf jdk-11.0.6_linux-x64_bin.tar.gz
+tar -zxvf jre-8u241-linux-x64.tar.gz
 cd $CURRENT_DIR
-export JAVA_HOME=../jdk-11.0.6
+export JAVA_HOME=../jre1.8 2.0_241
 $JAVA_HOME/bin/java --version
+
+jre-8u241-linux-x64.tar.gz
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
