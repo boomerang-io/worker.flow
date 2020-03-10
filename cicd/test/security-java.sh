@@ -84,7 +84,7 @@ JAVA_VERSION=`ls`
 cd $CURRENT_DIR
 export JAVA_HOME=../jvm/$JAVA_VERSION
 echo "JAVA_HOME=$JAVA_HOME"
-$JAVA_HOME/jre/bin/java -version
+$JAVA_HOME/bin/java -version
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
