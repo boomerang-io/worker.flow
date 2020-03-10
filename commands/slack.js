@@ -334,5 +334,44 @@ module.exports = {
     } catch (error) {
       log.err("Well, that was unexpected.", error);
     }
+  },
+  async lookUpUser() {
+    log.debug("Inside Look Up User Slack Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const { token, emailAddress } = taskProps;
+
+    //Variable Checks
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+    if (!emailAddress) {
+      log.err("Email address has not been specified");
+      process.exit(1);
+    }
+
+    var web = new WebClient(token);
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
+    }
+
+    web.users
+      .lookupByEmail({
+        email: emailAddress
+      })
+      .then(body => {
+        log.debug("Response Received:", JSON.stringify(body));
+        const user_id = body.user.id;
+        log.sys("slackUserId Found:", user_id);
+        utils.setOutputProperty("slackUserId", user_id);
+        log.good("Response successfully received!");
+      })
+      .catch(err => {
+        log.err(err);
+        process.exit(1);
+      });
   }
 };
