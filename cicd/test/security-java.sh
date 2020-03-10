@@ -76,7 +76,7 @@ curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART
 mv jdk-13.0.2_linux-x64_bin.tar.gz ..
 cd ..
 mkdir jvm
-tar -zxvf jre-8u241-linux-x64.tar.gz -C jvm
+tar -zxvf jdk-13.0.2_linux-x64_bin.tar.gz -C jvm
 cd jvm
 JAVA_VERSION=`ls`
 cd $CURRENT_DIR
