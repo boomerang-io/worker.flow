@@ -77,7 +77,7 @@ mv jre-8u241-linux-x64.tar.gz ..
 cd ..
 tar -zxvf jre-8u241-linux-x64.tar.gz
 cd $CURRENT_DIR
-export JAVA_HOME=../jre1.8 2.0_241
+export JAVA_HOME=../jre1.8.0_241
 $JAVA_HOME/bin/java --version
 
 jre-8u241-linux-x64.tar.gz
