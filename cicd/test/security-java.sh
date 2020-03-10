@@ -70,9 +70,9 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 # </Configuration>
 # EOL
 
-# Install Java 8
+# Install Java for SAClient CLI
 CURRENT_DIR=`pwd`
-curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/jre-8u241-linux-x64.tar.gz" -o jre-8u241-linux-x64.tar.gz
+curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/jdk-13.0.2_linux-x64_bin.tar.gz" -o jdk-13.0.2_linux-x64_bin.tar.gz
 mv jdk-13.0.2_linux-x64_bin.tar.gz ..
 cd ..
 mkdir jvm
