@@ -72,6 +72,7 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 # EOL
 
 # Install Java for SAClient CLI
+echo "ASOC_JAVA_RUNTIME=$ASOC_JAVA_RUNTIME"
 CURRENT_DIR=`pwd`
 curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ASOC_JAVA_RUNTIME" -o java.tar.gz
 mv java.tar.gz ..
@@ -82,6 +83,7 @@ cd jvm
 JAVA_VERSION=`ls`
 cd $CURRENT_DIR
 export JAVA_HOME=../jvm/$JAVA_VERSION
+echo "JAVA_HOME=$JAVA_HOME"
 $JAVA_HOME/jre/bin/java -version
 
 # Generate IRX file
