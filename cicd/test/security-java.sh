@@ -25,7 +25,6 @@ SAC_DIR=`ls -d SAClientUtil*`
 echo "SAC_DIR=$SAC_DIR"
 mv $SAC_DIR SAClientUtil
 mv SAClientUtil ..
-ls -al ../SAClientUtil/jre/bin/java
 
 # Compile Source
 if [ "$HTTP_PROXY" != "" ]; then
@@ -36,24 +35,24 @@ fi
 echo "MAVEN_OPTS=$MAVEN_OPTS"
 mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
 
-# Install jaxb for Java 11
-curl https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.jar -o jaxb-api-2.3.0.jar
-curl https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.pom -o jaxb-api-2.3.0.pom
-mvn install:install-file -Dfile=jaxb-api-2.3.0.jar -DpomFile=jaxb-api-2.3.0.pom
-
-curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-core/2.3.0/jaxb-core-2.3.0.jar -o jaxb-core-2.3.0.jar
-curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-core/2.3.0/jaxb-core-2.3.0.pom -o jaxb-core-2.3.0.pom
-mvn install:install-file -Dfile=jaxb-core-2.3.0.jar -DpomFile=jaxb-core-2.3.0.pom
-
-curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/2.3.0/jaxb-impl-2.3.0.jar -o jaxb-impl-2.3.0.jar
-curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/2.3.0/jaxb-impl-2.3.0.pom -o jaxb-impl-2.3.0.pom
-mvn install:install-file -Dfile=jaxb-impl-2.3.0.jar -DpomFile=jaxb-impl-2.3.0.pom
-
-mv jaxb*.jar ../SAClientUtil/lib
-rm -Rf jaxb*.pom
-
-export JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-modules=java.xml.bind"
-echo "JDK_JAVA_OPTIONS=$JDK_JAVA_OPTIONS"
+# # Install jaxb for Java 11
+# curl https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.jar -o jaxb-api-2.3.0.jar
+# curl https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.pom -o jaxb-api-2.3.0.pom
+# mvn install:install-file -Dfile=jaxb-api-2.3.0.jar -DpomFile=jaxb-api-2.3.0.pom
+#
+# curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-core/2.3.0/jaxb-core-2.3.0.jar -o jaxb-core-2.3.0.jar
+# curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-core/2.3.0/jaxb-core-2.3.0.pom -o jaxb-core-2.3.0.pom
+# mvn install:install-file -Dfile=jaxb-core-2.3.0.jar -DpomFile=jaxb-core-2.3.0.pom
+#
+# curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/2.3.0/jaxb-impl-2.3.0.jar -o jaxb-impl-2.3.0.jar
+# curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/2.3.0/jaxb-impl-2.3.0.pom -o jaxb-impl-2.3.0.pom
+# mvn install:install-file -Dfile=jaxb-impl-2.3.0.jar -DpomFile=jaxb-impl-2.3.0.pom
+#
+# mv jaxb*.jar ../SAClientUtil/lib
+# rm -Rf jaxb*.pom
+#
+# export JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-modules=java.xml.bind"
+# echo "JDK_JAVA_OPTIONS=$JDK_JAVA_OPTIONS"
 
 # Create appscan-config.xml
 # cat >> glen-appscan-config.xml <<EOL
@@ -69,29 +68,36 @@ echo "JDK_JAVA_OPTIONS=$JDK_JAVA_OPTIONS"
 # EOL
 
 # Install Java for SAClient CLI
-echo "ASOC_JAVA_RUNTIME=$ASOC_JAVA_RUNTIME"
-CURRENT_DIR=`pwd`
-curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ASOC_JAVA_RUNTIME" -o java.tar.gz
-mv java.tar.gz ..
-cd ..
-mkdir jvm
-tar -zxvf java.tar.gz -C jvm
-cd jvm
-export JAVA_HOME=$(pwd)/$(ls)
-echo "JAVA_HOME=$JAVA_HOME"
-cd $CURRENT_DIR
-$JAVA_HOME/bin/java -version
+# echo "ASOC_JAVA_RUNTIME=$ASOC_JAVA_RUNTIME"
+# CURRENT_DIR=`pwd`
+# curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ASOC_JAVA_RUNTIME" -o java.tar.gz
+# mv java.tar.gz ..
+# cd ..
+# mkdir jvm
+# tar -zxvf java.tar.gz -C jvm
+# cd jvm
+# export JAVA_HOME=$(pwd)/$(ls)
+# echo "JAVA_HOME=$JAVA_HOME"
+# cd $CURRENT_DIR
+# $JAVA_HOME/bin/java -version
 
 # export JAVA_HOME=../SAClientUtil/jre
 # $JAVA_HOME/bin/java -version
+
+export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
+echo "JAVA_HOME=$JAVA_HOME"
+$JAVA_HOME/jre/bin/java -version
+
+export JAVACMD="$JAVA_HOME/jre/bin/java"
+echo "JAVACMD=$JAVACMD"
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 # ../SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
-# ../SAClientUtil/bin/appscan.sh prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+../SAClientUtil/bin/appscan.sh prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 # mvn package com.hcl.security:appscan-maven-plugin:prepare -Doutput=${COMPONENT_NAME}_${VERSION_NAME}.irx
-$JAVA_HOME/bin/java -Dcom.ibm.jsse2.usefipsprovider=true $APPSCAN_OPTS -cp "../SAClientUtil/lib/*" com.ibm.appscan.cli.common.Launcher "../SAClientUtil" prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+# $JAVA_HOME/bin/java -Dcom.ibm.jsse2.usefipsprovider=true $APPSCAN_OPTS -cp "../SAClientUtil/lib/*" com.ibm.appscan.cli.common.Launcher "../SAClientUtil" prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 
 # Sleep 5 minutes for debugging
 sleep 300
