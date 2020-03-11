@@ -83,8 +83,7 @@ module.exports = {
           }
           if (testTypes.includes("security")) {
             log.debug("Commencing security tests");
-            // await exec(shellDir + "/test/initialize-dependencies-unit-java.sh");
-            // await exec(shellDir + "/test/initialize-dependencies-security-java.sh");
+            await exec(shellDir + "/test/initialize-dependencies-security-java.sh");
             await exec(shellDir + "/test/security-java.sh " + taskProps["system.component.name"] + " " + taskProps["version.name"] + " " + JSON.stringify(taskProps["global/asoc.repo.url"]) + " " + taskProps["global/asoc.repo.user"] + " " + taskProps["global/asoc.repo.password"] + " " + taskProps["global/asoc.app.id"] + " " + taskProps["global/asoc.login.key.id"] + " " + taskProps["global/asoc.login.secret"] + " " + taskProps["global/asoc.client.cli"] + " " + taskProps["global/asoc.java.runtime"]);
           }
         } else if (taskProps["system.mode"] === "nodejs") {
