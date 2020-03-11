@@ -1,3 +1,3 @@
 #!/bin/bash
 
-apk add build-base
+apk add openjdk8
