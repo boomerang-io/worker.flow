@@ -112,7 +112,7 @@ echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 # ../SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
-../SAClientUtil/bin/appscan.sh prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+/data/SAClientUtil/bin/appscan.sh prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 # mvn package com.hcl.security:appscan-maven-plugin:prepare -Doutput=${COMPONENT_NAME}_${VERSION_NAME}.irx
 # $JAVA_HOME/bin/java -Dcom.ibm.jsse2.usefipsprovider=true $APPSCAN_OPTS -cp "../SAClientUtil/lib/*" com.ibm.appscan.cli.common.Launcher "../SAClientUtil" prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 
@@ -135,7 +135,7 @@ ls -al
 # cat appscan-config.xml
 # echo "========================================================================================="
 
-cat ../SAClientUtil/logs/client.log
+cat /data/SAClientUtil/logs/client.log
 
 if [ ! -f "${COMPONENT_NAME}_${VERSION_NAME}.irx" ]; then
   exit 128
@@ -146,8 +146,8 @@ echo "ASoC App ID: $ASOC_APP_ID"
 echo "ASoC Login Key ID: $ASOC_LOGIN_KEY_ID"
 echo "ASoC Login Secret ID: $ASOC_LOGIN_SECRET"
 
-../SAClientUtil/bin/appscan.sh api_login -u $ASOC_LOGIN_KEY_ID -P $ASOC_LOGIN_SECRET
-ASOC_SCAN_ID=$(../SAClientUtil/bin/appscan.sh queue_analysis -a $ASOC_APP_ID -f ${COMPONENT_NAME}_${VERSION_NAME}.irx -n ${COMPONENT_NAME}_${VERSION_NAME} | tail -n 1)
+/data/SAClientUtil/bin/appscan.sh api_login -u $ASOC_LOGIN_KEY_ID -P $ASOC_LOGIN_SECRET
+ASOC_SCAN_ID=$(/data/SAClientUtil/bin/appscan.sh queue_analysis -a $ASOC_APP_ID -f ${COMPONENT_NAME}_${VERSION_NAME}.irx -n ${COMPONENT_NAME}_${VERSION_NAME} | tail -n 1)
 echo "ASoC Scan ID: $ASOC_SCAN_ID"
 
 if [ -z "$ASOC_SCAN_ID" ]; then
@@ -156,7 +156,7 @@ fi
 
 START_SCAN=`date +%s`
 RUN_SCAN=true
-while [ "$(../SAClientUtil/bin/appscan.sh status -i $ASOC_SCAN_ID)" != "Ready" ] && [ "$RUN_SCAN" == "true" ]; do
+while [ "$(/data/SAClientUtil/bin/appscan.sh status -i $ASOC_SCAN_ID)" != "Ready" ] && [ "$RUN_SCAN" == "true" ]; do
   NOW=`date +%s`
   DIFF=`expr $NOW - $START_SCAN`
   if [ $DIFF -gt 600 ]; then
@@ -173,10 +173,10 @@ if [ "$RUN_SCAN" == "false" ]; then
 fi
 
 #Get ASoC execution summary
-../SAClientUtil/bin/appscan.sh info -i $ASOC_SCAN_ID -json >> ASOC_Summary.json
+/data/SAClientUtil/bin/appscan.sh info -i $ASOC_SCAN_ID -json >> ASOC_Summary.json
 
 # Download ASoC report
-../SAClientUtil/bin/appscan.sh get_result -d ASOC_SCAN_RESULTS_${COMPONENT_NAME}_${VERSION_NAME}.html -i $ASOC_SCAN_ID
+/data/SAClientUtil/bin/appscan.sh get_result -d ASOC_SCAN_RESULTS_${COMPONENT_NAME}_${VERSION_NAME}.html -i $ASOC_SCAN_ID
 
 cat ASOC_SCAN_RESULTS_${COMPONENT_NAME}_${VERSION_NAME}.html
 
