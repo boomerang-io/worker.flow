@@ -27,9 +27,6 @@ mv $SAC_DIR SAClientUtil
 mv SAClientUtil ..
 ls -al ../SAClientUtil/jre/bin/java
 
-# Sleep 5 minutes for debugging
-sleep 300
-
 # Compile Source
 if [ "$HTTP_PROXY" != "" ]; then
     # Swap , for |
@@ -51,6 +48,9 @@ mvn install:install-file -Dfile=jaxb-core-2.3.0.jar -DpomFile=jaxb-core-2.3.0.po
 curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/2.3.0/jaxb-impl-2.3.0.jar -o jaxb-impl-2.3.0.jar
 curl https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/2.3.0/jaxb-impl-2.3.0.pom -o jaxb-impl-2.3.0.pom
 mvn install:install-file -Dfile=jaxb-impl-2.3.0.jar -DpomFile=jaxb-impl-2.3.0.pom
+
+mv jaxb*.jar ../SAClientUtil/lib
+rm -Rf jaxb*.pom
 
 export JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS --add-modules=java.xml.bind"
 echo "JDK_JAVA_OPTIONS=$JDK_JAVA_OPTIONS"
@@ -91,7 +91,10 @@ echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 # ../SAClientUtil/bin/appscan.sh prepare -c appscan-config.xml -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 # ../SAClientUtil/bin/appscan.sh prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 # mvn package com.hcl.security:appscan-maven-plugin:prepare -Doutput=${COMPONENT_NAME}_${VERSION_NAME}.irx
-java -Dcom.ibm.jsse2.usefipsprovider=true $APPSCAN_OPTS -cp "../SAClientUtil/lib/*" com.ibm.appscan.cli.common.Launcher "../SAClientUtil" prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+$JAVA_HOME/bin/java -Dcom.ibm.jsse2.usefipsprovider=true $APPSCAN_OPTS -cp "../SAClientUtil/lib/*" com.ibm.appscan.cli.common.Launcher "../SAClientUtil" prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
+
+# Sleep 5 minutes for debugging
+sleep 300
 
 # curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
 # curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
