@@ -81,9 +81,13 @@ mkdir jvm
 tar -zxvf java.tar.gz -C jvm
 cd jvm
 JAVA_VERSION=`ls`
+echo "JAVA_VERSION=$JAVA_VERSION"
 cd $CURRENT_DIR
 export JAVA_HOME=../jvm/$JAVA_VERSION
 echo "JAVA_HOME=$JAVA_HOME"
+ls -al $JAVA_HOME
+ls -al $JAVA_HOME/bin
+ls -al $JAVA_HOME/bin/java
 $JAVA_HOME/bin/java -version
 
 # Generate IRX file
