@@ -1,5 +1,6 @@
 #Import the base docker image built on top of Alpine
-FROM alpine:3.8 
+#FROM alpine:3.8
+FROM ubuntu:18.04
 
 #Add Packages
 RUN apk add --no-cache bash sed grep curl coreutils nodejs npm
