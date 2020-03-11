@@ -85,6 +85,9 @@ echo "JAVA_HOME=$JAVA_HOME"
 cd $CURRENT_DIR
 $JAVA_HOME/bin/java -version
 
+export JAVA_HOME=../SAClientUtil/jre
+$JAVA_HOME/bin/java -version
+
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
