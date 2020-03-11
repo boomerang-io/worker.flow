@@ -1,5 +1,6 @@
 #Import the base docker image built on top of Alpine
-FROM alpine:3.9
+#FROM alpine:3.9
+FROM ubuntu:18.04
 
 WORKDIR /opt/bin
 
