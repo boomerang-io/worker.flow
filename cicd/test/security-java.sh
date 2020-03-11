@@ -84,6 +84,8 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 # export JAVA_HOME=../SAClientUtil/jre
 # $JAVA_HOME/bin/java -version
 
+apk add openjdk8
+
 export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
 echo "JAVA_HOME=$JAVA_HOME"
 $JAVA_HOME/jre/bin/java -version
