@@ -105,6 +105,9 @@ apk add libgcc libstdc++
 
 apk info
 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/data/SAClientUtil/bin
+echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
