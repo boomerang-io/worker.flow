@@ -94,9 +94,9 @@ export JAVACMD="$JAVA_HOME/jre/bin/java"
 echo "JAVACMD=$JAVACMD"
 $JAVACMD
 
-rm /data/SAClientUtil/jre/bin/java
-ln -s /usr/lib/jvm/java-1.8-openjdk/jre/bin/java /data/SAClientUtil/jre/bin/java
-/data/SAClientUtil/jre/bin/java -version
+# rm /data/SAClientUtil/jre/bin/java
+# ln -s /usr/lib/jvm/java-1.8-openjdk/jre/bin/java /data/SAClientUtil/jre/bin/java
+# /data/SAClientUtil/jre/bin/java -version
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
