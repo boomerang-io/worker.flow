@@ -103,6 +103,8 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 
 apk add libgcc libstdc++
 
+apk info
+
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
