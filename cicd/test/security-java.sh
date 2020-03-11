@@ -97,9 +97,13 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 # $JAVACMD
 
 
-rm /data/SAClientUtil/jre/bin/java
-ln -s /usr/lib/jvm/java-1.8-openjdk/jre/bin/java /data/SAClientUtil/jre/bin/java
-../SAClientUtil/bin/..//jre/bin/java -version
+# rm /data/SAClientUtil/jre/bin/java
+# ln -s /usr/lib/jvm/java-1.8-openjdk/jre/bin/java /data/SAClientUtil/jre/bin/java
+# ../SAClientUtil/bin/..//jre/bin/java -version
+
+apk add --update alpine-sdk
+apk add libffi-dev openssl-dev
+apk --no-cache --update add build-base
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
