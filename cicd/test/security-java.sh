@@ -19,12 +19,13 @@ echo "Creds: $ART_REPO_USER:$ART_REPO_PASSWORD"
 curl --noproxy "$NO_PROXY" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD "$ART_URL/$ASOC_CLIENT_CLI" -o SAClientUtil.zip
 
 # Unzip ASoC CLI
-ls -al SAClientUtil.zip
 unzip SAClientUtil.zip
 rm -f SAClientUtil.zip
 SAC_DIR=`ls -d SAClientUtil*`
+echo "SAC_DIR=$SAC_DIR"
 mv $SAC_DIR SAClientUtil
-mv SAClientUtil ../SAClientUtil
+mv SAClientUtil ..
+ls -al ../SAClientUtil
 
 # Compile Source
 if [ "$HTTP_PROXY" != "" ]; then
