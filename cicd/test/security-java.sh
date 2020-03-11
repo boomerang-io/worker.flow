@@ -25,7 +25,10 @@ SAC_DIR=`ls -d SAClientUtil*`
 echo "SAC_DIR=$SAC_DIR"
 mv $SAC_DIR SAClientUtil
 mv SAClientUtil ..
-ls -al ../SAClientUtil
+ls -al ../SAClientUtil/jre/bin/java
+
+# Sleep 5 minutes for debugging
+sleep 300
 
 # Compile Source
 if [ "$HTTP_PROXY" != "" ]; then
