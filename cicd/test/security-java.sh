@@ -114,8 +114,11 @@ wget "https://www.archlinux.org/packages/core/x86_64/zlib/download" -O /tmp/libz
 
 export LD_LIBRARY_PATH=/usr/lib:/data/SAClientUtil/bin
 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-# export DYLD_LIBRARY_PATH=/usr/lib:/data/SAClientUtil/bin
-# echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+export DYLD_LIBRARY_PATH=/usr/lib:/data/SAClientUtil/bin
+echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
