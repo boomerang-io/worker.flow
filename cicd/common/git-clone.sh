@@ -25,6 +25,7 @@ fi
 
 mkdir -p ~/.ssh
 
+# upper to lower ensures that the host is all lower case to be accepted in match to the ssh host but also the proxy
 if [[ "$GIT_SSH_URL" =~ ^http.* ]]; then
     echo "Adjusting clone for http/s"
     GIT_CLONE_URL=`echo "$GIT_SSH_URL" | sed 's#^\(.*://\)\(.*\)\(\.git\)\{0,1\}$#\git@\2.git#' | sed 's/\//:/' | tr '[:upper:]' '[:lower:]'`
