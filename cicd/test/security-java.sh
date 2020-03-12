@@ -105,10 +105,17 @@ apk add libgcc libstdc++
 
 apk info
 
+wget "https://www.archlinux.org/packages/core/x86_64/zlib/download" -O /tmp/libz.tar.xz \
+    && mkdir -p /tmp/libz \
+    && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
+    && cp /tmp/libz/usr/lib/libz.so.1.2.11 /usr/glibc-compat/lib \
+    && /usr/glibc-compat/sbin/ldconfig \
+    && rm -rf /tmp/libz /tmp/libz.tar.xz
+
 export LD_LIBRARY_PATH=/usr/lib:/data/SAClientUtil/bin
 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-export DYLD_LIBRARY_PATH=/usr/lib:/data/SAClientUtil/bin
-echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+# export DYLD_LIBRARY_PATH=/usr/lib:/data/SAClientUtil/bin
+# echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
