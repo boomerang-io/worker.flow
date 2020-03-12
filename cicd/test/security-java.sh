@@ -120,6 +120,8 @@ echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 
+free -m
+
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
 echo "APPSCAN_OPTS=$APPSCAN_OPTS"
@@ -128,11 +130,12 @@ echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 # mvn package com.hcl.security:appscan-maven-plugin:prepare -Doutput=${COMPONENT_NAME}_${VERSION_NAME}.irx
 # $JAVA_HOME/bin/java -Dcom.ibm.jsse2.usefipsprovider=true $APPSCAN_OPTS -cp "../SAClientUtil/lib/*" com.ibm.appscan.cli.common.Launcher "../SAClientUtil" prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 
+curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+
 # Sleep 5 minutes for debugging
 sleep 300
 
-# curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
-# curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
 
 # if [ ! -f "${COMPONENT_NAME}_${VERSION_NAME}.irx" ]; then
 #   file=`ls *.failed 2> /dev/null`
