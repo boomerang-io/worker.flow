@@ -112,16 +112,20 @@ wget "https://www.archlinux.org/packages/core/x86_64/zlib/download" -O /tmp/libz
     && /usr/glibc-compat/sbin/ldconfig \
     && rm -rf /tmp/libz /tmp/libz.tar.xz
 
-export LD_LIBRARY_PATH=/usr/lib:/data/SAClientUtil/bin
+/usr/glibc-compat/bin/localedef -i en_US -f UTF-8 en_US.UTF-8
+
+export LD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-export DYLD_LIBRARY_PATH=/usr/lib:/data/SAClientUtil/bin
+export DYLD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
 echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
 
 export LANG=en_US.UTF-8
+export LANG=$LANG > /etc/profile.d/locale.sh
 export LANGUAGE=en_US.UTF-8
 
+/usr/glibc-compat/sbin/ldconfig -p
+
 free -m
-vmstat -s
 cat /proc/meminfo
 
 # Generate IRX file
