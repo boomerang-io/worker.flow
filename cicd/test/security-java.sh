@@ -105,9 +105,9 @@ apk add libgcc libstdc++
 
 apk info
 
-export LD_LIBRARY_PATH=/data/SAClientUtil/bin
+export LD_LIBRARY_PATH=/usr/lib:/data/SAClientUtil/bin
 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-export DYLD_LIBRARY_PATH=/data/SAClientUtil/bin
+export DYLD_LIBRARY_PATH=/usr/lib:/data/SAClientUtil/bin
 echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
 
 # Generate IRX file
