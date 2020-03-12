@@ -121,6 +121,8 @@ export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 
 free -m
+vmstat -s
+cat /proc/meminfo
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
