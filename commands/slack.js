@@ -358,7 +358,7 @@ module.exports = {
       web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
     }
 
-    web.users
+    await web.users
       .lookupByEmail({
         email: emailAddress
       })
