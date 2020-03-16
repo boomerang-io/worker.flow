@@ -26,6 +26,9 @@ echo "SAC_DIR=$SAC_DIR"
 mv $SAC_DIR SAClientUtil
 mv SAClientUtil ..
 
+echo "-Xmx4g" | tee -a /data/SAClientUtil/config/cli.config
+cat /data/SAClientUtil/config/cli.config
+
 # Compile Source
 if [ "$HTTP_PROXY" != "" ]; then
     # Swap , for |
@@ -127,6 +130,8 @@ export LANGUAGE=en_US.UTF-8
 
 free -m
 cat /proc/meminfo
+
+ldd /data/SAClientUtil/bin/StaticAnalyzer
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
