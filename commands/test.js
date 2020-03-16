@@ -49,7 +49,7 @@ module.exports = {
         }
 
         log.ci("Retrieving Source Code");
-        await exec(shellDir + '/common/git-clone.sh "' + taskProps["component/git.private.key"] + '" "' + taskProps["component/repoSshUrl"] + '" "' + taskProps["component/repoUrl"] + '" "' + taskProps["git.commit.id"] + '"');
+        await exec(shellDir + '/common/git-clone.sh "' + taskProps["git.private.key"] + '" "' + taskProps["component/repoSshUrl"] + '" "' + taskProps["component/repoUrl"] + '" "' + taskProps["git.commit.id"] + '"');
         shell.cd("/data/workspace");
         if (taskProps["system.mode"] === "lib.jar" || taskProps["system.mode"] === "java") {
           if (!fileCommand.checkFileContainsStringWithProps("/data/workspace/pom.xml", "<plugins>", undefined, false)) {
@@ -74,7 +74,23 @@ module.exports = {
           }
           if (testTypes.includes("static")) {
             log.debug("Commencing static tests");
-            await exec(shellDir + "/test/static-java.sh " + taskProps["build.tool"] + " " + taskProps["version.name"] + " " + taskProps["global/sonar.url"] + " " + taskProps["global/sonar.api.key"] + " " + taskProps["system.component.id"] + " " + taskProps["system.component.name"] + " " + taskProps["sonar.exclusions"]);
+            await exec(
+              shellDir +
+                "/test/static-java.sh " +
+                taskProps["build.tool"] +
+                " " +
+                taskProps["version.name"] +
+                " " +
+                taskProps["global/sonar.url"] +
+                " " +
+                taskProps["global/sonar.api.key"] +
+                " " +
+                taskProps["system.component.id"] +
+                " " +
+                taskProps["system.component.name"] +
+                " " +
+                taskProps["sonar.exclusions"]
+            );
           }
           if (testTypes.includes("unit")) {
             log.debug("Commencing unit tests");
@@ -84,7 +100,29 @@ module.exports = {
           if (testTypes.includes("security")) {
             log.debug("Commencing security tests");
             await exec(shellDir + "/test/initialize-dependencies-unit-java.sh");
-            await exec(shellDir + "/test/security-java.sh " + taskProps["system.component.name"] + " " + taskProps["version.name"] + " " + JSON.stringify(taskProps["global/asoc.repo.url"]) + " " + taskProps["global/asoc.repo.user"] + " " + taskProps["global/asoc.repo.password"] + " " + taskProps["global/asoc.app.id"] + " " + taskProps["global/asoc.login.key.id"] + " " + taskProps["global/asoc.login.secret"] + " " + taskProps["global/asoc.client.cli"] + " " + taskProps["global/asoc.java.runtime"]);
+            await exec(
+              shellDir +
+                "/test/security-java.sh " +
+                taskProps["system.component.name"] +
+                " " +
+                taskProps["version.name"] +
+                " " +
+                JSON.stringify(taskProps["global/asoc.repo.url"]) +
+                " " +
+                taskProps["global/asoc.repo.user"] +
+                " " +
+                taskProps["global/asoc.repo.password"] +
+                " " +
+                taskProps["global/asoc.app.id"] +
+                " " +
+                taskProps["global/asoc.login.key.id"] +
+                " " +
+                taskProps["global/asoc.login.secret"] +
+                " " +
+                taskProps["global/asoc.client.cli"] +
+                " " +
+                taskProps["global/asoc.java.runtime"]
+            );
           }
         } else if (taskProps["system.mode"] === "nodejs") {
           if (testTypes.includes("static")) {
