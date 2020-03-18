@@ -1,6 +1,7 @@
 const HttpsProxyAgent = require("https-proxy-agent");
 const { IncomingWebhook } = require("@slack/webhook");
 const { WebClient } = require("@slack/web-api");
+const axios = require("axios");
 const datetime = require("node-datetime");
 const log = require("./../log.js");
 const utils = require("../utils.js");
@@ -368,6 +369,163 @@ module.exports = {
         log.sys("slackUserId Found:", user_id);
         utils.setOutputProperty("slackUserId", user_id);
         log.good("Response successfully received!");
+      })
+      .catch(err => {
+        log.err(err);
+        process.exit(1);
+      });
+  },
+
+  async downloadDocument() {
+    log.debug("Inside downloadDocument Slack Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const { token, fileId } = taskProps;
+
+    //Variable Checks
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+    if (!fileId) {
+      log.err("File ID not been specified");
+      process.exit(1);
+    }
+
+    var web = new WebClient(token);
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
+    }
+
+    await web.files
+      .info({
+        file: fileId
+      })
+      .then(body => {
+        log.debug("Response Received:", JSON.stringify(body));
+        const file = body.file;
+        log.sys("files returned:", file);
+
+        if (body.error) {
+          log.err("File was not found");
+          process.exit(1);
+        }
+
+        const documentDownloadUrl = file.url_private;
+        log.debug("Download url:", documentDownloadUrl);
+
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+        };
+
+        axios
+          .get(documentDownloadUrl, config)
+          .then(res => {
+            utils.setOutputProperty("slackDocument", res);
+            log.good("Response successfully received!");
+          })
+          .catch(err => {
+            log.err(err);
+            process.exit(1);
+          });
+      })
+      .catch(err => {
+        log.err(err);
+        process.exit(1);
+      });
+  },
+
+  async findAndDownloadDocument() {
+    log.debug("Inside findAndDownloadDocument Slack Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const { token, fileName, channel, ts_from, ts_to, types, user } = taskProps;
+
+    //Variable Checks
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+    if (!fileName) {
+      log.err("File name has not been specified");
+      process.exit(1);
+    }
+
+    if (!channel) {
+      log.err("Channel has not been specified");
+      process.exit(1);
+    }
+
+    if (!user) {
+      log.err("User has not been specified");
+      process.exit(1);
+    }
+
+    if (!ts_from) {
+      log.debug("Setting default ts_from to 0");
+      ts_from == 0;
+    }
+
+    if (!ts_to) {
+      log.debug("Setting default ts_to to now");
+      ts_to == "now";
+    }
+
+    if (!types) {
+      log.debug("Setting default types to all");
+      types == "all";
+    }
+
+    var web = new WebClient(token);
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
+    }
+
+    await web.files
+      .list({
+        channel: channel,
+        user: user,
+        ts_from: ts_from,
+        ts_to: ts_to,
+        types: types
+      })
+      .then(body => {
+        log.debug("Response Received:", JSON.stringify(body));
+        const files = body.files;
+        log.sys("files returned:", files);
+
+        /**
+         * what if a user uploads multiple of the same files to the same channel?
+         * -current method grabs the first one returned (I believe that would be the oldest)
+         */
+        const desiredDocument = files.find(file => file.name === fileName);
+
+        if (desiredDocument === undefined) {
+          log.err("File was not found");
+          process.exit(1);
+        }
+
+        const documentDownloadUrl = desiredDocument.url_private;
+        log.debug("Download url:", documentDownloadUrl);
+
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+        };
+
+        axios
+          .get(documentDownloadUrl, config)
+          .then(res => {
+            utils.setOutputProperty("slackFoundDocument", res);
+            log.good("Response successfully received!");
+          })
+          .catch(err => {
+            log.err(err);
+            process.exit(1);
+          });
       })
       .catch(err => {
         log.err(err);
