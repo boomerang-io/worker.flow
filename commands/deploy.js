@@ -1,4 +1,5 @@
 const log = require("../log.js");
+const path = require("path");
 const utils = require("../utils.js");
 const { CICDError } = require("../error.js");
 const shell = require("shelljs");
@@ -31,14 +32,16 @@ module.exports = {
       shell.cd("/data");
       log.ci("Initializing Dependencies");
       await exec(shellDir + "/deploy/initialize-dependencies.sh " + taskProps["deploy.type"] + " " + taskProps["deploy.kube.version"] + " " + taskProps["deploy.kube.namespace"] + " " + taskProps["deploy.kube.host"] + " " + taskProps["deploy.kube.ip"] + " " + taskProps["deploy.kube.token"]);
+
+      if (taskProps["deploy.git.clone"]) {
+        log.ci("Retrieving Source Code");
+        await exec(shellDir + '/common/git-clone.sh "' + taskProps["git.private.key"] + '" "' + JSON.stringify(taskProps["component/repoSshUrl"]) + '" "' + JSON.stringify(taskProps["component/repoUrl"]) + '" "' + taskProps["git.commit.id"] + '" "' + taskProps["git.lfs"] + '"');
+      }
+
       log.ci("Deploy Artifacts");
       if (taskProps["deploy.type"] === "kubernetes") {
-        var kubePort = "8080";
-        if (taskProps["system.mode"] === "nodejs") {
-          kubePort = "3000";
-        }
-        taskProps["process/port"] = kubePort;
-
+        taskProps["process/deployment.port"] = taskProps["deploy.kubernetes.deployment.port"] !== undefined ? taskProps["deploy.kubernetes.deployment.port"] : "8080";
+        taskProps["process/service.port"] = taskProps["deploy.kubernetes.service.port"] !== undefined ? taskProps["deploy.kubernetes.service.port"] : "5000";
         taskProps["process/org"] = taskProps["team.name"]
           .toString()
           .replace(/[^a-zA-Z0-0]/g, "")
@@ -47,9 +50,22 @@ module.exports = {
           .toString()
           .replace(/[^a-zA-Z0-0]/g, "")
           .toLowerCase();
-        fileCommand.replaceTokensInFileWithProps(shellDir + "/deploy", "kube.yaml", "@", "@", taskProps, "g", "g", true);
+        var dockerImageName = taskProps["docker.image.name"] !== undefined ? taskProps["docker.image.namee"] : taskProps["system.component.name"];
+        taskProps["process/docker.image.name"] = dockerImageName
+          .toString()
+          .replace(/[^a-zA-Z0-0]/g, "")
+          .toLowerCase();
+        var kubePathAndFile = shellDir + "/deploy/kube.yaml";
+        if (taskProps["deploy.kubernetes.file"] !== undefined) {
+          var kubePathAndFile = "/data/workspace" + taskProps["deploy.kubernetes.file"];
+        }
+        var kubePath = path.dirname(kubePathAndFile);
+        var kubeFile = path.basename(kubePathAndFile);
+        log.sys("Kube Path: ", kubePath);
+        log.sys("Kube File: ", kubeFile);
+        await fileCommand.replaceTokensInFileWithProps(kubePath, kubeFile, "@", "@", taskProps, "g", "g", true);
         await exec("less " + shellDir + "/deploy/kube.yaml");
-        await exec(shellDir + "/deploy/kubernetes.sh " + shellDir + "/deploy/kube.yaml" + " " + taskProps["deploy.kube.namespace"] + " " + taskProps["deploy.kube.host"] + " " + taskProps["deploy.kube.ip"] + " " + taskProps["deploy.kube.token"]);
+        await exec(shellDir + "/deploy/kubernetes.sh " + kubePathAndFile + " " + taskProps["deploy.kube.namespace"] + " " + taskProps["deploy.kube.host"] + " " + taskProps["deploy.kube.ip"] + " " + taskProps["deploy.kube.token"]);
       } else if (taskProps["deploy.type"] === "helm" && taskProps["system.mode"] === "helm.chart") {
         await exec(
           shellDir +
