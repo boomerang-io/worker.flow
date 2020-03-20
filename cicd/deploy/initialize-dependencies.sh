@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Supported versions are
-#   ICP 2.x
 #   ICP 3.1 - different versions of kube and helm
 #   ICP 3.2 - different versions of kube, helm, and cert locations
 #   OCP 4.2 + CommonServices 3.2.3 - different versions kube, helm, and cert locations
@@ -11,7 +10,13 @@ DEPLOY_KUBE_VERSION=$2
 DEPLOY_KUBE_NAMESPACE=$3
 DEPLOY_KUBE_HOST=$4
 DEPLOY_KUBE_IP=$5
+DEPLOY_KUBE_PORT=8001
+if [[ "$DEPLOY_KUBE_IP" =~ :[0-9]+$ ]]; then
+    DEPLOY_KUBE_PORT=`echo $DEPLOY_KUBE_IP | rev | cut -d : -f 1 | rev`
+    DEPLOY_KUBE_IP=`echo $DEPLOY_KUBE_IP | rev | cut -d : -f 2 | rev`
+fi
 DEPLOY_KUBE_TOKEN=$6
+DEPLOY_HELM_SSL=${7:-true}
 
 if [ "$DEBUG" == "true" ]; then
     echo "DEBUG::Script input variables..."
@@ -20,6 +25,7 @@ if [ "$DEBUG" == "true" ]; then
     echo "DEPLOY_KUBE_NAMESPACE=$DEPLOY_KUBE_NAMESPACE"
     echo "DEPLOY_KUBE_HOST=$DEPLOY_KUBE_HOST"
     echo "DEPLOY_KUBE_IP=$DEPLOY_KUBE_IP"
+    echo "DEPLOY_KUBE_PORT=$DEPLOY_KUBE_PORT"
     echo "DEPLOY_KUBE_TOKEN=$DEPLOY_KUBE_TOKEN"
     echo "DEBUG::No Proxy variables from Helm Chart..."
     echo "NO_PROXY"=$NO_PROXY
@@ -29,15 +35,17 @@ if [ "$DEBUG" == "true" ]; then
 fi
 
 if [ "$DEPLOY_TYPE" == "helm" ] || [ "$DEPLOY_TYPE" == "kubernetes" ]; then
-    echo "Configuring Kubernetes..."
+    echo " ⋯ Configuring Kubernetes..."
     export KUBE_HOME=~/.kube
-    export HELM_HOME=/tmp/.helm
+    export HELM_HOME=~/.helm
     BIN_HOME=/usr/local/bin
     KUBE_CLI=$BIN_HOME/kubectl
     CLOUD_CLI=$BIN_HOME/cloudctl
-    KUBE_CLI_VERSION=v1.10.2 #ICP 3.1.1
+    KUBE_CLI_VERSION=v1.13.5 #ICP 3.2.1
     if [[ "$DEPLOY_KUBE_VERSION" =~ 3.2.[0-9] ]]; then
         KUBE_CLI_VERSION=v1.13.5
+    elif [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
+        KUBE_CLI_VERSION=v$DEPLOY_KUBE_VERSION
     fi
 
     # Relies on proxy settings coming through if there is a proxy
@@ -47,19 +55,29 @@ if [ "$DEPLOY_TYPE" == "helm" ] || [ "$DEPLOY_TYPE" == "kubernetes" ]; then
         echo "Using Cloudctl version from the Clusters Common Services."
         curl -kL https://icp-console.apps.$DEPLOY_KUBE_HOST:443/api/cli/cloudctl-linux-amd64 -o $CLOUD_CLI && chmod +x $CLOUD_CLI
     else
-        echo "Using Kubectl $KUBE_CLI_VERSION."
+        echo "   ↣ Kubernetes version: $KUBE_CLI_VERSION"
+        echo "   ⋯ Downloading kubectl..."
         curl -L https://storage.googleapis.com/kubernetes-release/release/$KUBE_CLI_VERSION/bin/linux/amd64/kubectl -o $KUBE_CLI && chmod +x $KUBE_CLI
     fi
     KUBE_NAMESPACE=$DEPLOY_KUBE_NAMESPACE
     KUBE_CLUSTER_HOST=$DEPLOY_KUBE_HOST
     KUBE_CLUSTER_IP=$DEPLOY_KUBE_IP
-    KUBE_CLUSTER_PORT=8001
+    KUBE_CLUSTER_PORT=$DEPLOY_KUBE_PORT
     KUBE_TOKEN=$DEPLOY_KUBE_TOKEN
 
     if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
         # $KUBE_CLI config set-cluster $KUBE_CLUSTER_HOST --server=https://api.$DEPLOY_KUBE_HOST:6443 --insecure-skip-tls-verify=true
         echo "Skipping Kube Config and will set via cloudctl later..."
+    elif [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
+        # TODO: add ability for user to provide ca.crt or a mechanism to retrieve cert.
+        # $KUBE_CLI config set-cluster $KUBE_CLUSTER_HOST --server=https://$KUBE_CLUSTER_IP:$KUBE_CLUSTER_PORT --certificate-authority="./ca.crt" --embed-certs=true
+        echo "   ⋯ Configuring Kube Config..."
+        $KUBE_CLI config set-cluster $KUBE_CLUSTER_HOST --server=https://$KUBE_CLUSTER_IP:$KUBE_CLUSTER_PORT --insecure-skip-tls-verify=true
+        $KUBE_CLI config set-credentials $KUBE_CLUSTER_HOST-user --token=$KUBE_TOKEN
+        $KUBE_CLI config set-context $KUBE_CLUSTER_HOST-context --cluster=$KUBE_CLUSTER_HOST --user=$KUBE_CLUSTER_HOST-user --namespace=$KUBE_NAMESPACE
+        $KUBE_CLI config use-context $KUBE_CLUSTER_HOST-context
     else
+        echo "   ⋯ Configuring Kube Config..."
         $KUBE_CLI config set-cluster $KUBE_CLUSTER_HOST --server=https://$KUBE_CLUSTER_IP:$KUBE_CLUSTER_PORT --insecure-skip-tls-verify=true
     # fi #comment if using cloudctl for OCP
     $KUBE_CLI config set-context $KUBE_CLUSTER_HOST-context --cluster=$KUBE_CLUSTER_HOST
@@ -78,10 +96,13 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
     #  THe following variables are shared with helm.sh for deploy step
     K8S_CLUSTER_NAME=$DEPLOY_KUBE_HOST
     HELM_RESOURCE_PATH="/tmp/.helm"
-    HELM_CLUSTER_CONFIG_PATH=$HELM_RESOURCE_PATH/$K8S_CLUSTER_NAME
-    HELM_TLS_STRING="--tls --tls-ca-cert $HELM_CLUSTER_CONFIG_PATH/ca.crt --tls-cert $HELM_CLUSTER_CONFIG_PATH/admin.crt --tls-key $HELM_CLUSTER_CONFIG_PATH/admin.key"
-    if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
-        HELM_TLS_STRING='--tls'
+    HELM_TLS_STRING=
+    if [[ $DEPLOY_HELM_SSL == "true" ]]; then
+        echo " ⋯ Configuring Helm TLS..."
+        HELM_TLS_STRING="--tls --tls-ca-cert $HELM_RESOURCE_PATH/ca.crt --tls-cert $HELM_RESOURCE_PATH/admin.crt --tls-key $HELM_RESOURCE_PATH/admin.key"
+        if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
+            HELM_TLS_STRING='--tls'
+        fi
     fi
     # END
     mkdir -p $HELM_RESOURCE_PATH
@@ -103,12 +124,12 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
     # The following script is shared with helm.sh
     HELM_VERSION=v2.7.2
     HELM_CHART_VERSION_COL=2
-    if [[ "$K8S_CLUSTER_MAJOR_VERSION" =~ 2.[0-9].[0-9] ]]; then
+    if [[ "$DEPLOY_KUBE_VERSION" =~ 2.[0-9].[0-9] ]]; then
         HELM_VERSION=v2.7.2
-    elif [[ "$K8S_CLUSTER_MAJOR_VERSION" =~ 3.[0-1].[0-9] ]]; then
+    elif [[ "$DEPLOY_KUBE_VERSION" =~ 3.[0-1].[0-9] ]]; then
         HELM_VERSION=v2.9.1
     else
-        if [[ "$K8S_CLUSTER_VERSION" == "OCP" ]]; then
+        if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
             HELM_VERSION=v2.12.3
         else
             HELM_VERSION=v2.12.1
@@ -149,54 +170,68 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
     # fi
 
     echo "Testing Helm client..."
-    helm version --client
+    $HELM_CLI version --client
 
-    echo "Setting SSH Config"
-    mkdir -p ~/.ssh
-    cat >> ~/.ssh/config <<EOL
+    echo "Initializing Helm"
+    if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
+        $HELM_CLI init --client-only --skip-refresh
+        $CLOUD_CLI login -u admin -p must-pocket-invocative-single-olives -a https://icp-console.apps.$DEPLOY_KUBE_HOST --skip-ssl-validation -n $KUBE_NAMESPACE
+        # echo $CLOUDCTL_HOME
+        # ls -ltr ~/.cloudctl/clusters/mycluster/
+        # ls -ltr $KUBE_HOME
+        # ls -ltr $HELM_HOME
+    elif [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
+        $HELM_CLI init --client-only --skip-refresh
+    else
+        $HELM_CLI init --client-only --skip-refresh --home $HELM_RESOURCE_PATH
+    fi
+
+    echo "Helm home set as: $(helm home)"
+
+    if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
+        echo "Skipping certificates for OCP Fyre cluster..."
+    elif [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
+        echo "   ⋯ Retrieving TLS from tiller-secret in cluster..."
+        # KUBE_CLI_VERSION=v$DEPLOY_KUBE_VERSION
+        # # echo `$KUBE_CLI get secrets -n kube-system tiller-secret -o jsonpath="{.data.ca\\.crt}"` > $HELM_RESOURCE_PATH/encoded.tmp && base64 -d $HELM_RESOURCE_PATH/encoded.tmp > $HELM_RESOURCE_PATH/ca.crt
+        # $KUBE_CLI get secret tiller-secret -n kube-system -o jsonpath="{.data.ca\\.crt}" | base64 -d > $(helm home)/ca.pem
+        # # echo `$KUBE_CLI get secrets -n kube-system tiller-secret -o jsonpath="{.data.tls\\.crt}"` > $HELM_RESOURCE_PATH/encoded.tmp && base64 -d $HELM_RESOURCE_PATH/encoded.tmp > $HELM_RESOURCE_PATH/admin.crt
+        # $KUBE_CLI get secret tiller-secret -n kube-system -o jsonpath="{.data.tls\\.crt}" | base64 -d > $(helm home)/cert.pem
+        # # echo `$KUBE_CLI get secrets -n kube-system tiller-secret -o jsonpath="{.data.tls\\.key}"` > $HELM_RESOURCE_PATH/encoded.tmp && base64 -d $HELM_RESOURCE_PATH/encoded.tmp > $HELM_RESOURCE_PATH/admin.key
+        # $KUBE_CLI get secret tiller-secret -n kube-system -o jsonpath="{.data.tls\\.key}" | base64 -d > $(helm home)/key.pem
+        export HELM_HOME=~/.helm
+        $KUBE_CLI -n kube-system get secret cluster-ca-cert -o jsonpath='{.data.tls\.crt}' | base64 -d > ca.crt
+        $KUBE_CLI -n kube-system get secret cluster-ca-cert -o jsonpath='{.data.tls\.key}' | base64 -d > ca.key
+        openssl genrsa -out $HELM_HOME/key.pem 4096
+        openssl req -new -key $HELM_HOME/key.pem -out $HELM_HOME/csr.pem -subj "/C=US/ST=New York/L=Armonk/O=IBM Cloud Private/CN=admin"
+        openssl x509 -req -in $HELM_HOME/csr.pem -extensions v3_usr -CA ca.crt -CAkey ca.key -CAcreateserial -out $HELM_HOME/cert.pem
+        ls -ltr $(helm home)
+        # kubectl -n kube-system get pods -l app=helm,name=tiller
+    else
+        echo "Copying K8S certificates to Helm config folder for ICP v$K8S_CLUSTER_VERSION"
+        if [[ "$DEPLOY_KUBE_VERSION" =~ [2-3].[0-1].[0-9] ]]; then
+            #Prior to ICP 3.2
+            HELM_CA_CRT_PATH=cfc-keys
+        else
+            HELM_CA_CRT_PATH=cfc-certs/root-ca
+        fi
+
+        echo "Retrieving clusters certificates..."
+
+        echo "Setting SSH Config"
+        mkdir -p ~/.ssh
+        cat >> ~/.ssh/config <<EOL
 host $GIT_REPO_HOST
     StrictHostKeyChecking no
     IdentityFile $K8S_CLUSTER_SSH_PRIVATE_KEY
 EOL
-
-    echo "Copying K8S certificates to Helm config folder for ICP v$K8S_CLUSTER_VERSION"
-    mkdir -p $HELM_CLUSTER_CONFIG_PATH
-    if [[ "$DEPLOY_KUBE_VERSION" =~ [2-3].[0-1].[0-9] ]]; then
-        #Prior to ICP 3.2
-        HELM_CA_CRT_PATH=cfc-keys
-    else
-        HELM_CA_CRT_PATH=cfc-certs/root-ca
-    fi
-    if [[ "$K8S_CLUSTER_VERSION" == "OCP" ]]; then
-        echo "Skipping certificates for OCP Fyre cluster..."
-        # echo `$KUBE_CLI get secrets -n kube-system tiller-secret -o jsonpath="{.data.ca\\.crt}"` > $HELM_CLUSTER_CONFIG_PATH/encoded.tmp && base64 -d $HELM_CLUSTER_CONFIG_PATH/encoded.tmp > $HELM_CLUSTER_CONFIG_PATH/ca.crt
-        # less $HELM_CLUSTER_CONFIG_PATH/ca.crt
-        # echo `$KUBE_CLI get secrets -n kube-system tiller-secret -o jsonpath="{.data.tls\\.crt}"` > $HELM_CLUSTER_CONFIG_PATH/encoded.tmp && base64 -d $HELM_CLUSTER_CONFIG_PATH/encoded.tmp > $HELM_CLUSTER_CONFIG_PATH/admin.crt
-        # less $HELM_CLUSTER_CONFIG_PATH/admin.crt
-        # echo `$KUBE_CLI get secrets -n kube-system tiller-secret -o jsonpath="{.data.tls\\.key}"` > $HELM_CLUSTER_CONFIG_PATH/encoded.tmp && base64 -d $HELM_CLUSTER_CONFIG_PATH/encoded.tmp > $HELM_CLUSTER_CONFIG_PATH/admin.key
-        # less $HELM_CLUSTER_CONFIG_PATH/admin.key
-        # ls -ltr $HELM_CLUSTER_CONFIG_PATH
-    else
-        echo "Retrieving clusters certificates..."
-        $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/'$HELM_CA_CRT_PATH'/ca.crt'"'"'' > $HELM_CLUSTER_CONFIG_PATH/ca.crt
-        $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.crt'"'"'' > $HELM_CLUSTER_CONFIG_PATH/admin.crt
-        $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.key'"'"'' > $HELM_CLUSTER_CONFIG_PATH/admin.key
+        $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/'$HELM_CA_CRT_PATH'/ca.crt'"'"'' > $HELM_RESOURCE_PATH/ca.crt
+        $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.crt'"'"'' > $HELM_RESOURCE_PATH/admin.crt
+        $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.key'"'"'' > $HELM_RESOURCE_PATH/admin.key
     fi
 
     if [ "$DEBUG" == "true" ]; then
         echo "Listing Helm config folder"
-        ls -al $HELM_CLUSTER_CONFIG_PATH
-    fi
-
-    echo "Initializing Helm"
-    if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
-        helm init --client-only --skip-refresh
-        $CLOUD_CLI login -u admin -p all-ansible-aardvarks-advance-appropriately -a https://icp-console.apps.$DEPLOY_KUBE_HOST --skip-ssl-validation -n $KUBE_NAMESPACE
-        echo $CLOUDCTL_HOME
-        ls -ltr ~/.cloudctl/clusters/mycluster/
-        ls -ltr $KUBE_HOME
-        ls -ltr $HELM_HOME
-    else
-        helm init --client-only --skip-refresh --home $HELM_RESOURCE_PATH
+        ls -al $HELM_RESOURCE_PATH
     fi
 fi
