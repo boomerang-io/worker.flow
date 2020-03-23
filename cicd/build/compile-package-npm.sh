@@ -19,13 +19,13 @@ else
     exit 99
 fi
 
-SCRIPT=$(node -pe "require('./package.json').scripts.build");
+SCRIPT=$(node -pe "require('./package.json').scripts.publish");
 if [ "$SCRIPT" != "undefined" ]
 then
     if [ "$BUILD_TOOL" == "npm" ]; then
-        npm run build
+        npm publish
     elif [ "$BUILD_TOOL" == "yarn" ]; then
-        yarn run build
+        yarn publish
     else
         exit 97
     fi
