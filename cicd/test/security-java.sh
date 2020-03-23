@@ -87,8 +87,6 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 # export JAVA_HOME=../SAClientUtil/jre
 # $JAVA_HOME/bin/java -version
 
-
-
 apk add openjdk8
 
 export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
@@ -108,12 +106,14 @@ apk add libgcc libstdc++
 
 # apk info
 
-wget "https://www.archlinux.org/packages/core/x86_64/zlib/download" -O /tmp/libz.tar.xz \
-    && mkdir -p /tmp/libz \
-    && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
-    && cp /tmp/libz/usr/lib/libz.so.1.2.11 /usr/glibc-compat/lib \
-    && /usr/glibc-compat/sbin/ldconfig \
-    && rm -rf /tmp/libz /tmp/libz.tar.xz
+# wget "https://www.archlinux.org/packages/core/x86_64/zlib/download" -O /tmp/libz.tar.xz \
+#     && mkdir -p /tmp/libz \
+#     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
+#     && cp /tmp/libz/usr/lib/libz.so.1.2.11 /usr/glibc-compat/lib \
+#     && /usr/glibc-compat/sbin/ldconfig \
+#     && rm -rf /tmp/libz /tmp/libz.tar.xz
+
+apk add zlib-dev
 
 /usr/glibc-compat/bin/localedef -i en_US -f UTF-8 en_US.UTF-8
 
@@ -131,12 +131,14 @@ export LANG=en_US.UTF-8
 export LANG=$LANG > /etc/profile.d/locale.sh
 export LANGUAGE=en_US.UTF-8
 
-/usr/glibc-compat/sbin/ldconfig -p
+# /usr/glibc-compat/sbin/ldconfig -p
 
 # free -m
 # cat /proc/meminfo
 
+echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 ldd /data/SAClientUtil/bin/StaticAnalyzer
+echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
