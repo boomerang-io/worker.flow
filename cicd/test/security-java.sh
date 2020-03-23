@@ -102,12 +102,6 @@ $JAVACMD
 # ln -s /usr/lib/jvm/java-1.8-openjdk/jre/bin/java /data/SAClientUtil/jre/bin/java
 # ../SAClientUtil/bin/..//jre/bin/java -version
 
-apk add build-base
-
-apk add libgcc libstdc++
-
-# apk info
-
 # wget "https://www.archlinux.org/packages/core/x86_64/zlib/download" -O /tmp/libz.tar.xz \
 #     && mkdir -p /tmp/libz \
 #     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
@@ -115,9 +109,11 @@ apk add libgcc libstdc++
 #     && /usr/glibc-compat/sbin/ldconfig \
 #     && rm -rf /tmp/libz /tmp/libz.tar.xz
 
+apk add build-base
+apk add libgcc libstdc++
 apk add zlib-dev
 apk add sigar
-apk add icu-libs
+apk add icu-libs icu-dev
 apk add openssl-dev openldap-dev
 
 
