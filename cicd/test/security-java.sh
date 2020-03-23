@@ -89,15 +89,15 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 
 
 
-# apk add openjdk8
-#
-# export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
-# echo "JAVA_HOME=$JAVA_HOME"
-# $JAVA_HOME/jre/bin/java -version
-#
-# export JAVACMD="$JAVA_HOME/jre/bin/java"
-# echo "JAVACMD=$JAVACMD"
-# $JAVACMD
+apk add openjdk8
+
+export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
+echo "JAVA_HOME=$JAVA_HOME"
+$JAVA_HOME/jre/bin/java -version
+
+export JAVACMD="$JAVA_HOME/jre/bin/java"
+echo "JAVACMD=$JAVACMD"
+$JAVACMD
 
 
 # rm /data/SAClientUtil/jre/bin/java
@@ -116,6 +116,10 @@ wget "https://www.archlinux.org/packages/core/x86_64/zlib/download" -O /tmp/libz
     && rm -rf /tmp/libz /tmp/libz.tar.xz
 
 /usr/glibc-compat/bin/localedef -i en_US -f UTF-8 en_US.UTF-8
+
+
+apk add sigar
+
 
 export LD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
