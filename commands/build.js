@@ -65,6 +65,8 @@ module.exports = {
             " " +
             taskProps["global/artifactory.password"]
         );
+      } else if (taskProps["system.mode"] === "lib.npm") {
+        await exec(shellDir + "/build/compile-package-npm.sh " + taskProps["build.tool"]);
       } else if (taskProps["system.mode"] === "java") {
         await exec(
           shellDir +
