@@ -119,6 +119,8 @@ wget "https://www.archlinux.org/packages/core/x86_64/zlib/download" -O /tmp/libz
 
 
 apk add sigar
+apk add icu-libs
+apk add libace-dev
 
 
 export LD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
