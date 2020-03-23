@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: @process/org@-@process/component.name@
@@ -26,18 +26,18 @@ spec:
         env: @system/stage.name@
     spec:
       containers:
-      - image: @global/container.registry.host@:@global/container.registry.port@/@process/org@/@docker.image.name@:@version.name@
-        imagePullPolicy: Always
-        name: cntr
-        ports:
-        - name: port-cntr
-          containerPort: @process/port@
-          protocol: TCP
-        env:
-        - name: DEPLOY_TARGET
-          value: '@system/stage.name@'
+        - image: @global/container.registry.host@:@global/container.registry.port@/@process/org@/@process/docker.image.name@:@version.name@
+          imagePullPolicy: Always
+          name: cntr
+          ports:
+            - name: port-cntr
+              containerPort: @process/deployment.port@
+              protocol: TCP
+          env:
+            - name: DEPLOY_TARGET
+              value: "@system/stage.name@"
       imagePullSecrets:
-      - name: boomerang.registrykey
+        - name: boomerang.registrykey
       restartPolicy: Always
 ---
 apiVersion: v1
@@ -47,10 +47,10 @@ metadata:
   namespace: @deploy.kube.namespace@
 spec:
   ports:
-  - name: port-svc
-    port: 5000
-    protocol: TCP
-    targetPort: port-cntr
+    - name: port-svc
+      port: @process/service.port@
+      protocol: TCP
+      targetPort: port-cntr
   selector:
     org: @process/org@
     component: @process/component.name@
