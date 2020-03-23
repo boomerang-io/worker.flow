@@ -106,7 +106,7 @@ $JAVACMD
 
 apk add libgcc libstdc++
 
-apk info
+# apk info
 
 wget "https://www.archlinux.org/packages/core/x86_64/zlib/download" -O /tmp/libz.tar.xz \
     && mkdir -p /tmp/libz \
@@ -117,10 +117,9 @@ wget "https://www.archlinux.org/packages/core/x86_64/zlib/download" -O /tmp/libz
 
 /usr/glibc-compat/bin/localedef -i en_US -f UTF-8 en_US.UTF-8
 
-
 apk add sigar
 apk add icu-libs
-apk add libace-dev
+apk add openssl-dev openldap-dev
 
 
 export LD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
@@ -134,8 +133,8 @@ export LANGUAGE=en_US.UTF-8
 
 /usr/glibc-compat/sbin/ldconfig -p
 
-free -m
-cat /proc/meminfo
+# free -m
+# cat /proc/meminfo
 
 ldd /data/SAClientUtil/bin/StaticAnalyzer
 
@@ -147,8 +146,8 @@ echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 # mvn package com.hcl.security:appscan-maven-plugin:prepare -Doutput=${COMPONENT_NAME}_${VERSION_NAME}.irx
 # $JAVA_HOME/bin/java -Dcom.ibm.jsse2.usefipsprovider=true $APPSCAN_OPTS -cp "../SAClientUtil/lib/*" com.ibm.appscan.cli.common.Launcher "../SAClientUtil" prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 
-curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
-curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+# curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+# curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
 
 # Sleep 5 minutes for debugging
 sleep 300
