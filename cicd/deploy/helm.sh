@@ -8,33 +8,44 @@ VERSION_NAME=$5
 DEPLOY_KUBE_VERSION=$6
 DEPLOY_KUBE_NAMESPACE=$7
 DEPLOY_KUBE_HOST=$8
+DEPLOY_HELM_SSL=${9:-true}
 
-# NOTE:
-#  THe following variables are shared with helm.sh for deploy step
-export HELM_HOME=/tmp/.helm
-KUBE_CLUSTER_HOST=$DEPLOY_KUBE_HOST
-K8S_CLUSTER_NAME=$DEPLOY_KUBE_HOST
-HELM_RESOURCE_PATH="/tmp/.helm"
-HELM_CLUSTER_CONFIG_PATH=$HELM_RESOURCE_PATH/$K8S_CLUSTER_NAME
-HELM_TLS_STRING='--tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key"'
-if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
-    HELM_TLS_STRING='--tls'
-fi
-# END
+export KUBE_HOME=~/.kube
+export HELM_HOME=~/.helm
+BIN_HOME=/usr/local/bin
+KUBE_CLI=$BIN_HOME/kubectl
 
-# NOTE:
-#   The following script is shared with initialize-dependencies.sh
-HELM_VERSION=v2.7.2
+# NOTE
+# THe following variables are shared across helm related scripts for deploy step
+HELM_VERSION=v2.9.1
 HELM_CHART_VERSION_COL=2
-if [[ "$K8S_CLUSTER_MAJOR_VERSION" =~ 2.[0-9].[0-9] ]]; then
-    HELM_VERSION=v2.7.2
-elif [[ "$K8S_CLUSTER_MAJOR_VERSION" =~ 3.[0-1].[0-9] ]]; then
-    HELM_VERSION=v2.9.1
+if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
+    HELM_VERSION=v2.12.3
+    HELM_CHART_VERSION_COL=3 #the column output of helm list changed
 else
     HELM_VERSION=v2.12.1
     HELM_CHART_VERSION_COL=3 #the column output of helm list changed
 fi
+echo "   ↣ Helm version set at: $HELM_VERSION"
 # END
+
+# THe following variables are shared across helm related scripts for deploy step
+# ch_helm_tls_string
+HELM_RESOURCE_PATH=
+HELM_TLS_STRING=
+if [[ $DEPLOY_HELM_SSL == "true" ]]; then
+    echo "   ⋯ Configuring Helm TLS..."
+    if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
+        HELM_TLS_STRING='--tls'
+    else
+        HELM_RESOURCE_PATH="/tmp/.helm"
+        mkdir -p $HELM_RESOURCE_PATH
+        HELM_TLS_STRING="--tls --tls-ca-cert $HELM_RESOURCE_PATH/ca.crt --tls-cert $HELM_RESOURCE_PATH/admin.crt --tls-key $HELM_RESOURCE_PATH/admin.key"
+    fi
+    echo "   ↣ Helm TLS parameters configured as: $HELM_TLS_STRING"
+else
+    echo "   ↣ Helm TLS disabled, skipping configuration..."
+fi
 
 DEBUG_OPTS=
 if [ "$DEBUG" == "true" ]; then
@@ -47,18 +58,19 @@ else
     unset DEBUG
 fi
 
-if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
-    helm repo add boomerang-charts $HELM_REPO_URL
-else
-    helm --home $HELM_RESOURCE_PATH repo add boomerang-charts $HELM_REPO_URL
-fi
+# Bug fix for custom certs and re initializing helm home
+export HELM_HOME=$(helm home)
+
+# helm --home $HELM_RESOURCE_PATH repo add boomerang-charts $HELM_REPO_URL
+helm repo add boomerang-charts $HELM_REPO_URL
 
 if [ -z "$CHART_NAME" ] && [ ! -z "$CHART_RELEASE" ]; then
     echo "Auto detecting chart name..."
-    if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
+    if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
         CHART_NAME=`helm list --tls ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 2- | rev`
     else
-        CHART_NAME=`helm list --home $HELM_RESOURCE_PATH --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 2- | rev`
+        # CHART_NAME=`helm list --home $HELM_RESOURCE_PATH --kube-context $DEPLOY_KUBE_HOST-context --tls --tls-ca-cert "$HELM_RESOURCE_PATH/ca.crt" --tls-cert "$HELM_RESOURCE_PATH/admin.crt" --tls-key "$HELM_RESOURCE_PATH/admin.key" ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 2- | rev`
+        CHART_NAME=`helm list --kube-context $DEPLOY_KUBE_HOST-context --tls --tls-ca-cert "$HELM_RESOURCE_PATH/ca.crt" --tls-cert "$HELM_RESOURCE_PATH/admin.crt" --tls-key "$HELM_RESOURCE_PATH/admin.key" ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 2- | rev`
     fi 
 elif [ -z "$CHART_NAME" ] && [ -z "$CHART_RELEASE" ]; then
     exit 92
@@ -79,11 +91,11 @@ for CHART in "${HELM_CHARTS_ARRAY[@]}"; do
     if [[ -z "$CHART_RELEASE" ]] && [ ! -z "$DEPLOY_KUBE_NAMESPACE" ]; then
         echo "Auto detecting chart release..."
         echo "Note: This only works if there is only one release of the chart in the provided namespace."
-        if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
+        if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
             CHART_RELEASE=`helm list --tls | grep $CHART | grep $DEPLOY_KUBE_NAMESPACE | awk '{print $1}'`
         else
-            # helm list --home $HELM_RESOURCE_PATH --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key"
-            CHART_RELEASE=`helm list --home $HELM_RESOURCE_PATH --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" | grep $CHART | grep $DEPLOY_KUBE_NAMESPACE | awk '{print $1}'`
+            # CHART_RELEASE=`helm list --home $HELM_RESOURCE_PATH --kube-context $DEPLOY_KUBE_HOST-context --tls --tls-ca-cert "$HELM_RESOURCE_PATH/ca.crt" --tls-cert "$HELM_RESOURCE_PATH/admin.crt" --tls-key "$HELM_RESOURCE_PATH/admin.key" | grep $CHART | grep $DEPLOY_KUBE_NAMESPACE | awk '{print $1}'`
+            CHART_RELEASE=`helm list --kube-context $DEPLOY_KUBE_HOST-context --tls --tls-ca-cert "$HELM_RESOURCE_PATH/ca.crt" --tls-cert "$HELM_RESOURCE_PATH/admin.crt" --tls-key "$HELM_RESOURCE_PATH/admin.key" | grep $CHART | grep $DEPLOY_KUBE_NAMESPACE | awk '{print $1}'`
         fi 
     elif [ -z "$CHART_RELEASE" ] && [ -z "$DEPLOY_KUBE_NAMESPACE" ]; then
         exit 93
@@ -91,20 +103,23 @@ for CHART in "${HELM_CHARTS_ARRAY[@]}"; do
     if [ ! -z "$CHART_RELEASE" ]; then
         echo "Current Chart Release: $CHART_RELEASE"
 
-        if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
+        if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
             CHART_VERSION=`helm list --tls ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 1 | rev`
         else
-            CHART_VERSION=`helm list --home $HELM_RESOURCE_PATH --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 1 | rev`
+            # CHART_VERSION=`helm list --home $HELM_RESOURCE_PATH --kube-context $DEPLOY_KUBE_HOST-context --tls --tls-ca-cert "$HELM_RESOURCE_PATH/ca.crt" --tls-cert "$HELM_RESOURCE_PATH/admin.crt" --tls-key "$HELM_RESOURCE_PATH/admin.key" ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 1 | rev`
+            CHART_VERSION=`helm list --kube-context $DEPLOY_KUBE_HOST-context --tls --tls-ca-cert "$HELM_RESOURCE_PATH/ca.crt" --tls-cert "$HELM_RESOURCE_PATH/admin.crt" --tls-key "$HELM_RESOURCE_PATH/admin.key" ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 1 | rev`
         fi
         echo "Current Chart Version: $CHART_VERSION"
         if [ -z "$CHART_VERSION" ]; then
             exit 94
         fi
 
-        if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
+        echo "Upgrading helm release..."
+        if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
             helm upgrade --tls --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
         else
-            helm upgrade --home $HELM_RESOURCE_PATH $DEBUG_OPTS --kube-context $KUBE_CLUSTER_HOST-context --tls --tls-ca-cert "$HELM_CLUSTER_CONFIG_PATH/ca.crt" --tls-cert "$HELM_CLUSTER_CONFIG_PATH/admin.crt" --tls-key "$HELM_CLUSTER_CONFIG_PATH/admin.key" --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
+            # helm upgrade --home $HELM_RESOURCE_PATH $DEBUG_OPTS --kube-context $DEPLOY_KUBE_HOST-context --tls --tls-ca-cert "$HELM_RESOURCE_PATH/ca.crt" --tls-cert "$HELM_RESOURCE_PATH/admin.crt" --tls-key "$HELM_RESOURCE_PATH/admin.key" --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
+            helm upgrade $DEBUG_OPTS --kube-context $DEPLOY_KUBE_HOST-context --tls --tls-ca-cert "$HELM_RESOURCE_PATH/ca.crt" --tls-cert "$HELM_RESOURCE_PATH/admin.crt" --tls-key "$HELM_RESOURCE_PATH/admin.key" --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
         fi
         RESULT=$?
         if [ $RESULT -ne 0 ] ; then
