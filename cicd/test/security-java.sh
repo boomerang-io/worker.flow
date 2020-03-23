@@ -113,7 +113,7 @@ apk add build-base
 apk add libgcc libstdc++
 apk add zlib-dev
 apk add sigar
-apk add icu-libs icu-dev
+apk add icu icu-dev icu-libs icu-static
 apk add openssl-dev openldap-dev
 
 
