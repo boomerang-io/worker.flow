@@ -102,6 +102,8 @@ $JAVACMD
 # ln -s /usr/lib/jvm/java-1.8-openjdk/jre/bin/java /data/SAClientUtil/jre/bin/java
 # ../SAClientUtil/bin/..//jre/bin/java -version
 
+apk add build-base
+
 apk add libgcc libstdc++
 
 # apk info
@@ -114,9 +116,6 @@ apk add libgcc libstdc++
 #     && rm -rf /tmp/libz /tmp/libz.tar.xz
 
 apk add zlib-dev
-
-/usr/glibc-compat/bin/localedef -i en_US -f UTF-8 en_US.UTF-8
-
 apk add sigar
 apk add icu-libs
 apk add openssl-dev openldap-dev
