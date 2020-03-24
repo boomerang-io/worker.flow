@@ -65,6 +65,8 @@ module.exports = {
             " " +
             taskProps["global/artifactory.password"]
         );
+      } else if (taskProps["system.mode"] === "lib.npm") {
+        await exec(shellDir + "/build/compile-package-npm.sh " + taskProps["build.tool"]);
       } else if (taskProps["system.mode"] === "java") {
         await exec(
           shellDir +
@@ -84,7 +86,7 @@ module.exports = {
             taskProps["global/artifactory.password"]
         );
       } else if (taskProps["system.mode"] === "nodejs") {
-        await exec(shellDir + "/build/compile-node.sh " + taskProps["build.tool"] + " " + taskProps["node.cypress.install.binary"]);
+        await exec(shellDir + "/build/compile-node.sh " + taskProps["build.tool"] + " " + taskProps["node.package.script"] + " " + taskProps["node.cypress.install.binary"]);
       } else if (taskProps["system.mode"] === "python") {
         await exec(shellDir + "/build/compile-python.sh " + taskProps["language.version"] + " " + JSON.stringify(taskProps["global/pypi.registry.host"]) + " " + taskProps["global/pypi.repo.id"] + " " + taskProps["global/pypi.repo.user"] + " " + taskProps["global/pypi.repo.password"]);
       } else if (taskProps["system.mode"] === "lib.wheel") {
