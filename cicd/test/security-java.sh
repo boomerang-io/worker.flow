@@ -109,22 +109,22 @@ $JAVACMD
 #     && /usr/glibc-compat/sbin/ldconfig \
 #     && rm -rf /tmp/libz /tmp/libz.tar.xz
 
-apk add build-base
-apk add libgcc libstdc++
-apk add zlib-dev
-apk add sigar
-apk add icu icu-dev icu-libs icu-static
-apk add openssl-dev openldap-dev
+# apk add build-base
+# apk add libgcc libstdc++
+# apk add zlib-dev
+# apk add sigar
+# apk add icu icu-dev icu-libs icu-static
+# apk add openssl-dev openldap-dev
 
 
-export LD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
-echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-export DYLD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
-echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+# export LD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
+# echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+# export DYLD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
+# echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
 
-export LANG=en_US.UTF-8
-export LANG=$LANG > /etc/profile.d/locale.sh
-export LANGUAGE=en_US.UTF-8
+# export LANG=en_US.UTF-8
+# export LANG=$LANG > /etc/profile.d/locale.sh
+# export LANGUAGE=en_US.UTF-8
 
 # /usr/glibc-compat/sbin/ldconfig -p
 
