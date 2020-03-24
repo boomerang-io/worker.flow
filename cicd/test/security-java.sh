@@ -52,7 +52,8 @@ export DYLD_LIBRARY_PATH=/usr/glibc-compat/lib:/usr/local/lib:/opt/libs/lib:/usr
 # ldd /data/SAClientUtil/bin/StaticAnalyzer
 # echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 
-export $PROJECT_PATH=`pwd`
+export PROJECT_PATH=`pwd`
+echo $PROJECT_PATH
 
 cp ${SHELL_DIR}/test/security-java-maven.xml $ASOC_PATH/appscan-config.xml
 
