@@ -39,3 +39,8 @@ tar -xf /tmp/libz.tar.xz -C /tmp/libz
 mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib
 apk del --purge .build-deps glibc-i18n
 rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
+
+# apk add libgcc libstdc++
+# apk add zlib-dev
+apk add sigar
+apk add icu icu-dev icu-libs icu-static
