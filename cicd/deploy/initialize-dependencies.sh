@@ -17,7 +17,13 @@ if [[ "$DEPLOY_KUBE_IP" =~ :[0-9]+$ ]]; then
     DEPLOY_KUBE_IP=`echo $DEPLOY_KUBE_IP | rev | cut -d : -f 2 | rev`
 fi
 DEPLOY_KUBE_TOKEN=$6
-DEPLOY_HELM_SSL=${7:-true}
+echo "debug - DEPLOY_HELM_TLS=$7"
+# DEPLOY_HELM_TLS=${7:-true}
+DEPLOY_HELM_TLS=$7
+if [ "$DEPLOY_HELM_TLS" == "undefined" ]; then
+    DEPLOY_HELM_TLS=true
+fi
+echo "debug - DEPLOY_HELM_TLS_AFTER=$DEPLOY_HELM_TLS"
 
 if [ "$DEBUG" == "true" ]; then
     echo "DEBUG::Script input variables..."
@@ -28,6 +34,7 @@ if [ "$DEBUG" == "true" ]; then
     echo "DEPLOY_KUBE_IP=$DEPLOY_KUBE_IP"
     echo "DEPLOY_KUBE_PORT=$DEPLOY_KUBE_PORT"
     echo "DEPLOY_KUBE_TOKEN=$DEPLOY_KUBE_TOKEN"
+    echo "DEPLOY_HELM_TLS=$DEPLOY_HELM_TLS"
     echo "DEBUG::No Proxy variables from Helm Chart..."
     echo "NO_PROXY"=$NO_PROXY
     echo "no_proxy"=$no_proxy
@@ -86,9 +93,10 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
 
     # NOTE
     # THe following variables are shared across helm related scripts for deploy step
+    # TODO: Update to work with the new implementation
     HELM_VERSION=v2.9.1
     HELM_CHART_VERSION_COL=2
-    if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
+    if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
         HELM_VERSION=v2.12.3
         HELM_CHART_VERSION_COL=3 #the column output of helm list changed
     else
@@ -130,21 +138,21 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
     # ch_helm_tls_string
     HELM_RESOURCE_PATH=
     HELM_TLS_STRING=
-    if [[ $DEPLOY_HELM_SSL == "true" ]]; then
+    if [[ $DEPLOY_HELM_TLS == "true" ]]; then
         echo "   ⋯ Configuring Helm TLS..."
-        if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
-            HELM_TLS_STRING='--tls'
-        else
-            HELM_RESOURCE_PATH="/tmp/.helm"
-            mkdir -p $HELM_RESOURCE_PATH
-            HELM_TLS_STRING="--tls --tls-ca-cert $HELM_RESOURCE_PATH/ca.crt --tls-cert $HELM_RESOURCE_PATH/admin.crt --tls-key $HELM_RESOURCE_PATH/admin.key"
-        fi
+        # if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
+        HELM_TLS_STRING='--tls'
+        # else
+        #     HELM_RESOURCE_PATH="/tmp/.helm"
+        #     mkdir -p $HELM_RESOURCE_PATH
+        #     HELM_TLS_STRING="--tls --tls-ca-cert $HELM_RESOURCE_PATH/ca.crt --tls-cert $HELM_RESOURCE_PATH/admin.crt --tls-key $HELM_RESOURCE_PATH/admin.key"
+        # fi
         echo "   ↣ Helm TLS parameters configured as: $HELM_TLS_STRING"
     else
         echo "   ↣ Helm TLS disabled, skipping configuration..."
     fi
 
-    if [[ $DEPLOY_HELM_SSL == "true" ]]; then
+    if [[ $DEPLOY_HELM_TLS == "true" ]]; then
         if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
             # echo "   ⋯ Retrieving TLS from tiller-secret in cluster..."
             # KUBE_CLI_VERSION=v$DEPLOY_KUBE_VERSION
@@ -156,12 +164,12 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
             # $KUBE_CLI get secret tiller-secret -n kube-system -o jsonpath="{.data.tls\\.key}" | base64 -d > $(helm home)/key.pem
             echo "   ⋯ Retrieving Cluster CA certs from cluster..."
             export HELM_HOME=~/.helm
-            $KUBE_CLI -n kube-system get secret cluster-ca-cert -o jsonpath='{.data.tls\.crt}' | base64 -d > ca.crt
-            $KUBE_CLI -n kube-system get secret cluster-ca-cert -o jsonpath='{.data.tls\.key}' | base64 -d > ca.key
+            $KUBE_CLI -n kube-system get secret cluster-ca-cert -o jsonpath='{.data.tls\.crt}' | base64 -d > $HELM_HOME/ca.crt
+            $KUBE_CLI -n kube-system get secret cluster-ca-cert -o jsonpath='{.data.tls\.key}' | base64 -d > $HELM_HOME/ca.key
             echo "     ⋯ Generating Helm TLS certs..."
             openssl genrsa -out $HELM_HOME/key.pem 4096
             openssl req -new -key $HELM_HOME/key.pem -out $HELM_HOME/csr.pem -subj "/C=US/ST=New York/L=Armonk/O=IBM Cloud Private/CN=admin"
-            openssl x509 -req -in $HELM_HOME/csr.pem -extensions v3_usr -CA ca.crt -CAkey ca.key -CAcreateserial -out $HELM_HOME/cert.pem
+            openssl x509 -req -in $HELM_HOME/csr.pem -extensions v3_usr -CA $HELM_HOME/ca.crt -CAkey $HELM_HOME/ca.key -CAcreateserial -out $HELM_HOME/cert.pem
             ls -ltr $(helm home)
             echo "   ↣ Helm TLS configured."
         else
@@ -207,9 +215,10 @@ host $GIT_REPO_HOST
 EOL
 
             echo "     ⋯ Retrieving clusters certificates..."
-            $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/'$HELM_CA_CRT_PATH'/ca.crt'"'"'' > $HELM_RESOURCE_PATH/ca.crt && \
-            $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.crt'"'"'' > $HELM_RESOURCE_PATH/admin.crt && \
-            $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.key'"'"'' > $HELM_RESOURCE_PATH/admin.key && \
+            export HELM_HOME=~/.helm
+            $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/'$HELM_CA_CRT_PATH'/ca.crt'"'"'' > $HELM_HOME/ca.pem && \
+            $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.crt'"'"'' > $HELM_HOME/cert.pem && \
+            $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.key'"'"'' > $HELM_HOME/key.pem
             RESULT=$?
             if [ $RESULT -ne 0 ] ; then
                 echo
@@ -217,6 +226,7 @@ EOL
                 echo
                 exit 1
             fi
+            ls -al $HELM_HOME
             echo "   ↣ Helm TLS configured."
         fi
     fi
