@@ -42,8 +42,40 @@ fi
 echo "MAVEN_OPTS=$MAVEN_OPTS"
 mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
 
-export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
-export PATH="/usr/lib/jvm/java-11-openjdk/bin:${PATH}"
+# =======================================================================================
+
+export JAVA_VERSION=jdk11u
+cp $SHELL_DIR/test/initialize-dependencies-slim-java.sh /usr/local/bin
+set -eux;
+
+apk add --no-cache --virtual .fetch-deps curl;
+export ARCH="$(apk --print-arch)";
+export ESUM='0cb41326f64783c10c3ff7d368c1a38ce83e43a6d3c8423a434be3afe3908316';
+export BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-01-11-01-22/OpenJDK11U-jdk_x64_linux_openj9_2019-01-11-01-22.tar.gz';
+
+curl -LfsSo /tmp/openjdk.tar.gz ${BINARY_URL};
+ls /tmp;
+mkdir -p /opt/java/openjdk;
+cd /opt/java/openjdk;
+tar -vxf /tmp/openjdk.tar.gz --strip-components=1;
+export PATH="/opt/java/openjdk/bin:$PATH";
+apk add --no-cache --virtual .build-deps bash binutils;
+/usr/local/bin/slim-java.sh /opt/java/openjdk;
+apk del --purge .build-deps;
+rm -rf /var/cache/apk/*;
+apk del --purge .fetch-deps;
+rm -rf /var/cache/apk/*;
+rm -rf /tmp/openjdk.tar.gz;
+
+export JAVA_HOME=/opt/java/openjdk
+export PATH="/opt/java/openjdk/bin:$PATH"
+
+java -version
+
+# =======================================================================================
+
+# export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+# export PATH="/usr/lib/jvm/java-11-openjdk/bin:${PATH}"
 
 export LD_LIBRARY_PATH=/usr/glibc-compat/lib:/usr/local/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
 export DYLD_LIBRARY_PATH=/usr/glibc-compat/lib:/usr/local/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
