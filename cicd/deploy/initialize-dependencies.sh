@@ -93,9 +93,10 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
 
     # NOTE
     # THe following variables are shared across helm related scripts for deploy step
+    # TODO: Update to work with the new implementation
     HELM_VERSION=v2.9.1
     HELM_CHART_VERSION_COL=2
-    if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
+    if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
         HELM_VERSION=v2.12.3
         HELM_CHART_VERSION_COL=3 #the column output of helm list changed
     else
@@ -139,13 +140,13 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
     HELM_TLS_STRING=
     if [[ $DEPLOY_HELM_TLS == "true" ]]; then
         echo "   ⋯ Configuring Helm TLS..."
-        if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
-            HELM_TLS_STRING='--tls'
-        else
-            HELM_RESOURCE_PATH="/tmp/.helm"
-            mkdir -p $HELM_RESOURCE_PATH
-            HELM_TLS_STRING="--tls --tls-ca-cert $HELM_RESOURCE_PATH/ca.crt --tls-cert $HELM_RESOURCE_PATH/admin.crt --tls-key $HELM_RESOURCE_PATH/admin.key"
-        fi
+        # if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
+        HELM_TLS_STRING='--tls'
+        # else
+        #     HELM_RESOURCE_PATH="/tmp/.helm"
+        #     mkdir -p $HELM_RESOURCE_PATH
+        #     HELM_TLS_STRING="--tls --tls-ca-cert $HELM_RESOURCE_PATH/ca.crt --tls-cert $HELM_RESOURCE_PATH/admin.crt --tls-key $HELM_RESOURCE_PATH/admin.key"
+        # fi
         echo "   ↣ Helm TLS parameters configured as: $HELM_TLS_STRING"
     else
         echo "   ↣ Helm TLS disabled, skipping configuration..."
@@ -214,9 +215,10 @@ host $GIT_REPO_HOST
 EOL
 
             echo "     ⋯ Retrieving clusters certificates..."
-            $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/'$HELM_CA_CRT_PATH'/ca.crt'"'"'' > $HELM_RESOURCE_PATH/ca.crt && \
-            $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.crt'"'"'' > $HELM_RESOURCE_PATH/admin.crt && \
-            $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.key'"'"'' > $HELM_RESOURCE_PATH/admin.key
+            export HELM_HOME=~/.helm
+            $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/'$HELM_CA_CRT_PATH'/ca.crt'"'"'' > $HELM_HOME/ca.pem && \
+            $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.crt'"'"'' > $HELM_HOME/cert.pem && \
+            $HELM_SSH_CMD '/bin/bash -c '"'"'sudo cat /opt/ibm-cp-app-mod-'$K8S_CLUSTER_VERSION'/cluster/cfc-certs/helm/admin.key'"'"'' > $HELM_HOME/key.pem
             RESULT=$?
             if [ $RESULT -ne 0 ] ; then
                 echo
@@ -224,7 +226,7 @@ EOL
                 echo
                 exit 1
             fi
-            ls -al $HELM_RESOURCE_PATH
+            ls -al $HELM_HOME
             echo "   ↣ Helm TLS configured."
         fi
     fi
