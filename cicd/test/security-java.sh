@@ -60,7 +60,7 @@ cd /opt/java/openjdk;
 tar -vxf /tmp/openjdk.tar.gz --strip-components=1;
 export PATH="/opt/java/openjdk/bin:$PATH";
 apk add --no-cache --virtual .build-deps bash binutils;
-/usr/local/bin/slim-java.sh /opt/java/openjdk;
+/usr/local/bin/initialize-dependencies-slim-java.sh /opt/java/openjdk;
 apk del --purge .build-deps;
 rm -rf /var/cache/apk/*;
 apk del --purge .fetch-deps;
