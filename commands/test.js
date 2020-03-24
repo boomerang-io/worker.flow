@@ -121,7 +121,9 @@ module.exports = {
                 " " +
                 taskProps["global/asoc.client.cli"] +
                 " " +
-                taskProps["global/asoc.java.runtime"]
+                taskProps["global/asoc.java.runtime"] +
+                " " +
+                shellDir
             );
           }
         } else if (taskProps["system.mode"] === "nodejs") {
