@@ -31,7 +31,23 @@ module.exports = {
     try {
       shell.cd("/data");
       log.ci("Initializing Dependencies");
-      await exec(shellDir + "/deploy/initialize-dependencies.sh " + taskProps["deploy.type"] + " " + taskProps["deploy.kube.version"] + " " + taskProps["deploy.kube.namespace"] + " " + taskProps["deploy.kube.host"] + " " + taskProps["deploy.kube.ip"] + " " + taskProps["deploy.kube.token"]);
+      await exec(
+        shellDir +
+          "/deploy/initialize-dependencies.sh " +
+          taskProps["deploy.type"] +
+          " " +
+          taskProps["deploy.kube.version"] +
+          " " +
+          taskProps["deploy.kube.namespace"] +
+          " " +
+          taskProps["deploy.kube.host"] +
+          " " +
+          taskProps["deploy.kube.ip"] +
+          " " +
+          taskProps["deploy.kube.token"] +
+          " " +
+          taskProps["deploy.helm.tls"]
+      );
 
       if (taskProps["deploy.git.clone"]) {
         log.ci("Retrieving Source Code");
@@ -65,7 +81,7 @@ module.exports = {
         log.sys("Kube File: ", kubeFile);
         await fileCommand.replaceTokensInFileWithProps(kubePath, kubeFile, "@", "@", taskProps, "g", "g", true);
         await exec("less " + shellDir + "/deploy/kube.yaml");
-        await exec(shellDir + "/deploy/kubernetes.sh " + kubePathAndFile + " " + taskProps["deploy.kube.namespace"] + " " + taskProps["deploy.kube.host"] + " " + taskProps["deploy.kube.ip"] + " " + taskProps["deploy.kube.token"]);
+        await exec(shellDir + "/deploy/kubernetes.sh " + kubePathAndFile);
       } else if (taskProps["deploy.type"] === "helm" && taskProps["system.mode"] === "helm.chart") {
         await exec(
           shellDir +
@@ -105,6 +121,8 @@ module.exports = {
             taskProps["deploy.kube.namespace"] +
             '" "' +
             taskProps["deploy.kube.host"] +
+            '" "' +
+            taskProps["deploy.helm.tls"] +
             '"'
         );
       } else if (taskProps["deploy.type"] === "containerRegistry") {
