@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <Configuration>
+    <Targets>
+      <Target path="$PROJECT_PATH\target">
+      </Target>
+    </Targets>
+</Configuration>
