@@ -45,7 +45,7 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 # =======================================================================================
 
 export JAVA_VERSION=jdk11u
-cp $SHELL_DIR/test/initialize-dependencies-slim-java.sh /usr/local/bin
+cp $SHELL_DIR/test/slim-java.sh /usr/local/bin
 set -eux;
 
 apk add --no-cache --virtual .fetch-deps curl;
@@ -60,7 +60,7 @@ cd /opt/java/openjdk;
 tar -vxf /tmp/openjdk.tar.gz --strip-components=1;
 export PATH="/opt/java/openjdk/bin:$PATH";
 apk add --no-cache --virtual .build-deps bash binutils;
-/usr/local/bin/initialize-dependencies-slim-java.sh /opt/java/openjdk;
+/usr/local/bin/slim-java.sh /opt/java/openjdk;
 apk del --purge .build-deps;
 rm -rf /var/cache/apk/*;
 apk del --purge .fetch-deps;
@@ -70,7 +70,7 @@ rm -rf /tmp/openjdk.tar.gz;
 export JAVA_HOME=/opt/java/openjdk
 export PATH="/opt/java/openjdk/bin:$PATH"
 
-java -version
+java --version
 
 # =======================================================================================
 
