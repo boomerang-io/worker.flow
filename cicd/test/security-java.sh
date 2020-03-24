@@ -87,35 +87,35 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 # export JAVA_HOME=../SAClientUtil/jre
 # $JAVA_HOME/bin/java -version
 
+apk add openjdk8
 
+export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
+echo "JAVA_HOME=$JAVA_HOME"
+$JAVA_HOME/jre/bin/java -version
 
-# apk add openjdk8
-#
-# export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
-# echo "JAVA_HOME=$JAVA_HOME"
-# $JAVA_HOME/jre/bin/java -version
-#
-# export JAVACMD="$JAVA_HOME/jre/bin/java"
-# echo "JAVACMD=$JAVACMD"
-# $JAVACMD
+export JAVACMD="$JAVA_HOME/jre/bin/java"
+echo "JAVACMD=$JAVACMD"
+$JAVACMD
 
 
 # rm /data/SAClientUtil/jre/bin/java
 # ln -s /usr/lib/jvm/java-1.8-openjdk/jre/bin/java /data/SAClientUtil/jre/bin/java
 # ../SAClientUtil/bin/..//jre/bin/java -version
 
+# wget "https://www.archlinux.org/packages/core/x86_64/zlib/download" -O /tmp/libz.tar.xz \
+#     && mkdir -p /tmp/libz \
+#     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
+#     && cp /tmp/libz/usr/lib/libz.so.1.2.11 /usr/glibc-compat/lib \
+#     && /usr/glibc-compat/sbin/ldconfig \
+#     && rm -rf /tmp/libz /tmp/libz.tar.xz
+
+apk add build-base
 apk add libgcc libstdc++
+apk add zlib-dev
+apk add sigar
+apk add icu icu-dev icu-libs icu-static
+apk add openssl-dev openldap-dev
 
-apk info
-
-wget "https://www.archlinux.org/packages/core/x86_64/zlib/download" -O /tmp/libz.tar.xz \
-    && mkdir -p /tmp/libz \
-    && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
-    && cp /tmp/libz/usr/lib/libz.so.1.2.11 /usr/glibc-compat/lib \
-    && /usr/glibc-compat/sbin/ldconfig \
-    && rm -rf /tmp/libz /tmp/libz.tar.xz
-
-/usr/glibc-compat/bin/localedef -i en_US -f UTF-8 en_US.UTF-8
 
 export LD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
@@ -126,12 +126,14 @@ export LANG=en_US.UTF-8
 export LANG=$LANG > /etc/profile.d/locale.sh
 export LANGUAGE=en_US.UTF-8
 
-/usr/glibc-compat/sbin/ldconfig -p
+# /usr/glibc-compat/sbin/ldconfig -p
 
-free -m
-cat /proc/meminfo
+# free -m
+# cat /proc/meminfo
 
+echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 ldd /data/SAClientUtil/bin/StaticAnalyzer
+echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 
 # Generate IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
@@ -141,8 +143,8 @@ echo "APPSCAN_OPTS=$APPSCAN_OPTS"
 # mvn package com.hcl.security:appscan-maven-plugin:prepare -Doutput=${COMPONENT_NAME}_${VERSION_NAME}.irx
 # $JAVA_HOME/bin/java -Dcom.ibm.jsse2.usefipsprovider=true $APPSCAN_OPTS -cp "../SAClientUtil/lib/*" com.ibm.appscan.cli.common.Launcher "../SAClientUtil" prepare -v -X -n ${COMPONENT_NAME}_${VERSION_NAME}.irx
 
-curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
-curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+# curl -T glen.test.java_0.0.30-5.failed "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5.failed" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
+# curl -T glen.test.java_0.0.30-5_logs.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/glen.test.java_0.0.30-5_logs.zip" --insecure -u $ART_REPO_USER:$ART_REPO_PASSWORD
 
 # Sleep 5 minutes for debugging
 sleep 300

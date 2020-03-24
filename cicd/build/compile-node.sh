@@ -3,7 +3,14 @@
 # ( printf '\n'; printf '%.0s-' {1..30}; printf ' Build Artifact '; printf '%.0s-' {1..30}; printf '\n\n' )
 
 BUILD_TOOL=$1
-CYPRESS_INSTALL_BINARY=$2
+BUILD_SCRIPT=$2
+if [ "$BUILD_SCRIPT" == "undefined" ]; then
+    echo "Defaulting npm script to 'build'..."
+    BUILD_SCRIPT=build
+else
+    echo "Setting npm script to $BUILD_SCRIPT..."
+fi
+CYPRESS_INSTALL_BINARY=$3
 
 DEBUG_OPTS=
 if [ "$DEBUG" == "true" ]; then
@@ -45,7 +52,7 @@ else
     exit 99
 fi
 
-SCRIPT=$(node -pe "require('./package.json').scripts.build");
+SCRIPT=$(node -pe "require('./package.json').scripts.$BUILD_SCRIPT");
 if [ "$SCRIPT" != "undefined" ]; then
     if [ "$BUILD_TOOL" == "npm" ]; then
         npm run build $DEBUG_OPTS
@@ -64,5 +71,5 @@ if [ "$SCRIPT" != "undefined" ]; then
     fi
 else
     # exit 97
-    echo "Build script not defined in package.json. Skipping."
+    echo "npm script ($BUILD_SCRIPT) not defined in package.json. Skipping..."
 fi
