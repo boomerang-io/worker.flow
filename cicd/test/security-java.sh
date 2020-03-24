@@ -87,15 +87,20 @@ mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true 
 # export JAVA_HOME=../SAClientUtil/jre
 # $JAVA_HOME/bin/java -version
 
-apk add openjdk8
+# apk add openjdk8
+#
+# export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
+# echo "JAVA_HOME=$JAVA_HOME"
+# $JAVA_HOME/jre/bin/java -version
+#
+# export JAVACMD="$JAVA_HOME/jre/bin/java"
+# echo "JAVACMD=$JAVACMD"
+# $JAVACMD
 
-export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
-echo "JAVA_HOME=$JAVA_HOME"
-$JAVA_HOME/jre/bin/java -version
+ls -al /usr/lib/jvm
 
-export JAVACMD="$JAVA_HOME/jre/bin/java"
-echo "JAVACMD=$JAVACMD"
-$JAVACMD
+# export JAVA_HOME=/opt/java/openjdk
+# export PATH="/opt/java/openjdk/bin:$PATH"
 
 
 # rm /data/SAClientUtil/jre/bin/java
@@ -117,10 +122,10 @@ $JAVACMD
 # apk add openssl-dev openldap-dev
 
 
-# export LD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
-# echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-# export DYLD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
-# echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+export LD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
+echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+export DYLD_LIBRARY_PATH=/usr/local/lib:/usr/glibc-compat/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
+echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
 
 # export LANG=en_US.UTF-8
 # export LANG=$LANG > /etc/profile.d/locale.sh
@@ -132,7 +137,7 @@ $JAVACMD
 # cat /proc/meminfo
 
 echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-ldd /data/SAClientUtil/bin/StaticAnalyzer
+# ldd /data/SAClientUtil/bin/StaticAnalyzer
 echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 
 # Generate IRX file
