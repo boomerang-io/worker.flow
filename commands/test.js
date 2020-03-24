@@ -99,7 +99,7 @@ module.exports = {
           }
           if (testTypes.includes("security")) {
             log.debug("Commencing security tests");
-            await exec(shellDir + "/test/initialize-dependencies-unit-java.sh");
+            await exec(shellDir + "/test/initialize-dependencies-security-java.sh");
             await exec(
               shellDir +
                 "/test/security-java.sh " +
