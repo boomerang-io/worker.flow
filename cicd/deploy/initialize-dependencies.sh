@@ -25,7 +25,7 @@ if [ "$DEPLOY_HELM_TLS" == "undefined" ]; then
 fi
 echo "debug - DEPLOY_HELM_TLS_AFTER=$DEPLOY_HELM_TLS"
 
-if [ "$DEBUG" == "true" ]; then
+# if [ "$DEBUG" == "true" ]; then
     echo "DEBUG::Script input variables..."
     echo "DEPLOY_TYPE=$DEPLOY_TYPE"
     echo "DEPLOY_KUBE_VERSION=$DEPLOY_KUBE_VERSION"
@@ -40,7 +40,7 @@ if [ "$DEBUG" == "true" ]; then
     echo "no_proxy"=$no_proxy
     echo "DEBUG::Host Alias from Helm Chart..."
     less /etc/hosts
-fi
+# fi
 
 if [ "$DEPLOY_TYPE" == "helm" ] || [ "$DEPLOY_TYPE" == "kubernetes" ]; then
     echo " ⋯ Configuring Kubernetes..."
@@ -153,6 +153,7 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
     fi
 
     if [[ $DEPLOY_HELM_TLS == "true" ]]; then
+        export HELM_HOME=$(helm home)
         if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
             # echo "   ⋯ Retrieving TLS from tiller-secret in cluster..."
             # KUBE_CLI_VERSION=v$DEPLOY_KUBE_VERSION
@@ -162,15 +163,21 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
             # $KUBE_CLI get secret tiller-secret -n kube-system -o jsonpath="{.data.tls\\.crt}" | base64 -d > $(helm home)/cert.pem
             # # echo `$KUBE_CLI get secrets -n kube-system tiller-secret -o jsonpath="{.data.tls\\.key}"` > $HELM_RESOURCE_PATH/encoded.tmp && base64 -d $HELM_RESOURCE_PATH/encoded.tmp > $HELM_RESOURCE_PATH/admin.key
             # $KUBE_CLI get secret tiller-secret -n kube-system -o jsonpath="{.data.tls\\.key}" | base64 -d > $(helm home)/key.pem
+            # Set the exit status $? to the exit code of the last program to exit non-zero (or zero if all exited successfully)
+            set -o pipefail
             echo "   ⋯ Retrieving Cluster CA certs from cluster..."
-            export HELM_HOME=~/.helm
-            $KUBE_CLI -n kube-system get secret cluster-ca-cert -o jsonpath='{.data.tls\.crt}' | base64 -d > $HELM_HOME/ca.crt
-            $KUBE_CLI -n kube-system get secret cluster-ca-cert -o jsonpath='{.data.tls\.key}' | base64 -d > $HELM_HOME/ca.key
+            $KUBE_CLI -n kube-system get secret cluster-ca-cert -o jsonpath='{.data.tls\.crt}' | base64 -d > $HELM_HOME/ca.pem
+            if [ $? -ne 0 ]; then echo "Failure to get ca.crt" && exit 1; fi
+            echo "Checking ca.crt"
+            less $HELM_HOME/ca.pem
+            $KUBE_CLI -n kube-system get secret cluster-ca-cert -o jsonpath='{.data.tls\.key}' | base64 -d > $HELM_HOME/ca-key.pem
+            if [ $? -ne 0 ]; then echo "Failure to get ca.key" && exit 1; fi
+            echo "Checking ca.key"
+            less $HELM_HOME/ca-key.pem
             echo "     ⋯ Generating Helm TLS certs..."
             openssl genrsa -out $HELM_HOME/key.pem 4096
             openssl req -new -key $HELM_HOME/key.pem -out $HELM_HOME/csr.pem -subj "/C=US/ST=New York/L=Armonk/O=IBM Cloud Private/CN=admin"
-            openssl x509 -req -in $HELM_HOME/csr.pem -extensions v3_usr -CA $HELM_HOME/ca.crt -CAkey $HELM_HOME/ca.key -CAcreateserial -out $HELM_HOME/cert.pem
-            ls -ltr $(helm home)
+            openssl x509 -req -in $HELM_HOME/csr.pem -extensions v3_usr -CA $HELM_HOME/ca.pem -CAkey $HELM_HOME/ca-key.pem -CAcreateserial -out $HELM_HOME/cert.pem
             echo "   ↣ Helm TLS configured."
         else
             echo "   ⋯ Retrieving Helm TLS from cluster..."
@@ -226,13 +233,15 @@ EOL
                 echo
                 exit 1
             fi
-            ls -al $HELM_HOME
             echo "   ↣ Helm TLS configured."
         fi
     fi
 
-    if [ "$DEBUG" == "true" ]; then
+    # if [ "$DEBUG" == "true" ]; then
         echo "Listing Helm home folder"
-        ls -al $(helm home)
-    fi
+        ls -ltr $HELM_HOME
+        less $HELM_HOME/ca.pem
+        less $HELM_HOME/cert.pem
+        less $HELM_HOME/key.pem
+    # fi
 fi
