@@ -15,6 +15,18 @@ if [ "$DEPLOY_HELM_TLS" == "undefined" ]; then
 fi
 echo "debug - DEPLOY_HELM_TLS_AFTER=$DEPLOY_HELM_TLS"
 
+# if [ "$DEBUG" == "true" ]; then
+    echo "DEBUG::Script input variables..."
+    echo "HELM_REPO_URL=$HELM_REPO_URL"
+    echo "CHART_NAME=$CHART_NAME"
+    echo "CHART_RELEASE=$CHART_RELEASE"
+    echo "HELM_IMAGE_KEY=$HELM_IMAGE_KEY"
+    echo "VERSION_NAME=$VERSION_NAME"
+    echo "DEPLOY_KUBE_VERSION=$DEPLOY_KUBE_VERSION"
+    echo "DEPLOY_KUBE_NAMESPACE=$DEPLOY_KUBE_NAMESPACE"
+    echo "DEPLOY_KUBE_HOST=$DEDEPLOY_KUBE_HOSTPLOY_HELM_TLS"
+# fi
+
 export KUBE_HOME=~/.kube
 export HELM_HOME=~/.helm
 BIN_HOME=/usr/local/bin
@@ -65,7 +77,7 @@ helm repo add boomerang-charts $HELM_REPO_URL
 
 if [ -z "$CHART_NAME" ] && [ ! -z "$CHART_RELEASE" ]; then
     echo "Auto detecting chart name..."
-    CHART_NAME=`helm list $HELM_TLS_STRING ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 2- | rev`
+    CHART_NAME=`helm list $HELM_TLS_STRING --kube-context $DEPLOY_KUBE_HOST-context ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 2- | rev`
     if [ $? -ne 0 ]; then exit 92; fi
 elif [ -z "$CHART_NAME" ] && [ -z "$CHART_RELEASE" ]; then
     exit 92
@@ -86,14 +98,14 @@ for CHART in "${HELM_CHARTS_ARRAY[@]}"; do
     if [[ -z "$CHART_RELEASE" ]] && [ ! -z "$DEPLOY_KUBE_NAMESPACE" ]; then
         echo "Auto detecting chart release..."
         echo "Note: This only works if there is only one release of the chart in the provided namespace."
-        CHART_RELEASE=`helm list $HELM_TLS_STRING | grep $CHART | grep $DEPLOY_KUBE_NAMESPACE | awk '{print $1}'`
-        if [ $? -ne 0 ]; then exit 93; fi
+        CHART_RELEASE=`helm list $HELM_TLS_STRING --kube-context $DEPLOY_KUBE_HOST-context | grep $CHART | grep $DEPLOY_KUBE_NAMESPACE | awk '{print $1}'`
+        if [ $? -ne 0 ]; then exit 94; fi
     elif [ -z "$CHART_RELEASE" ] && [ -z "$DEPLOY_KUBE_NAMESPACE" ]; then
         exit 93
     fi
     if [ ! -z "$CHART_RELEASE" ]; then
         echo "Current Chart Release: $CHART_RELEASE"
-        CHART_VERSION=`helm list $HELM_TLS_STRING ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 1 | rev`
+        CHART_VERSION=`helm list $HELM_TLS_STRING --kube-context $DEPLOY_KUBE_HOST-context ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 1 | rev`
         if [ $? -ne 0 ]; then exit 94; fi
         echo "Current Chart Version: $CHART_VERSION"
         if [ -z "$CHART_VERSION" ]; then
@@ -101,7 +113,7 @@ for CHART in "${HELM_CHARTS_ARRAY[@]}"; do
         fi
 
         echo "Upgrading helm release..."
-        helm upgrade $HELM_TLS_STRING --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
+        helm upgrade $HELM_TLS_STRING --kube-context $DEPLOY_KUBE_HOST-context --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
         if [ $? -ne 0 ]; then exit 91; fi
         HELM_CHARTS_EXITCODE=0
     elif [ $HELM_CHARTS_ARRAY_SIZE > 1 ]; then
