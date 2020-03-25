@@ -7,14 +7,18 @@ VERSION_NAME=$2
 TEAM_NAME=$3
 IMAGE_ORG=`echo $TEAM_NAME | sed 's/[^a-zA-Z0-0]//g' | tr '[:upper:]' '[:lower:]'`
 # Registry Host will potentially required a NO_PROXY entry in the controller service
-REGISTRY_HOST=$4
-REGISTRY_PORT=$5
-REGISTRY_USER=$6
-REGISTRY_PASSWORD=$7
+GLOBAL_REGISTRY_HOST=$4
+GLOBAL_REGISTRY_PORT=$5
+GLOBAL_REGISTRY_USER=$6
+GLOBAL_REGISTRY_PASSWORD=$7
 ART_URL=$8
 ART_USER=$9
 ART_PASSWORD=${10}
-DOCKER_FILE=${11}
+CUSTOM_REGISTRY_USER=${11}
+CUSTOM_REGISTRY_PASSWORD=${12}
+CUSTOM_REGISTRY_HOST=${13}
+CUSTOM_REGISTRY_PORT=${14}
+DOCKER_FILE=${15}
 
 IMG_OPTS=
 SKOPEO_OPTS=
@@ -34,7 +38,13 @@ if [ "$DEBUG" == "true" ]; then
 fi
 
 # Login first in case someone is using a docker base image from our registry
-/opt/bin/img login $IMG_OPTS -u=$REGISTRY_USER -p=$REGISTRY_PASSWORD "$REGISTRY_HOST:$REGISTRY_PORT"
+/opt/bin/img login $IMG_OPTS -u=$GLOBAL_REGISTRY_USER -p=$GLOBAL_REGISTRY_PASSWORD "$GLOBAL_REGISTRY_HOST:$GLOBAL_REGISTRY_PORT"
+# Login to a custom repository if needed
+echo "CUSTOM_REGISTRY_USER=$CUSTOM_REGISTRY_USER"
+if [ "$CUSTOM_REGISTRY_USER" == "undefined" ]; then
+    echo "Logging into Custom Registry..."
+    /opt/bin/img login $IMG_OPTS -u=$CUSTOM_REGISTRY_USER -p=$CUSTOM_REGISTRY_PASSWORD "$CUSTOM_REGISTRY_HOST:$CUSTOM_REGISTRY_PORT"
+fi
 
 # Check for custom Dockerfile path
 DOCKERFILE_OPTS=
@@ -59,21 +69,21 @@ else
 fi
 
 # /opt/bin/img ls -s "$IMG_STATE" $IMG_OPTS "$IMAGE_NAME:$VERSION_NAME"
-/opt/bin/img tag -s "$IMG_STATE" $IMG_OPTS "$IMAGE_NAME:$VERSION_NAME" "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
-# /opt/bin/img ls $IMG_OPTS "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
+/opt/bin/img tag -s "$IMG_STATE" $IMG_OPTS "$IMAGE_NAME:$VERSION_NAME" "$GLOBAL_REGISTRY_HOST:$GLOBAL_REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
+# /opt/bin/img ls $IMG_OPTS "$GLOBAL_REGISTRY_HOST:$GLOBAL_REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
 #img push currently returns 404 every now and then when working with docker registries
 #https://github.com/genuinetools/img/issues/128?_pjax=%23js-repo-pjax-container
 #/opt/bin/img push -d ${p:docker.registry.host}:${p:docker.registry.port}/${p:bmrg.org}/${p:bmrg.image.name}:${p:version.name}
-/opt/bin/img save -s "$IMG_STATE" $IMG_OPTS -o $IMAGE_NAME_$VERSION_NAME.tar "$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
+/opt/bin/img save -s "$IMG_STATE" $IMG_OPTS -o $IMAGE_NAME_$VERSION_NAME.tar "$GLOBAL_REGISTRY_HOST:$GLOBAL_REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
 
 if [ "$DEBUG" == "true" ]; then
     echo "Retrieving worker size..."
     df -h
     ls -lhtr $IMAGE_NAME_$VERSION_NAME.tar
-    # ping -c 3 $REGISTRY_HOST
+    # ping -c 3 $GLOBAL_REGISTRY_HOST
 fi
 
-skopeo $SKOPEO_OPTS copy --dest-tls-verify=false docker-archive:$IMAGE_NAME_$VERSION_NAME.tar docker://"$REGISTRY_HOST:$REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
+skopeo $SKOPEO_OPTS copy --dest-tls-verify=false docker-archive:$IMAGE_NAME_$VERSION_NAME.tar docker://"$GLOBAL_REGISTRY_HOST:$GLOBAL_REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
 
 if [ "$DEBUG" == "true" ]; then
     echo "Retrieving worker size..."
