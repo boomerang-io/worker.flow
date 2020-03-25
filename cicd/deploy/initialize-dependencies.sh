@@ -23,10 +23,10 @@ DEPLOY_HELM_TLS=$7
 if [ "$DEPLOY_HELM_TLS" == "undefined" ]; then
     DEPLOY_HELM_TLS=true
 fi
-echo "debug - DEPLOY_HELM_TLS_AFTER=$DEPLOY_HELM_TLS"
 
-# if [ "$DEBUG" == "true" ]; then
+if [ "$DEBUG" == "true" ]; then
     echo "DEBUG::Script input variables..."
+    echo "DEPLOY_HELM_TLS=$DEPLOY_HELM_TLS"
     echo "DEPLOY_TYPE=$DEPLOY_TYPE"
     echo "DEPLOY_KUBE_VERSION=$DEPLOY_KUBE_VERSION"
     echo "DEPLOY_KUBE_NAMESPACE=$DEPLOY_KUBE_NAMESPACE"
@@ -40,7 +40,7 @@ echo "debug - DEPLOY_HELM_TLS_AFTER=$DEPLOY_HELM_TLS"
     echo "no_proxy"=$no_proxy
     echo "DEBUG::Host Alias from Helm Chart..."
     less /etc/hosts
-# fi
+fi
 
 if [ "$DEPLOY_TYPE" == "helm" ] || [ "$DEPLOY_TYPE" == "kubernetes" ]; then
     echo " ⋯ Configuring Kubernetes..."
@@ -178,6 +178,9 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
             openssl genrsa -out $HELM_HOME/key.pem 4096
             openssl req -new -key $HELM_HOME/key.pem -out $HELM_HOME/csr.pem -subj "/C=US/ST=New York/L=Armonk/O=IBM Cloud Private/CN=admin"
             openssl x509 -req -in $HELM_HOME/csr.pem -extensions v3_usr -CA $HELM_HOME/ca.pem -CAkey $HELM_HOME/ca-key.pem -CAcreateserial -out $HELM_HOME/cert.pem
+            # Sleep is required otherwise sometimes the certificate is created prior to the service clock if there is time draft on target server.
+            echo "Sleeping..."
+            sleep 10
             echo "   ↣ Helm TLS configured."
         else
             echo "   ⋯ Retrieving Helm TLS from cluster..."
@@ -237,11 +240,12 @@ EOL
         fi
     fi
 
-    # if [ "$DEBUG" == "true" ]; then
+    if [ "$DEBUG" == "true" ]; then
         echo "Listing Helm home folder"
         ls -ltr $HELM_HOME
         less $HELM_HOME/ca.pem
         less $HELM_HOME/cert.pem
         less $HELM_HOME/key.pem
-    # fi
+        echo "Cert.pem Date Time: $(openssl x509 -noout -dates -in $HELM_HOME/cert.pem)"
+    fi
 fi
