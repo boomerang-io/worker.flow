@@ -1,17 +1,13 @@
 #!/bin/bash
 
-KUBE_HOME=/opt/bin
-KUBE_CLI=$KUBE_HOME/kubectl
+
+BIN_HOME=/usr/local/bin
+KUBE_CLI=$BIN_HOME/kubectl
 KUBE_FILE=$1
 # DEPLOY_KUBE_NAMESPACE=$2
 # DEPLOY_KUBE_HOST=$3
 # DEPLOY_KUBE_IP=$4
 # DEPLOY_KUBE_TOKEN=$5
-
-# echo "Configuring Kubernetes..."
-# KUBE_HOME=/opt/bin
-# KUBE_CLI=$KUBE_HOME/kubectl
-# KUBE_CLI_VERSION=v1.10.2
 
 # Relies on proxy settings coming through if there is a proxy
 # TODO: Update URL to https://helm.sh/blog/get-helm-sh/
