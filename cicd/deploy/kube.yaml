@@ -31,7 +31,7 @@ spec:
           name: cntr
           ports:
             - name: port-cntr
-              containerPort: @process/deployment.port@
+              containerPort: @process/container.port@
               protocol: TCP
           env:
             - name: DEPLOY_TARGET

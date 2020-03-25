@@ -56,20 +56,21 @@ module.exports = {
 
       log.ci("Deploy Artifacts");
       if (taskProps["deploy.type"] === "kubernetes") {
-        taskProps["process/deployment.port"] = taskProps["deploy.kubernetes.deployment.port"] !== undefined ? taskProps["deploy.kubernetes.deployment.port"] : "8080";
+        taskProps["process/container.port"] = taskProps["deploy.kubernetes.container.port"] !== undefined ? taskProps["deploy.kubernetes.container.port"] : "8080";
         taskProps["process/service.port"] = taskProps["deploy.kubernetes.service.port"] !== undefined ? taskProps["deploy.kubernetes.service.port"] : "5000";
         taskProps["process/org"] = taskProps["team.name"]
           .toString()
-          .replace(/[^a-zA-Z0-0]/g, "")
+          .replace(/[^a-zA-Z0-9]/g, "")
           .toLowerCase();
         taskProps["process/component.name"] = taskProps["system.component.name"]
           .toString()
-          .replace(/[^a-zA-Z0-0]/g, "")
+          .replace(/[^a-zA-Z0-9]/g, "")
           .toLowerCase();
-        var dockerImageName = taskProps["docker.image.name"] !== undefined ? taskProps["docker.image.namee"] : taskProps["system.component.name"];
+        var dockerImageName = taskProps["docker.image.name"] !== undefined ? taskProps["docker.image.name"] : taskProps["system.component.name"];
+        // Name specification reference: https://docs.docker.com/engine/reference/commandline/tag/
         taskProps["process/docker.image.name"] = dockerImageName
           .toString()
-          .replace(/[^a-zA-Z0-0]/g, "")
+          .replace(/[^a-zA-Z0-9\-\_\.]/g, "")
           .toLowerCase();
         var kubePathAndFile = shellDir + "/deploy/kube.yaml";
         if (taskProps["deploy.kubernetes.file"] !== undefined) {
