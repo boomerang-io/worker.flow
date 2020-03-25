@@ -40,7 +40,6 @@ fi
 # Login first in case someone is using a docker base image from our registry
 /opt/bin/img login $IMG_OPTS -u=$GLOBAL_REGISTRY_USER -p=$GLOBAL_REGISTRY_PASSWORD "$GLOBAL_REGISTRY_HOST:$GLOBAL_REGISTRY_PORT"
 # Login to a custom repository if needed
-echo "CUSTOM_REGISTRY_USER=$CUSTOM_REGISTRY_USER"
 if [ "$CUSTOM_REGISTRY_USER" == "undefined" ]; then
     echo "Logging into Custom Registry..."
     /opt/bin/img login $IMG_OPTS -u=$CUSTOM_REGISTRY_USER -p=$CUSTOM_REGISTRY_PASSWORD "$CUSTOM_REGISTRY_HOST:$CUSTOM_REGISTRY_PORT"
