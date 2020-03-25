@@ -13,10 +13,10 @@ DEPLOY_HELM_TLS=$9
 if [ "$DEPLOY_HELM_TLS" == "undefined" ]; then
     DEPLOY_HELM_TLS=true
 fi
-echo "debug - DEPLOY_HELM_TLS_AFTER=$DEPLOY_HELM_TLS"
 
-# if [ "$DEBUG" == "true" ]; then
-    echo "DEBUG::Script input variables..."
+if [ "$DEBUG" == "true" ]; then
+    echo "DEBUG - Script input variables..."
+    echo "DEPLOY_HELM_TLS=$DEPLOY_HELM_TLS"
     echo "HELM_REPO_URL=$HELM_REPO_URL"
     echo "CHART_NAME=$CHART_NAME"
     echo "CHART_RELEASE=$CHART_RELEASE"
@@ -25,7 +25,7 @@ echo "debug - DEPLOY_HELM_TLS_AFTER=$DEPLOY_HELM_TLS"
     echo "DEPLOY_KUBE_VERSION=$DEPLOY_KUBE_VERSION"
     echo "DEPLOY_KUBE_NAMESPACE=$DEPLOY_KUBE_NAMESPACE"
     echo "DEPLOY_KUBE_HOST=$DEDEPLOY_KUBE_HOSTPLOY_HELM_TLS"
-# fi
+fi
 
 export KUBE_HOME=~/.kube
 export HELM_HOME=~/.helm
