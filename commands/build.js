@@ -150,6 +150,14 @@ module.exports = {
             " " +
             taskProps["global/artifactory.password"] +
             " " +
+            JSON.stringify(taskProps["build.container.registry.host"]) +
+            " " +
+            taskProps["build.container.registry.port"] +
+            " " +
+            taskProps["build.container.registry.user"] +
+            " " +
+            taskProps["build.container.registry.password"] +
+            " " +
             dockerFile
         );
       }
