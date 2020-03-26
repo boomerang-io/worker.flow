@@ -27,13 +27,15 @@ echo "SAC_DIR=$SAC_DIR"
 mv $SAC_DIR SAClientUtil
 mv SAClientUtil ..
 
+# Set ASOC CLI path
 export ASOC_PATH=/data/SAClientUtil
 export PATH="${ASOC_PATH}:${ASOC_PATH}/bin:${PATH}"
 
-echo "-Xmx4g" | tee -a $ASOC_PATH/config/cli.config
-cat $ASOC_PATH/config/cli.config
+# Set ASOC memory configuration
+# echo "-Xmx4g" | tee -a $ASOC_PATH/config/cli.config
+# cat $ASOC_PATH/config/cli.config
 
-# Compile Source
+# Compile source
 if [ "$HTTP_PROXY" != "" ]; then
     # Swap , for |
     MAVEN_PROXY_IGNORE=`echo "$NO_PROXY" | sed -e 's/ //g' -e 's/\"\,\"/\|/g' -e 's/\,\"/\|/g' -e 's/\"$//' -e 's/\,/\|/g'`
@@ -111,16 +113,16 @@ if [ ! -f "${COMPONENT_NAME}_${VERSION_NAME}.irx" ]; then
   exit 128
 fi
 
-# Start ASoC Static Analyzer scan
-echo "ASoC App ID: $ASOC_APP_ID"
-echo "ASoC Login Key ID: $ASOC_LOGIN_KEY_ID"
-echo "ASoC Login Secret ID: $ASOC_LOGIN_SECRET"
+# Start ASOC Static Analyzer scan
+echo "ASOC App ID: $ASOC_APP_ID"
+echo "ASOC Login Key ID: $ASOC_LOGIN_KEY_ID"
+echo "ASOC Login Secret ID: $ASOC_LOGIN_SECRET"
 
 $ASOC_PATH/bin/appscan.sh api_login -u $ASOC_LOGIN_KEY_ID -P $ASOC_LOGIN_SECRET
 ASOC_SCAN_ID=$($ASOC_PATH/bin/appscan.sh queue_analysis -a $ASOC_APP_ID -f ${COMPONENT_NAME}_${VERSION_NAME}.irx -n ${COMPONENT_NAME}_${VERSION_NAME} | tail -n 1)
-echo "ASoC Scan ID: $ASOC_SCAN_ID"
+echo "ASOC Scan ID: $ASOC_SCAN_ID"
 
-# If no scan ID returned exit with error
+# If no ASOC Scan ID returned exit with error
 if [ -z "$ASOC_SCAN_ID" ]; then
   exit 129
 fi
@@ -132,10 +134,10 @@ while [ "$($ASOC_PATH/bin/appscan.sh status -i $ASOC_SCAN_ID)" != "Ready" ] && [
   NOW=`date +%s`
   DIFF=`expr $NOW - $START_SCAN`
   if [ $DIFF -gt 600 ]; then
-    echo "Timed out waiting for ASoC job to complete [$DIFF/600]"
+    echo "Timed out waiting for ASOC job to complete [$DIFF/600]"
     RUN_SCAN=false
   else
-    echo "ASoC job execution not completed ... waiting 15 seconds they retrying [$DIFF/600]"
+    echo "ASOC job execution not completed ... waiting 15 seconds they retrying [$DIFF/600]"
     sleep 15
   fi
 done
@@ -145,18 +147,10 @@ if [ "$RUN_SCAN" == "false" ]; then
   exit 130
 fi
 
-#Get ASOC execution summary
-$ASOC_PATH/bin/appscan.sh info -i $ASOC_SCAN_ID -json >> ASOC_Summary.json
+# Retrieve ASOC execution summary
+$ASOC_PATH/bin/appscan.sh info -i $ASOC_SCAN_ID -json >> ASOC_SUMMARY_${COMPONENT_NAME}_${VERSION_NAME}.json
+curl -T ASOC_SUMMARY_${COMPONENT_NAME}_${VERSION_NAME}.json "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/ASOC_SUMMARY_${COMPONENT_NAME}_${VERSION_NAME}.json" --insecure -u admin:WwwWulaWwHH!
 
-echo "------SUMMARY------"
-cat ASOC_Summary.json
-echo "-------------------"
-
-# Download ASOC report
-$ASOC_PATH/bin/appscan.sh get_result -d ASOC_SCAN_RESULTS_${COMPONENT_NAME}_${VERSION_NAME}.pdf -i $ASOC_SCAN_ID -t ZIP
-
-echo "------REPORT------"
-ls -al ASOC_SCAN_RESULTS_${COMPONENT_NAME}_${VERSION_NAME}.zip
-echo "------------------"
-
-# Upload Scan Results
+# Retrieve ASOC report
+$ASOC_PATH/bin/appscan.sh get_result -d ASOC_SCAN_RESULTS_${COMPONENT_NAME}_${VERSION_NAME}.zip -i $ASOC_SCAN_ID -t ZIP
+curl -T ASOC_SCAN_RESULTS_${COMPONENT_NAME}_${VERSION_NAME}.zip "https://tools.boomerangplatform.net/artifactory/boomerang/software/asoc/ASOC_SCAN_RESULTS_${COMPONENT_NAME}_${VERSION_NAME}.zip" --insecure -u admin:WwwWulaWwHH!
