@@ -72,17 +72,15 @@ module.exports = {
           .toString()
           .replace(/[^a-zA-Z0-9\-\_\.]/g, "")
           .toLowerCase();
-        var kubePathAndFile = shellDir + "/deploy/kube.yaml";
+        var kubePath = shellDir + "/deploy";
+        var kubeFile = taskProps["deploy.kubernetes.ingress"] == undefined || taskProps["deploy.kubernetes.ingress"] == false ? "^kube.yaml$" : ".*.yaml$";
         if (taskProps["deploy.kubernetes.file"] !== undefined) {
-          var kubePathAndFile = "/data/workspace" + taskProps["deploy.kubernetes.file"];
+          kubePath = taskProps["deploy.kubernetes.path"] !== undefined ? "/data/workspace" + taskProps["deploy.kubernetes.path"] : "/data/workspace";
+          kubeFile = taskProps["deploy.kubernetes.file"];
         }
-        var kubePath = path.dirname(kubePathAndFile);
-        var kubeFile = path.basename(kubePathAndFile);
-        log.sys("Kube Path: ", kubePath);
-        log.sys("Kube File: ", kubeFile);
-        await fileCommand.replaceTokensInFileWithProps(kubePath, kubeFile, "@", "@", taskProps, "g", "g", true);
-        await exec("less " + shellDir + "/deploy/kube.yaml");
-        await exec(shellDir + "/deploy/kubernetes.sh " + kubePathAndFile);
+        var kubeFiles = await fileCommand.replaceTokensInFileWithProps(kubePath, kubeFile, "@", "@", taskProps, "g", "g", true);
+        log.sys("Kubernetes files: ", kubeFiles);
+        await exec(shellDir + "/deploy/kubernetes.sh " + kubeFiles);
       } else if (taskProps["deploy.type"] === "helm" && taskProps["system.mode"] === "helm.chart") {
         await exec(
           shellDir +
