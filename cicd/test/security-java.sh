@@ -79,11 +79,14 @@ export PATH="/usr/lib/jvm/java-11-openjdk/bin:${PATH}"
 
 java --version
 
-export LD_LIBRARY_PATH=/data/SAClientUtil/bin:/usr/glibc-compat/lib:/usr/local/lib:/opt/libs/lib:/usr/lib:/lib
-export DYLD_LIBRARY_PATH=/data/SAClientUtil/bin:/usr/glibc-compat/lib:/usr/local/lib:/opt/libs/lib:/usr/lib:/lib
+export LD_LIBRARY_PATH=/usr/glibc-compat/lib:/usr/local/lib:/opt/libs/lib:/usr/lib:/lib:$ASOC_PATH/bin
+export DYLD_LIBRARY_PATH=/usr/glibc-compat/lib:/usr/local/lib:/opt/libs/lib:/usr/lib:/lib:$ASOC_PATH/bin
+export PATH="${ASOC_PATH}/bin:${PATH}"
+
+echo $PATH
 
 echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-ldd /data/SAClientUtil/bin/StaticAnalyzer
+ldd $ASOC_PATH/bin/StaticAnalyzer
 echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 
 export PROJECT_PATH=`pwd`
@@ -98,6 +101,10 @@ xmlstarlet ed --inplace -u "Configuration/Targets/Target/CustomBuildInfo/@jdk_pa
 
 echo "========================================================================================="
 cat $ASOC_PATH/appscan-config.xml
+echo "========================================================================================="
+
+echo "========================================================================================="
+$ASOC_PATH/bin/StaticAnalyzer
 echo "========================================================================================="
 
 # Generate IRX file
