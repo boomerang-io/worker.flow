@@ -79,8 +79,8 @@ export PATH="/usr/lib/jvm/java-11-openjdk/bin:${PATH}"
 
 java --version
 
-export LD_LIBRARY_PATH=/usr/glibc-compat/lib:/usr/local/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
-export DYLD_LIBRARY_PATH=/usr/glibc-compat/lib:/usr/local/lib:/opt/libs/lib:/usr/lib:/lib:/data/SAClientUtil/bin
+export LD_LIBRARY_PATH=/usr/glibc-compat/lib:/usr/local/lib:/opt/libs/lib:/usr/lib:/lib
+export DYLD_LIBRARY_PATH=/usr/glibc-compat/lib:/usr/local/lib:/opt/libs/lib:/usr/lib:/lib
 
 echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 ldd /data/SAClientUtil/bin/StaticAnalyzer
