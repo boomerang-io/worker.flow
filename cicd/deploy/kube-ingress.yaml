@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: @process/org@-@process/component.name@
+  namespace: @deploy.kube.namespace@
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    ingress.kubernetes.io/rewrite-target: /{{ $k }}/$2
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /@process/org@/@process/component.name@(/|$)(.*)
+            backend:
+              serviceName: @process/org@-@process/component.name@
+              servicePort: port-svc
