@@ -42,5 +42,5 @@ rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/
 
 # apk add libgcc libstdc++
 # apk add zlib-dev
-apk add sigar
-apk add icu icu-dev icu-libs icu-static
+# apk add sigar
+# apk add icu icu-dev icu-libs icu-static
