@@ -34,13 +34,10 @@ KUBE_CLI=$BIN_HOME/kubectl
 
 # NOTE
 # THe following variables are shared across helm related scripts for deploy step
-HELM_VERSION=v2.9.1
-HELM_CHART_VERSION_COL=2
-if [[ "$DEPLOY_KUBE_VERSION" == "OCP" ]]; then
+HELM_VERSION=v2.12.1
+HELM_CHART_VERSION_COL=3 #the column output of helm list changed
+if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
     HELM_VERSION=v2.12.3
-    HELM_CHART_VERSION_COL=3 #the column output of helm list changed
-else
-    HELM_VERSION=v2.12.1
     HELM_CHART_VERSION_COL=3 #the column output of helm list changed
 fi
 echo "   ↣ Helm version set at: $HELM_VERSION"
@@ -73,8 +70,9 @@ export HELM_HOME=$(helm home)
 set -o pipefail
 
 # helm --home $HELM_RESOURCE_PATH repo add boomerang-charts $HELM_REPO_URL
-helm repo add boomerang-charts $HELM_REPO_URL
+helm repo add boomerang-charts $HELM_REPO_URL && helm repo update
 
+# Chart Name is blank. Chart Release is now required to fetch chart name.
 if [ -z "$CHART_NAME" ] && [ ! -z "$CHART_RELEASE" ]; then
     echo "Auto detecting chart name..."
     CHART_NAME=`helm list $HELM_TLS_STRING --kube-context $DEPLOY_KUBE_HOST-context ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 2- | rev`
@@ -86,47 +84,58 @@ echo "Chart Name(s): $CHART_NAME"
 echo "Chart Image Tag: $HELM_IMAGE_KEY"
 echo "Chart Image Version: $VERSION_NAME"
 
+HELM_CHARTS_EXITCODE=0
+HELM_CHARTS_SUCCESS_COUNT=0
 IFS=',' # comma (,) is set as delimiter
 read -ra HELM_CHARTS_ARRAY <<< "$CHART_NAME"
 HELM_CHARTS_ARRAY_SIZE=${#HELM_CHARTS_ARRAY[@]}
 if [[ $HELM_CHARTS_ARRAY_SIZE > 1 ]]; then
-    echo "Multiple charts ($HELM_CHARTS_ARRAY_SIZE) found. Enabling WARNINGS for some failures if one or more charts succeed."
-    HELM_CHARTS_EXITCODE=
+    echo "Multiple charts ($HELM_CHARTS_ARRAY_SIZE) found. Enabling 'warning' mode for failures - this will mark activity as successful if one or more charts succeed."
 fi
 for CHART in "${HELM_CHARTS_ARRAY[@]}"; do
+    # Each of these blocks will set an EXITCODE to handle a soft exit if there are multiple charts.
     echo "Current Chart Name: $CHART"
     if [[ -z "$CHART_RELEASE" ]] && [ ! -z "$DEPLOY_KUBE_NAMESPACE" ]; then
         echo "Auto detecting chart release..."
         echo "Note: This only works if there is only one release of the chart in the provided namespace."
         CHART_RELEASE=`helm list $HELM_TLS_STRING --kube-context $DEPLOY_KUBE_HOST-context | grep $CHART | grep $DEPLOY_KUBE_NAMESPACE | awk '{print $1}'`
-        if [ $? -ne 0 ]; then exit 94; fi
+        if [ $? -ne 0 ]; then HELM_CHARTS_EXITCODE=94; fi
     elif [ -z "$CHART_RELEASE" ] && [ -z "$DEPLOY_KUBE_NAMESPACE" ]; then
-        exit 93
+        HELM_CHARTS_EXITCODE=93
     fi
-    if [ ! -z "$CHART_RELEASE" ]; then
+    if [ ! -z "$CHART_RELEASE" ] && [ $HELM_CHARTS_EXITCODE -eq 0 ]; then
         echo "Current Chart Release: $CHART_RELEASE"
         CHART_VERSION=`helm list $HELM_TLS_STRING --kube-context $DEPLOY_KUBE_HOST-context ^$CHART_RELEASE$ | grep $CHART_RELEASE | rev | awk -v COL=$HELM_CHART_VERSION_COL '{print $COL}' | cut -d '-' -f 1 | rev`
-        if [ $? -ne 0 ]; then exit 94; fi
+        if [ $? -ne 0 ]; then HELM_CHARTS_EXITCODE=94; fi
+    fi
+    if [ ! -z "$CHART_RELEASE" ] && [ ! -z "$CHART_VERSION" ] && [ $HELM_CHARTS_EXITCODE -eq 0 ]; then
         echo "Current Chart Version: $CHART_VERSION"
-        if [ -z "$CHART_VERSION" ]; then
-            exit 94
-        fi
-
         echo "Upgrading helm release..."
         helm upgrade $HELM_TLS_STRING --kube-context $DEPLOY_KUBE_HOST-context --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
-        if [ $? -ne 0 ]; then exit 91; fi
-        HELM_CHARTS_EXITCODE=0
-    elif [ $HELM_CHARTS_ARRAY_SIZE > 1 ]; then
-        echo "WARNING - No chart release found. Trapping error as there are multiple charts. Will exit with warning if any chart is successful."
+        if [ $? -ne 0 ]; then HELM_CHARTS_EXITCODE=91; fi
     else
-        exit 94
+        HELM_CHARTS_EXITCODE=94
     fi
+    # Final block to count success of print error for this loop
+    if [ $HELM_CHARTS_EXITCODE -ne 0 ]; then
+        echo "Unable to deploy to $CHART. The last error code received was: $HELM_CHARTS_EXITCODE. Please speak to a DevOps representative or try again."
+        # TODO: update to print out error statement based on code.
+    else
+        ((HELM_CHARTS_SUCCESS_COUNT++))
+    fi
+    # Reset for next loop as CHART_RELEASE wouldn't have been set to a single release for multiple charts
     CHART_RELEASE=
-    echo "Exit Code: $HELM_CHARTS_EXITCODE"
+    HELM_CHARTS_EXITCODE=0
 done
 IFS=' ' # return to default delimiter
 
-if [[ $HELM_CHARTS_EXITCODE -ne 0 ]] ; then
-    echo "No charts were successful. Untrapping error."
-    exit 94
+# If at least one deployment is successful, mark whole implementation as successful
+if [[ $HELM_CHARTS_SUCCESS_COUNT -eq 0 ]] ; then
+    echo "No charts were successful."
+    exit $HELM_CHARTS_EXITCODE
+elif [[ $HELM_CHARTS_SUCCESS_COUNT -ne $HELM_CHARTS_ARRAY_SIZE ]]; then
+    echo
+    echo "Warning:"
+    echo " - Some charts were unsuccessful. Please review the activity log."
+    echo
 fi
