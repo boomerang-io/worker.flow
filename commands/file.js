@@ -93,8 +93,7 @@ module.exports = {
           let filteredFiles = files.filter(file => {
             return regExp.test(file);
           });
-          if (filteredFiles.length === 0)
-            throw new Error("Regex expression doesn't match any file.");
+          if (filteredFiles.length === 0) throw new Error("Regex expression doesn't match any file.");
         });
       } else {
         fs.stat(path, (err, stat) => {
@@ -141,13 +140,7 @@ module.exports = {
     log.debug("Started Replace String In File Plugin");
 
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const {
-      path,
-      expression,
-      replaceString,
-      flags,
-      failIfNotFound = false
-    } = taskProps;
+    const { path, expression, replaceString, flags, failIfNotFound = false } = taskProps;
 
     this.replaceStringInFileWithProps(path, expression, replaceString, flags, failIfNotFound);
 
@@ -159,8 +152,7 @@ module.exports = {
       let result;
 
       const fileExpression = new RegExp(expression, flags ? flags : undefined);
-      if (failIfNotFound && !fileExpression.test(file))
-        throw new Error("Not found any matches.");
+      if (failIfNotFound && !fileExpression.test(file)) throw new Error("Not found any matches.");
       result = file.replace(fileExpression, replaceString);
 
       fs.writeFileSync(path, result, "utf-8");
@@ -210,10 +202,7 @@ module.exports = {
       let expression;
       if (file.startsWith("/") && file.lastIndexOf("/") > 0) {
         const lastSlash = file.lastIndexOf("/");
-        expression = new RegExp(
-          file.slice(1, lastSlash),
-          file.slice(lastSlash + 1)
-        );
+        expression = new RegExp(file.slice(1, lastSlash), file.slice(lastSlash + 1));
       } else {
         expression = new RegExp(file, filenameSearchFlags);
       }
@@ -222,6 +211,7 @@ module.exports = {
 
     try {
       const allFileNames = fs.readdirSync(path);
+      log.debug("Files in Path: ", allFileNames);
       let replaceFileNames = [];
       if (Array.isArray(files)) {
         allFileNames.forEach(fileName =>
@@ -238,24 +228,17 @@ module.exports = {
           }
         });
       }
+      log.debug("All matching files: ", replaceFileNames);
 
-      if (failIfNotFound && replaceFileNames.length === 0)
-        throw new Error("Not found any matches.");
+      if (failIfNotFound && replaceFileNames.length === 0) throw new Error("Not found any matches.");
 
-      const allFilePaths = replaceFileNames.map(fileName =>
-        filePath.join(path, fileName)
-      );
-      const allFileContents = allFilePaths.map(fileDir =>
-        fs.readFileSync(fileDir, "utf-8")
-      );
+      const allFilePaths = replaceFileNames.map(fileName => filePath.join(path, fileName));
+      const allFileContents = allFilePaths.map(fileDir => fs.readFileSync(fileDir, "utf-8"));
 
       const newFileContents = allFileContents.map(fileContent => {
         let file = fileContent;
         Object.keys(replaceTokenMap).forEach(tokenKey => {
-          const expression = new RegExp(
-            `(${tokenStartDelimiter})(${tokenKey})(${tokenEndDelimiter})`,
-            tokenSearchFlags
-          );
+          const expression = new RegExp(`(${tokenStartDelimiter})(${tokenKey})(${tokenEndDelimiter})`, tokenSearchFlags);
           file = file.replace(expression, replaceTokenMap[tokenKey]);
         });
         return file;
@@ -264,6 +247,8 @@ module.exports = {
       allFilePaths.forEach((fileDir, index) => {
         fs.writeFileSync(fileDir, newFileContents[index], "utf-8");
       });
+
+      return allFilePaths;
     } catch (e) {
       log.err(e);
       process.exit(1);

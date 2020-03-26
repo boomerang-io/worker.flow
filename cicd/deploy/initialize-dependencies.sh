@@ -92,15 +92,11 @@ if [ "$DEPLOY_TYPE" == "helm" ]; then
     # Forked from reference: https://github.ibm.com/ICP-DevOps/build-harness/blob/master/modules/helm/Makefile
 
     # NOTE
-    # THe following variables are shared across helm related scripts for deploy step
-    # TODO: Update to work with the new implementation
-    HELM_VERSION=v2.9.1
-    HELM_CHART_VERSION_COL=2
+    # The following variables are shared across helm related scripts for deploy step
+    HELM_VERSION=v2.12.1
+    HELM_CHART_VERSION_COL=3 #the column output of helm list changed
     if [[ "$DEPLOY_KUBE_VERSION" =~ 1.[0-9]+.[0-9]+ ]]; then
         HELM_VERSION=v2.12.3
-        HELM_CHART_VERSION_COL=3 #the column output of helm list changed
-    else
-        HELM_VERSION=v2.12.1
         HELM_CHART_VERSION_COL=3 #the column output of helm list changed
     fi
     # END
