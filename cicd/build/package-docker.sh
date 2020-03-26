@@ -39,8 +39,14 @@ fi
 
 # Log into custom repository if needed
 if [ "$CUSTOM_REGISTRY_USER" != "undefined" ]; then
-    echo "Logging into Custom Registry..."
-    /opt/bin/img login $IMG_OPTS -u=$CUSTOM_REGISTRY_USER -p=$CUSTOM_REGISTRY_PASSWORD "$CUSTOM_REGISTRY_HOST:$CUSTOM_REGISTRY_PORT"
+    CUSTOM_DOCKER_SERVER=
+    if [ "$CUSTOM_REGISTRY_PORT" != "undefined" ]; then
+        CUSTOM_DOCKER_SERVER="$CUSTOM_REGISTRY_HOST:$CUSTOM_REGISTRY_PORT"
+    else 
+        CUSTOM_DOCKER_SERVER="$CUSTOM_REGISTRY_HOST"
+    fi
+    echo "Logging into Custom Registry ($CUSTOM_DOCKER_SERVER)..."
+    /opt/bin/img login $IMG_OPTS -u=$CUSTOM_REGISTRY_USER -p=$CUSTOM_REGISTRY_PASSWORD "$CUSTOM_DOCKER_SERVER"
 fi
 # Log into the global platforms container registry
 /opt/bin/img login $IMG_OPTS -u=$GLOBAL_REGISTRY_USER -p=$GLOBAL_REGISTRY_PASSWORD "$GLOBAL_REGISTRY_HOST:$GLOBAL_REGISTRY_PORT"
