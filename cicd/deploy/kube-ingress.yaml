@@ -5,10 +5,11 @@ metadata:
   namespace: @deploy.kube.namespace@
   annotations:
     kubernetes.io/ingress.class: nginx
-    ingress.kubernetes.io/rewrite-target: /@process/component.name@/$2
+    ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
-    - http:
+    - host: @deploy.kube.host@
+      http:
         paths:
           - path: /@process/org@/@process/component.name@(/|$)(.*)
             backend:
