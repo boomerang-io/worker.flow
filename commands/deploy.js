@@ -57,7 +57,7 @@ module.exports = {
       log.ci("Deploy Artifacts");
       if (taskProps["deploy.type"] === "kubernetes") {
         taskProps["process/container.port"] = taskProps["deploy.kubernetes.container.port"] !== undefined ? taskProps["deploy.kubernetes.container.port"] : "8080";
-        taskProps["process/service.port"] = taskProps["deploy.kubernetes.service.port"] !== undefined ? taskProps["deploy.kubernetes.service.port"] : "5000";
+        taskProps["process/service.port"] = taskProps["deploy.kubernetes.service.port"] !== undefined ? taskProps["deploy.kubernetes.service.port"] : "80";
         taskProps["process/org"] = taskProps["team.name"]
           .toString()
           .replace(/[^a-zA-Z0-9]/g, "")
