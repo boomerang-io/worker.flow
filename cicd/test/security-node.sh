@@ -35,15 +35,6 @@ export PATH="${ASOC_PATH}:${ASOC_PATH}/bin:${PATH}"
 # echo "-Xmx4g" | tee -a $ASOC_PATH/config/cli.config
 # cat $ASOC_PATH/config/cli.config
 
-# Compile source
-if [ "$HTTP_PROXY" != "" ]; then
-    # Swap , for |
-    MAVEN_PROXY_IGNORE=`echo "$NO_PROXY" | sed -e 's/ //g' -e 's/\"\,\"/\|/g' -e 's/\,\"/\|/g' -e 's/\"$//' -e 's/\,/\|/g'`
-    export MAVEN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttp.nonProxyHosts='$MAVEN_PROXY_IGNORE' -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT -Dhttps.nonProxyHosts='$MAVEN_PROXY_IGNORE'"
-fi
-echo "MAVEN_OPTS=$MAVEN_OPTS"
-mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
-
 # Set Java version
 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
 export PATH="/usr/lib/jvm/java-11-openjdk/bin:${PATH}"
@@ -97,11 +88,8 @@ export PATH="${ASOC_PATH}/bin:${PATH}"
 export PROJECT_PATH=`pwd`
 
 # Create ASOC configuration file
-cp ${SHELL_DIR}/test/security-java.xml $ASOC_PATH/appscan-config.xml
-xmlstarlet ed --inplace -u "Configuration/Targets/Target/@path" -v "$PROJECT_PATH/target" $ASOC_PATH/appscan-config.xml
-xmlstarlet ed --inplace -u "Configuration/Targets/Target/CustomBuildInfo/@additional_classpath" -v "$PROJECT_PATH/target/dependency;$PROJECT_PATH/target/classes" $ASOC_PATH/appscan-config.xml
-xmlstarlet ed --inplace -u "Configuration/Targets/Target/CustomBuildInfo/@src_root"  -v "$PROJECT_PATH/src/main/java" $ASOC_PATH/appscan-config.xml
-xmlstarlet ed --inplace -u "Configuration/Targets/Target/CustomBuildInfo/@jdk_path" -v "$JAVA_HOME" $ASOC_PATH/appscan-config.xml
+cp ${SHELL_DIR}/test/security-node.xml $ASOC_PATH/appscan-config.xml
+xmlstarlet ed --inplace -u "Configuration/Targets/Target/@path" -v "$PROJECT_PATH" $ASOC_PATH/appscan-config.xml
 
 # Generate ASOC IRX file
 export APPSCAN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
