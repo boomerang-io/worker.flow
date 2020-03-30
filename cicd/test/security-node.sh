@@ -45,7 +45,9 @@ export PATH="/usr/lib/jvm/java-11-openjdk/bin:${PATH}"
 java --version
 
 # Remove specific node dependencies
-apk del gcc libc6-compat libc-dev
+apk del g++ build-base
+apk del gcc libc-dev
+apk del libc6-compat
 
 # Add ASOC required glibc and zlib packages
 export LANG='en_US.UTF-8'
