@@ -18,6 +18,14 @@ GLOBAL_REGISTRY_PORT=${10}
 GLOBAL_REGISTRY_USER=${11}
 GLOBAL_REGISTRY_PASSWORD=${12}
 
+IMG_OPTS=
+SKOPEO_OPTS=
+# if [ "$DEBUG" == "true" ]; then
+    echo "Enabling debug logging..."
+    IMG_OPTS+="-d"
+    SKOPEO_OPTS+="--debug "
+# fi
+
 # Log into the platforms global container registry
 if [ "$GLOBAL_REGISTRY_PORT" != "undefined" ]; then
     GLOBAL_DOCKER_SERVER="$GLOBAL_REGISTRY_HOST:$GLOBAL_REGISTRY_PORT"
@@ -28,28 +36,28 @@ echo "Logging into Boomerang Container Registry ($GLOBAL_DOCKER_SERVER)..."
 /opt/bin/img login $IMG_OPTS -u=$GLOBAL_REGISTRY_USER -p=$GLOBAL_REGISTRY_PASSWORD "$GLOBAL_DOCKER_SERVER"
 
 # Login to the destination
-if [ "$DESTINATION_REGISTRY_PORT" != "undefined" ]; then
+echo "DESTINATION_REGISTRY_PORT=$DESTINATION_REGISTRY_PORT"
+if [ "$DESTINATION_REGISTRY_PORT" != "undefined" ] && [ ! -z "$DESTINATION_REGISTRY_PORT" ] && [[ ! $DESTINATION_REGISTRY_HOST =~ "icr.io" ]]; then
     DESTINATION_DOCKER_SERVER="$DESTINATION_REGISTRY_HOST:$DESTINATION_REGISTRY_PORT"
-else 
+else
     DESTINATION_DOCKER_SERVER="$DESTINATION_REGISTRY_HOST"
 fi
 if [ ! -z "$DESTINATION_REGISTRY_USER" ] || [ ! -z "$DESTINATION_REGISTRY_PASSWORD" ]; then
     echo "Logging into destinations container registry ($DESTINATION_DOCKER_SERVER)..."
-    /opt/bin/img login $IMG_OPTS -u=$DESTINATION_REGISTRY_USER -p=$DESTINATION_REGISTRY_PASSWORD "$DESTINATION_DOCKER_SERVER"
+    /opt/bin/img login $IMG_OPTS -u=$DESTINATION_REGISTRY_USER -p="$DESTINATION_REGISTRY_PASSWORD" "$DESTINATION_DOCKER_SERVER"
 else
     echo "Skipping destination registry login as no username and / or password provided. "
 fi
 
-SKOPEO_OPTS=
-if [ "$DEBUG" == "true" ]; then
-    echo "Enabling debug logging..."
-    SKOPEO_OPTS+="--debug "
-fi
-
 echo "Origin: $GLOBAL_DOCKER_SERVER/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME"
 echo "Destination: $DESTINATION_DOCKER_SERVER$DESTINATION_REGISTRY_IMAGE_PATH/$IMAGE_NAME:$VERSION_NAME"
-skopeo $SKOPEO_OPTS copy --dest-tls-verify=false docker://$GLOBAL_REGISTRY_HOST:$GLOBAL_REGISTRY_PORT/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME docker://$DESTINATION_DOCKER_SERVER$DESTINATION_REGISTRY_IMAGE_PATH/$IMAGE_NAME:$VERSION_NAME
-RESULT=$?
+if [[ $DESTINATION_REGISTRY_HOST =~ "icr.io" ]]; then
+    skopeo $SKOPEO_OPTS copy --dest-tls-verify=false  --dest-creds $DESTINATION_REGISTRY_USER:$DESTINATION_REGISTRY_PASSWORD docker://$DESTINATION_DOCKER_SERVER/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME docker://$DESTINATION_DOCKER_SERVER$DESTINATION_REGISTRY_IMAGE_PATH/$IMAGE_NAME:$VERSION_NAME
+    RESULT=$?
+else
+    skopeo $SKOPEO_OPTS copy --dest-tls-verify=false docker://$DESTINATION_DOCKER_SERVER/$IMAGE_ORG/$IMAGE_NAME:$VERSION_NAME docker://$DESTINATION_DOCKER_SERVER$DESTINATION_REGISTRY_IMAGE_PATH/$IMAGE_NAME:$VERSION_NAME
+    RESULT=$?
+fi
 if [ $RESULT -ne 0 ] ; then
     exit 88
 fi
