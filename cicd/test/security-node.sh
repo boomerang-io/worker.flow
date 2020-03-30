@@ -44,7 +44,7 @@ export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
 export PATH="/usr/lib/jvm/java-11-openjdk/bin:${PATH}"
 java --version
 
-# Remove specific node dependencies
+# Remove packages which interfere with execution of ASOC CLI
 apk del g++ build-base
 apk del gcc libc-dev
 apk del libc6-compat
