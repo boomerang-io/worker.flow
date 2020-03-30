@@ -103,8 +103,8 @@ module.exports = {
             await exec(shellDir + "/test/security-java.sh " + taskProps["system.component.name"] + " " + taskProps["version.name"] + " " + JSON.stringify(taskProps["global/asoc.repo.url"]) + " " + taskProps["global/asoc.repo.user"] + " " + taskProps["global/asoc.repo.password"] + " " + taskProps["global/asoc.app.id"] + " " + taskProps["global/asoc.login.key.id"] + " " + taskProps["global/asoc.login.secret"] + " " + taskProps["global/asoc.client.cli"] + " " + taskProps["global/asoc.java.runtime"] + " " + shellDir);
           }
         } else if (taskProps["system.mode"] === "nodejs") {
-          log.debug("Building nodejs application");
-          await exec(shellDir + "/build/compile-node.sh " + taskProps["build.tool"] + " " + taskProps["node.package.script"] + " " + taskProps["node.cypress.install.binary"]);
+          log.debug("Install nodejs dependencies");
+          await exec(shellDir + "/test/initialize-dependencies-node.sh " + taskProps["build.tool"] + " " + taskProps["node.package.script"] + " " + taskProps["node.cypress.install.binary"]);
           if (testTypes.includes("static")) {
             log.debug("Commencing static tests");
             await exec(shellDir + "/test/static-node.sh " + taskProps["build.tool"] + " " + taskProps["version.name"] + " " + taskProps["global/sonar.url"] + " " + taskProps["global/sonar.api.key"] + " " + taskProps["system.component.id"] + " " + taskProps["system.component.name"]);
