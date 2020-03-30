@@ -17,8 +17,6 @@ if [[ "$DEPLOY_KUBE_IP" =~ :[0-9]+$ ]]; then
     DEPLOY_KUBE_IP=`echo $DEPLOY_KUBE_IP | rev | cut -d : -f 2 | rev`
 fi
 DEPLOY_KUBE_TOKEN=$6
-echo "debug - DEPLOY_HELM_TLS=$7"
-# DEPLOY_HELM_TLS=${7:-true}
 DEPLOY_HELM_TLS=$7
 if [ "$DEPLOY_HELM_TLS" == "undefined" ]; then
     DEPLOY_HELM_TLS=true
