@@ -10,12 +10,13 @@ SONAR_GATEID=2
 COMPONENT_ID=$5
 COMPONENT_NAME=$6
 SONAR_EXCLUSIONS=
+
 export SONAR_SCANNER_EXCLUSIONS
 if [ "$7" != "" ]; then
     echo "Setting Sonar Exclusions to: $7"
     SONAR_EXCLUSIONS=$7
     export SONAR_SCANNER_EXCLUSIONS="-Dsonar.exclusions=$SONAR_EXCLUSIONS"
-fi 
+fi
 
 curl --noproxy $NO_PROXY -I --insecure $SONAR_URL/about
 curl --noproxy $NO_PROXY --insecure -X POST -u $SONAR_APIKEY: "$( echo "$SONAR_URL/api/projects/create?&project=$COMPONENT_ID&name="$COMPONENT_NAME"" | sed 's/ /%20/g' )"
