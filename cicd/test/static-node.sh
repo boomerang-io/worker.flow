@@ -30,8 +30,12 @@ fi
 SCRIPT=$(node -pe "require('./package.json').scripts.lint");
 if [ "$SCRIPT" != "undefined" ]; then
     npm run lint
-    $SONAR_FLAGS="$SONAR_FLAGS -Dsonar.eslint.reportPaths=report.json"
+    $SONAR_FLAGS="$SONAR_FLAGS -Dsonar.eslint.reportPaths=lint-report.json"
 fi
+
+ls -al lint-report.json
+cat lint-report.json
+echo "SONAR_FLAGS=$SONAR_FLAGS"
 
 SRC_FOLDER=
 if [ -d "src" ]; then
