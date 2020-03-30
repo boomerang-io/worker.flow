@@ -35,14 +35,9 @@ export PATH="${ASOC_PATH}:${ASOC_PATH}/bin:${PATH}"
 # echo "-Xmx4g" | tee -a $ASOC_PATH/config/cli.config
 # cat $ASOC_PATH/config/cli.config
 
-# Compile source
-if [ "$HTTP_PROXY" != "" ]; then
-    # Swap , for |
-    MAVEN_PROXY_IGNORE=`echo "$NO_PROXY" | sed -e 's/ //g' -e 's/\"\,\"/\|/g' -e 's/\,\"/\|/g' -e 's/\"$//' -e 's/\,/\|/g'`
-    export MAVEN_OPTS="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT -Dhttp.nonProxyHosts='$MAVEN_PROXY_IGNORE' -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT -Dhttps.nonProxyHosts='$MAVEN_PROXY_IGNORE'"
-fi
-echo "MAVEN_OPTS=$MAVEN_OPTS"
-mvn clean package install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
+# Install dependencies for CLI
+apk add curl curl-dev wget
+apk --no-cache add openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 # Set Java version
 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
