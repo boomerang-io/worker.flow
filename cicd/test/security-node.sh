@@ -44,6 +44,9 @@ export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
 export PATH="/usr/lib/jvm/java-11-openjdk/bin:${PATH}"
 java --version
 
+# Remove specific node dependencies
+apk del gcc libc6-compat libc-dev
+
 # Add ASOC required glibc and zlib packages
 export LANG='en_US.UTF-8'
 export LANGUAGE='en_US:en'
