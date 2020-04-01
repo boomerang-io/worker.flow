@@ -111,8 +111,36 @@ for CHART in "${HELM_CHARTS_ARRAY[@]}"; do
     if [ ! -z "$CHART_RELEASE" ] && [ ! -z "$CHART_VERSION" ] && [ $HELM_CHARTS_EXITCODE -eq 0 ]; then
         echo "Current Chart Version: $CHART_VERSION"
         echo "Upgrading helm release..."
-        helm upgrade $HELM_TLS_STRING --kube-context $DEPLOY_KUBE_HOST-context --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART
-        if [ $? -ne 0 ]; then HELM_CHARTS_EXITCODE=91; fi
+        SLEEP=30
+        RETRIES=3
+        echo "Note: Timeout is set at 5 minutes with 3 retries"
+        # default timeout for helm commands is 300 seconds so no need to adjust
+        INDEX=0
+        while true; do
+            INDEX=$(( INDEX + 1 ))
+            if [[ $INDEX -eq $RETRIES ]]; then
+                echo "Failed to achieve the helm deployment within allotted time and retry count."
+                HELM_CHARTS_EXITCODE=91;
+                break
+            else
+                echo "Attempting deployment (#$INDEX)."
+                OUTPUT=$(helm upgrade $HELM_TLS_STRING --kube-context $DEPLOY_KUBE_HOST-context --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART)
+                RESULT=$?
+                if [ $RESULT -ne 0 ]; then 
+                    if [[ $OUTPUT =~ "UPGRADE FAILED: timed out" ]]; then
+                        echo "Time out reached. Retrying..."
+                        sleep $SLEEP
+                        continue
+                    else
+                        echo "Error encountered:"
+                        echo $OUTPUT
+                        HELM_CHARTS_EXITCODE=91; 
+                        break
+                    fi
+                fi
+
+            fi
+        done
     else
         HELM_CHARTS_EXITCODE=94
     fi
