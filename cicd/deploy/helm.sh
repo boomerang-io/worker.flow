@@ -132,7 +132,7 @@ IFS=' ' # return to default delimiter
 # If at least one deployment is successful, mark whole implementation as successful
 if [[ $HELM_CHARTS_SUCCESS_COUNT -eq 0 ]] ; then
     echo "No charts were successful."
-    exit $HELM_CHARTS_EXITCODE
+    exit 91
 elif [[ $HELM_CHARTS_SUCCESS_COUNT -ne $HELM_CHARTS_ARRAY_SIZE ]]; then
     echo
     echo "Warning:"
