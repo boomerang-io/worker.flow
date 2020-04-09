@@ -123,7 +123,7 @@ for CHART in "${HELM_CHARTS_ARRAY[@]}"; do
                 HELM_CHARTS_EXITCODE=91;
                 break
             else
-                echo "Attempting deployment (#$INDEX)."
+                echo "Commencing deployment (attempt #$INDEX)..."
                 OUTPUT=$(helm upgrade $HELM_TLS_STRING --kube-context $DEPLOY_KUBE_HOST-context --reuse-values --set $HELM_IMAGE_KEY=$VERSION_NAME --version $CHART_VERSION $CHART_RELEASE boomerang-charts/$CHART)
                 RESULT=$?
                 if [ $RESULT -ne 0 ]; then 
@@ -134,11 +134,12 @@ for CHART in "${HELM_CHARTS_ARRAY[@]}"; do
                     else
                         echo "Error encountered:"
                         echo $OUTPUT
-                        HELM_CHARTS_EXITCODE=91; 
+                        HELM_CHARTS_EXITCODE=91;
                         break
                     fi
                 fi
-
+                echo "Deployment success."
+                break
             fi
         done
     else
