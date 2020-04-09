@@ -2,6 +2,7 @@ const log = require("../log.js");
 const fetch = require("node-fetch");
 var fs = require("fs");
 var shell = require("shelljs");
+const utils = require("../utils.js");
 
 module.exports = {
   downloadFile() {
@@ -9,23 +10,40 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const {} = taskProps;
+    const { url: url, username: username, password: password, destinationPath: destinationPath = "/data/file", apiKey: apiKey, accessToken: accessToken } = taskProps;
 
-    /** @todo update to use params*/
-    fetch(
-      "https://tools.boomerangplatform.net/artifactory/boomerang/test/hello",
-      {
-        method: "GET",
-        headers: {
-          "X-JFrog-Art-Api":
-            "AKCp5Z2NfDUZgvYrspbPwhR1byifksXAgJSFTssz5tG7wj41RyfgM1pJxPPn5FRZqTwrhtNZx"
-        }
-      }
-    ).then(res => {
+    if (!url) {
+      log.err("no endpoint has been specified");
+      process.exit(1);
+    }
+
+    const bearer_token = `Bearer ${accessToken}`;
+    const user_token = `Basic ${username}:${password}`;
+
+    let config = {
+      method: "GET",
+      headers: {}
+    };
+
+    if (accessToken) {
+      config.withCredentials = true;
+      config.credentials = "include";
+      config.headers = { ...config.headers, Authorization: bearer_token }; //, 'Content-Type': 'application/json' };
+    } else if (username && password) {
+      config.headers = { ...config.headers, Authorization: user_token, "Content-Type": "application/json" };
+    }
+
+    if (apiKey) {
+      config.headers = { ...config.headers, "X-JFrog-Art-Api": apiKey };
+    }
+
+    log.sys("request config:", JSON.stringify(config));
+
+    fetch(url, config).then(res => {
       return new Promise((resolve, reject) => {
         const dest = fs.createWriteStream("file");
         res.body.pipe(dest);
-        fs.rename("file", "/data/file", function(err) {
+        fs.rename("file", destinationPath, function(err) {
           if (err) throw err;
           console.log("Successfully renamed - AKA moved!");
         });
@@ -43,30 +61,34 @@ module.exports = {
 
     log.debug("Finished Artifactory Download File Plugin");
   },
-  uploadFile(req, inputProps) {
+  uploadFile() {
     log.debug("Started Artifactory Upload File Plugin");
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const {
-      url: url,
-      file: file,
-      username: username,
-      password: password
-    } = taskProps;
+    const { url: url, file: file, username: username, password: password, apiKey: apiKey } = taskProps;
+
+    if (!file) {
+      log.err("no file has been specified");
+      process.exit(1);
+    }
+    if (!url) {
+      log.err("no endpoint has been specified");
+      process.exit(1);
+    }
+
+    let queryString = "";
+
+    if (username && password) {
+      queryString = "curl -T " + file + " " + url + file + " --insecure -u " + username + ":" + password;
+    } else if (apiKey) {
+      queryString = "curl -T " + file + " " + url + file + "-H" + `X-JFrog-Art-Api:${apiKey}`;
+    } else {
+      log.debug("Authentication is not enabled");
+    }
 
     /** @todo use more parameters */
-    shell.exec(
-      "curl -T " +
-        file +
-        " " +
-        url +
-        file +
-        " --insecure -u " +
-        username +
-        ":" +
-        password
-    );
+    shell.exec(queryString);
 
     log.debug("Finished Artifactory Upload File Plugin");
   }
