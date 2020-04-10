@@ -10,7 +10,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { url: url, username: username, password: password, destinationPath: destinationPath = "/data/file", apiKey: apiKey, accessToken: accessToken } = taskProps;
+    const { url: url, username: username, password: password, destinationPath: destinationPath = "output_file", apiKey: apiKey, accessToken: accessToken } = taskProps;
 
     if (!url) {
       log.err("no endpoint has been specified");
@@ -79,13 +79,15 @@ module.exports = {
 
     let queryString = "";
 
-    if (username && password) {
+    if (apiKey) {
+      queryString = "curl -T " + file + " " + url + file + " -H" + `X-JFrog-Art-Api:${apiKey}`;
+    } else if (username && password) {
       queryString = "curl -T " + file + " " + url + file + " --insecure -u " + username + ":" + password;
-    } else if (apiKey) {
-      queryString = "curl -T " + file + " " + url + file + "-H" + `X-JFrog-Art-Api:${apiKey}`;
     } else {
       log.debug("Authentication is not enabled");
     }
+
+    log.sys("queryString:", queryString);
 
     /** @todo use more parameters */
     shell.exec(queryString);
