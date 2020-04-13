@@ -1,0 +1,41 @@
+{
+  "name": "@boomerang-worker/cli",
+  "version": "0.0.1",
+  "description": "Boomerang Flow Worker CLI",
+  "bin": "./cli.js",
+  "repository": "git@github.ibm.com:Boomerang/boomerang.worker.base.git",
+  "author": "Tyson Lawrie <twlawrie@us.ibm.com>",
+  "license": "MIT",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=8.10.0"
+  },
+  "dependencies": {
+    "@boomerang-worker/core": "0.0.1",
+    "@octokit/rest": "^16.28.2",
+    "@slack/web-api": "^5.7.0",
+    "@slack/webhook": "^5.0.2",
+    "axios": "^0.18.0",
+    "commander": "^2.19.0",
+    "dotenv": "^6.2.0",
+    "https": "^1.0.0",
+    "https-proxy-agent": "^2.2.1",
+    "inquirer": "^6.2.0",
+    "node-datetime": "^2.1.2",
+    "node-fetch": "^2.3.0",
+    "properties": "^1.2.1",
+    "require-all": "^3.0.0",
+    "shelljs": "^0.8.2",
+    "system-sleep": "^1.3.6",
+    "url": "^0.11.0",
+    "wait-on": "^3.3.0"
+  },
+  "scripts": {
+    "node:cli": "cross-env NODE_ENV=local DEBUG=true node ./src/index.js",
+    "node:cli:nodebug": "cross-env NODE_ENV=local node ./src/index.js"
+  },
+  "preferGlobal": true,
+  "devDependencies": {
+    "cross-env": "^7.0.2"
+  }
+}

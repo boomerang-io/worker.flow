@@ -1,11 +1,11 @@
 const { log, utils, CICDError } = require("@boomerang-worker/core");
 const shell = require("shelljs");
 
-function exec(command) {
-  return new Promise(function(resolve, reject) {
+function exec(command, config = {}) {
+  return new Promise(function (resolve, reject) {
     log.debug("Command directory:", shell.pwd().toString());
     log.debug("Command to execute:", command);
-    shell.exec(command, config, function(code, stdout, stderr) {
+    shell.exec(command, config, function (code, stdout, stderr) {
       if (code) {
         reject(new CICDError(code, stderr));
       }
@@ -23,7 +23,7 @@ module.exports = {
     // const { path, script } = taskProps;
     const shellDir = "/cli/cicd";
     config = {
-      verbose: true
+      verbose: true,
     };
 
     try {
@@ -226,5 +226,5 @@ module.exports = {
       await exec(shellDir + "/common/footer.sh");
       log.debug("Finished CICD Build Activity");
     }
-  }
+  },
 };

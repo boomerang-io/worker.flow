@@ -1,5 +1,5 @@
 const waitOn = require("wait-on");
-const { log, utils } = require("@boomerang-worker/core");
+const { log } = require("@boomerang-worker/core");
 const properties = require("properties");
 const fetch = require("node-fetch");
 const fs = require("fs");

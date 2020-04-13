@@ -8,7 +8,7 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { to, subject, message } = taskProps;
 
-    bodyString = JSON.stringify({
+    let bodyString = JSON.stringify({
       subject: subject,
       body: message,
     });
@@ -32,7 +32,7 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { project, subject, message } = taskProps;
 
-    bodyString = JSON.stringify({
+    let bodyString = JSON.stringify({
       subject: subject,
       body: message,
     });
