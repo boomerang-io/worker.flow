@@ -179,7 +179,7 @@ module.exports = {
       });
     }
 
-    payload = JSON.parse(message);
+    let payload = JSON.parse(message);
     log.debug("Payload:", payload);
     await webhook.send(payload, function (err, res) {
       if (err) {

@@ -11,6 +11,7 @@ module.exports = (function () {
   // Read in property files
   const files = fs.readdirSync(workflowProps.WF_PROPS_PATH);
   log.debug("Property Files Found:", files);
+
   log.debug("Environment Variables\n", process.env);
 
   /**
