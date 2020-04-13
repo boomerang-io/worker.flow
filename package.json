@@ -1,56 +1,80 @@
 {
-  "name": "bmrg-flow-cli",
-  "version": "0.1.0",
-  "description": "Boomerang Flow Worker CLI",
-  "main": "cli.js",
-  "repository": "git@github.ibm.com:Boomerang/boomerang.worker.flow.git",
+  "name": "boomerang-worker",
+  "private": true,
+  "repository": "git@github.ibm.com:Boomerang/boomerang.worker.base.git",
   "author": "Tyson Lawrie <twlawrie@us.ibm.com>",
   "license": "MIT",
-  "dependencies": {
-    "@octokit/rest": "^16.28.2",
-    "@slack/web-api": "^5.7.0",
-    "@slack/webhook": "^5.0.2",
-    "axios": "^0.18.0",
-    "commander": "^2.19.0",
-    "dotenv": "^6.2.0",
-    "https": "^1.0.0",
-    "https-proxy-agent": "^2.2.1",
-    "inquirer": "^6.2.0",
-    "node-datetime": "^2.1.2",
-    "node-fetch": "^2.3.0",
-    "properties": "^1.2.1",
-    "require-all": "^3.0.0",
-    "shelljs": "^0.8.2",
-    "system-sleep": "^1.3.6",
-    "url": "^0.11.0",
-    "wait-on": "^3.3.0"
+  "type": "commonjs",
+  "engines": {
+    "node": ">=8.10.0"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "node:cli": "cross-env NODE_ENV=local DEBUG=true node cli",
-    "node:cli:nodebug": "cross-env NODE_ENV=local node cli",
-    "test": "cross-env NODE_ENV=test mocha tests/**/*.spec.js",
-    "test:watch": "nodemon --exec npm test"
+    "lint": "eslint packages",
+    "test": "cross-env NODE_ENV=test jest packages/**/*.spec.js"
   },
-  "preferGlobal": true,
-  "bin": "./cli.js",
   "devDependencies": {
-    "chai": "^4.2.0",
-    "cross-env": "^5.2.1",
-    "husky": "^1.3.1",
-    "lint-staged": "^8.1.3",
-    "mocha": "^6.1.4",
-    "nodemon": "^1.19.1",
-    "prettier": "^1.16.4"
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "cross-env": "^7.0.2",
+    "eslint": "^6.8.0",
+    "eslint-plugin-node": "^11.1.0",
+    "husky": "^4.2.5",
+    "jest": "^25.3.0",
+    "lerna": "^3.20.2",
+    "lint-staged": "^10.1.3",
+    "nodemon": "^2.0.3",
+    "prettier": "^2.0.4"
   },
   "husky": {
     "hooks": {
+      "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS",
       "pre-commit": "lint-staged"
     }
   },
   "lint-staged": {
-    "*.{js,json,css,md}": [
-      "prettier --print-width 300 --write",
-      "git add"
+    "packages/.{js,json,css,md}": [
+      "prettier --print-width 120 --write"
     ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
+    "rules": {
+      "header-max-length": [
+        2,
+        "always",
+        72
+      ],
+      "body-max-line-length": [
+        2,
+        "always",
+        80
+      ],
+      "scope-case": [
+        0,
+        "always",
+        "lower-case"
+      ],
+      "type-enum": [
+        2,
+        "always",
+        [
+          "build",
+          "ci",
+          "chore",
+          "docs",
+          "feat",
+          "fix",
+          "perf",
+          "refactor",
+          "revert",
+          "test"
+        ]
+      ]
+    }
   }
 }
