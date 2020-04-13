@@ -7,7 +7,9 @@
   "command": {
     "publish": {
       "conventionalCommits": true,
-      "message": "chore(release): publish %s"
+      "message": "chore(release): publish %s",
+      "registry": "https://tools.boomerangplatform.net/artifactory/api/npm/boomeranglib-npm/",
+      "verifyAccess": false
     }
   }
 }
