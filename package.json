@@ -2,6 +2,9 @@
   "name": "boomerang-worker",
   "private": true,
   "repository": "git@github.ibm.com:Boomerang/boomerang.worker.base.git",
+  "publishConfig": {
+    "registry": "https://tools.boomerangplatform.net/artifactory/api/npm/boomeranglib-npm/"
+  },
   "author": "Tyson Lawrie <twlawrie@us.ibm.com>",
   "license": "MIT",
   "type": "commonjs",
@@ -15,7 +18,7 @@
   "scripts": {
     "changed": "lerna changed",
     "version": "lerna version",
-    "publish": "learn publish",
+    "release": "learn publish",
     "lint": "eslint packages",
     "prettier": "prettier --write \"**/*.{js,json,md,yml}\"",
     "coverage": "jest --coverage",
