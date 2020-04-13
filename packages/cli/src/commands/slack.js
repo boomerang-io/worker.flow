@@ -74,7 +74,7 @@ module.exports = {
       });
     }
 
-    payload = {
+    let payload = {
       channel: channel,
       username: username,
       icon_emoji: icon,
@@ -133,7 +133,7 @@ module.exports = {
       });
     }
 
-    payload = {
+    let payload = {
       channel: channel,
       username: username,
       icon_emoji: icon,
