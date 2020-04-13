@@ -10,7 +10,8 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { url, token, org, skipRepos } = taskProps;
-
+    let skipReposArray;
+    let httpsAgent;
     try {
       skipReposArray = skipRepos !== null ? skipRepos.split("\n") : [];
       if (process.env.HTTP_PROXY) {
@@ -28,6 +29,7 @@ module.exports = {
           agent: httpsAgent,
         },
       });
+      let filteredRepos;
       await octokit.repos
         .listForOrg({
           org: org,
