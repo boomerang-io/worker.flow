@@ -35,7 +35,7 @@
     }
   },
   "lint-staged": {
-    "packages/.{js,json,css,md}": [
+    "*.{js,json,css,md}": [
       "prettier --print-width 120 --write"
     ]
   },
