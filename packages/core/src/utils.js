@@ -11,7 +11,6 @@ module.exports = (function () {
   // Read in property files
   const files = fs.readdirSync(workflowProps.WF_PROPS_PATH);
   log.debug("Property Files Found:", files);
-
   log.debug("Environment Variables\n", process.env);
 
   /**
@@ -174,7 +173,7 @@ module.exports = (function () {
        * this." is necessary in order to call a different function of this module
        */
       const contents = fs.readFileSync(fileName, "utf8");
-      log.debug("  File: " + file + " Original Content: " + contents);
+      log.debug("  File: " + fileName + " Original Content: " + contents);
       // Updated strict options for parsing multiline properties from textarea boxes.
       var options = {
         comments: "#",
@@ -190,7 +189,7 @@ module.exports = (function () {
         },
       };
       const parsedProps = properties.parse(contents, options);
-      log.debug("  File: " + file + " Parsed Content: ", parsedProps);
+      log.debug("  File: " + fileName + " Parsed Content: ", parsedProps);
       await this.setOutputProperties(parsedProps);
     },
     async setOutputProperties(properties) {
