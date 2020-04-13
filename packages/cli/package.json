@@ -2,7 +2,7 @@
   "name": "@boomerang-worker/cli",
   "version": "0.0.1",
   "description": "Boomerang Flow Worker CLI",
-  "bin": "./cli.js",
+  "bin": "./src/index.js",
   "repository": "git@github.ibm.com:Boomerang/boomerang.worker.base.git",
   "author": "Tyson Lawrie <twlawrie@us.ibm.com>",
   "license": "MIT",
@@ -11,7 +11,7 @@
     "node": ">=8.10.0"
   },
   "dependencies": {
-    "@boomerang-worker/core": "0.0.1",
+    "@boomerang-worker/core": "^0.1.0",
     "@octokit/rest": "^16.28.2",
     "@slack/web-api": "^5.7.0",
     "@slack/webhook": "^5.0.2",
