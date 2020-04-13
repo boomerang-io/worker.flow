@@ -13,17 +13,17 @@ module.exports = {
       process.exit(1);
     }
 
-    bodyString = JSON.stringify({
+    let bodyString = JSON.stringify({
       target: {
         type: type,
         userId: type === "user" ? target : "",
-        groupName: type === "group" ? target : ""
+        groupName: type === "group" ? target : "",
       },
       payload: {
         title: title,
         content: message,
-        type: "notification"
-      }
+        type: "notification",
+      },
     });
     try {
       fetch("http://bmrg-core-services-notifications.bmrg-live/notifications/submit", {
@@ -31,12 +31,12 @@ module.exports = {
         body: bodyString,
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": "96f0b5a2-2e23-4561-a877-005c24df9805"
-        }
+          "x-access-token": "96f0b5a2-2e23-4561-a877-005c24df9805",
+        },
       })
-        .then(res => res.json())
-        .then(json => log.debug(json))
-        .catch(err => {
+        .then((res) => res.json())
+        .then((json) => log.debug(json))
+        .catch((err) => {
           log.err(err);
           process.exit(1);
         });
@@ -46,5 +46,5 @@ module.exports = {
     }
 
     log.debug("Finished Platform Notification Plugin");
-  }
+  },
 };
