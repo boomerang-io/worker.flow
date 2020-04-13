@@ -1,0 +1,106 @@
+0 silly argv {
+0 silly argv   _: [ 'version' ],
+0 silly argv   lernaVersion: '3.20.2',
+0 silly argv   '$0': '/Users/trbula/Documents/boomerang-workers/boomerang.worker.base/node_modules/.bin/lerna'
+0 silly argv }
+1 notice cli v3.20.2
+2 verbose rootPath /Users/trbula/Documents/boomerang-workers/boomerang.worker.base
+3 info versioning independent
+4 silly isAnythingCommitted
+5 verbose isAnythingCommitted 1
+6 silly currentBranch
+7 verbose currentBranch feature-plt-4067-gen-2-modules
+8 silly remoteBranchExists
+9 silly isBehindUpstream
+10 silly isBehindUpstream feature-plt-4067-gen-2-modules is behind origin/feature-plt-4067-gen-2-modules by 0 commit(s) and ahead by 0
+11 silly hasTags
+12 verbose hasTags true
+13 silly git-describe.sync "5bfe146" => {"refCount":"415","sha":"5bfe146","isDirty":false}
+14 info Assuming all packages changed
+15 verbose updated @boomerang-worker/cli
+16 verbose updated @boomerang-worker/core
+17 verbose git-describe undefined => "5bfe146"
+18 silly git-describe parsed => {"refCount":"415","sha":"5bfe146","isDirty":false}
+19 silly independent for @boomerang-worker/cli at /Users/trbula/Documents/boomerang-workers/boomerang.worker.base/packages/cli
+20 verbose getChangelogConfig using preset "conventional-changelog-angular"
+21 silly npa Result {
+21 silly npa   type: 'tag',
+21 silly npa   registry: true,
+21 silly npa   where: undefined,
+21 silly npa   raw: 'conventional-changelog-angular',
+21 silly npa   name: 'conventional-changelog-angular',
+21 silly npa   escapedName: 'conventional-changelog-angular',
+21 silly npa   scope: undefined,
+21 silly npa   rawSpec: '',
+21 silly npa   saveSpec: null,
+21 silly npa   fetchSpec: 'latest',
+21 silly npa   gitRange: undefined,
+21 silly npa   gitCommittish: undefined,
+21 silly npa   hosted: undefined
+21 silly npa }
+22 verbose getChangelogConfig Attempting to resolve preset "conventional-changelog-angular"
+23 info getChangelogConfig Successfully resolved preset "conventional-changelog-angular"
+24 verbose independent increment 0.1.0 by minor
+25 silly independent for @boomerang-worker/core at /Users/trbula/Documents/boomerang-workers/boomerang.worker.base/packages/core
+26 verbose independent increment 0.1.0 by minor
+27 info auto-confirmed
+28 info execute Skipping releases
+29 warn lifecycle Skipping root "preversion" because it has already been called
+30 silly lifecycle No script for "preversion" in "@boomerang-worker/core", continuing
+31 silly lifecycle No script for "version" in "@boomerang-worker/core", continuing
+32 silly independent for @boomerang-worker/core at /Users/trbula/Documents/boomerang-workers/boomerang.worker.base/packages/core
+33 silly independent writing new entry: "# 0.2.0 (2020-04-13)\n\n\n### Features\n\n* add dependencies ([02074ef](https://github.ibm.com/Boomerang/boomerang.worker.base/commit/02074ef1a59113801b1bceff664ae0bd397f2c2a))\n* add linting and fix some errors ([0c38c94](https://github.ibm.com/Boomerang/boomerang.worker.base/commit/0c38c9416702638389ea28ed114383e34ba7dc32))\n\n\n\n"
+34 verbose independent wrote /Users/trbula/Documents/boomerang-workers/boomerang.worker.base/packages/core/CHANGELOG.md
+35 silly lifecycle No script for "preversion" in "@boomerang-worker/cli", continuing
+36 silly lifecycle No script for "version" in "@boomerang-worker/cli", continuing
+37 silly independent for @boomerang-worker/cli at /Users/trbula/Documents/boomerang-workers/boomerang.worker.base/packages/cli
+38 silly independent writing new entry: "# 0.2.0 (2020-04-13)\n\n\n### Bug Fixes\n\n* config ([b233011](https://github.ibm.com/Boomerang/boomerang.worker.base/commit/b23301103c7a065fc20461fe6d6208f6399cba07))\n\n\n### Features\n\n* add linting and fix some errors ([0c38c94](https://github.ibm.com/Boomerang/boomerang.worker.base/commit/0c38c9416702638389ea28ed114383e34ba7dc32))\n* first commit with two packages ([336ccb4](https://github.ibm.com/Boomerang/boomerang.worker.base/commit/336ccb4d3649a36e07ff2caeffdd8b8d2385132b))\n\n\n\n"
+39 verbose independent wrote /Users/trbula/Documents/boomerang-workers/boomerang.worker.base/packages/cli/CHANGELOG.md
+40 warn lifecycle Skipping root "version" because it has already been called
+41 silly gitAdd [
+41 silly gitAdd   '/Users/trbula/Documents/boomerang-workers/boomerang.worker.base/packages/core/package.json',
+41 silly gitAdd   '/Users/trbula/Documents/boomerang-workers/boomerang.worker.base/packages/core/CHANGELOG.md',
+41 silly gitAdd   '/Users/trbula/Documents/boomerang-workers/boomerang.worker.base/packages/cli/package.json',
+41 silly gitAdd   '/Users/trbula/Documents/boomerang-workers/boomerang.worker.base/packages/cli/CHANGELOG.md'
+41 silly gitAdd ]
+42 silly gitCommit Publish
+42 silly gitCommit
+42 silly gitCommit  - @boomerang-worker/cli@0.2.0
+42 silly gitCommit  - @boomerang-worker/core@0.2.0
+43 verbose git [
+43 verbose git   'commit',
+43 verbose git   '-F',
+43 verbose git   '/private/var/folders/4q/msstkrwx1jx371gy9mgzjpth0000gn/T/82f142a4-8a1a-4c5d-827f-b1280b8fc532/lerna-commit.txt'
+43 verbose git ]
+44 error Error: Command failed: git commit -F /private/var/folders/4q/msstkrwx1jx371gy9mgzjpth0000gn/T/82f142a4-8a1a-4c5d-827f-b1280b8fc532/lerna-commit.txt
+44 error husky > pre-commit (node v12.4.0)
+44 error Preparing... [started]
+44 error Preparing... [completed]
+44 error Running tasks... [started]
+44 error Running tasks for *.js [started]
+44 error Running tasks for *.{js,json,css,md} [started]
+44 error Running tasks for *.js [skipped]
+44 error → No staged files match *.js
+44 error prettier --print-width 120 --write [started]
+44 error prettier --print-width 120 --write [completed]
+44 error Running tasks for *.{js,json,css,md} [completed]
+44 error Running tasks... [completed]
+44 error Applying modifications... [started]
+44 error Applying modifications... [completed]
+44 error Cleaning up... [started]
+44 error Cleaning up... [completed]
+44 error husky > commit-msg (node v12.4.0)
+44 error ⧗   input: Publish
+44 error
+44 error  - @boomerang-worker/cli@0.2.0
+44 error  - @boomerang-worker/core@0.2.0
+44 error ✖   subject may not be empty [subject-empty]
+44 error ✖   type may not be empty [type-empty]
+44 error
+44 error ✖   found 2 problems, 0 warnings
+44 error ⓘ   Get help: https://github.com/conventional-changelog/commitlint/#what-is-commitlint
+44 error
+44 error husky > commit-msg hook failed (add --no-verify to bypass)
+44 error
+44 error     at makeError (/Users/trbula/Documents/boomerang-workers/boomerang.worker.base/node_modules/execa/index.js:174:9)
+44 error     at /Users/trbula/Documents/boomerang-workers/boomerang.worker.base/node_modules/execa/index.js:278:16
