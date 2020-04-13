@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.2](https://github.ibm.com/Boomerang/boomerang.worker.base/compare/@boomerang-worker/cli@0.3.0...@boomerang-worker/cli@0.0.2) (2020-04-13)
+
+### Bug Fixes
+
+- linting error ([0cdb36f](https://github.ibm.com/Boomerang/boomerang.worker.base/commit/0cdb36f835b419aa1cc48fc49134cb7f24cb04c3))
+
 ## [0.3.8](https://github.ibm.com/Boomerang/boomerang.worker.base/compare/@boomerang-worker/cli@0.3.7...@boomerang-worker/cli@0.3.8) (2020-04-13)
 
 ### Bug Fixes
