@@ -10,10 +10,16 @@
   "engines": {
     "node": ">=8.10.0"
   },
+  "scripts": {},
   "dependencies": {
+    "app-root-path": "^3.0.0",
     "chalk": "^4.0.0",
     "node-datetime": "^2.1.2",
     "node-fetch": "^2.6.0",
     "properties": "^1.2.1"
+  },
+  "devDependencies": {
+    "app-root-path": "^3.0.0",
+    "cross-env": "^7.0.2"
   }
 }
