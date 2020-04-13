@@ -83,7 +83,11 @@
           "perf",
           "refactor",
           "revert",
-          "test"
+          "test",
+          ":bug:",
+          ":fire",
+          ":sparkles:",
+          ":memo:"
         ]
       ]
     }
