@@ -89,4 +89,4 @@ Uses yarn workspaces and lerna to manage the monorepo
 
 ## Releasing
 
-`npm run-script release`q
+`npm run-script release`
