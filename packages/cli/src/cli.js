@@ -23,4 +23,4 @@ async function cli() {
   program.parse(process.argv);
 }
 
-cli();
+module.exports = cli;
