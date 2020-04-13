@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 const program = require("commander");
 const { log } = require("@boomerang-worker/core");
 require("dotenv").config();

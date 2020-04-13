@@ -25,20 +25,20 @@ module.exports = {
         baseUrl: url,
         log: console,
         request: {
-          agent: httpsAgent
-        }
+          agent: httpsAgent,
+        },
       });
       await octokit.repos
         .listForOrg({
           org: org,
-          type: "public"
+          type: "public",
         })
         .then(({ data }) => {
           log.good("Successful retrieval of public repositories");
           log.debug("Repositories to skip:", skipReposArray);
           filteredRepos = Object.entries(data)
-            .filter(entry => !skipReposArray.includes(entry[1].name))
-            .map(entry => {
+            .filter((entry) => !skipReposArray.includes(entry[1].name))
+            .map((entry) => {
               log.debug(JSON.stringify(entry[1]));
               return entry[1].name;
             });
@@ -60,6 +60,8 @@ module.exports = {
 
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { url, token, org, repos } = taskProps;
+    let reposArray;
+    let httpsAgent;
 
     try {
       reposArray = repos !== null ? repos.split("\n") : [];
@@ -75,23 +77,23 @@ module.exports = {
         baseUrl: url,
         log: console,
         request: {
-          agent: httpsAgent
-        }
+          agent: httpsAgent,
+        },
       });
-      const teamsDataRequests = Object.values(reposArray).map(repo => {
+      const teamsDataRequests = Object.values(reposArray).map((repo) => {
         return octokit.repos
           .listTeams({
             owner: org,
-            repo: repo
+            repo: repo,
           })
-          .then(teamData => {
+          .then((teamData) => {
             log.debug(teamData.data);
             return {
-              ids: Object.values(teamData.data).map(team => {
+              ids: Object.values(teamData.data).map((team) => {
                 log.debug("Found Id: ", team.id);
                 return team.id;
               }),
-              repo: repo
+              repo: repo,
             };
           });
       });
@@ -99,7 +101,7 @@ module.exports = {
       log.good("Successful retrieval of repositories and team ids");
       const teamIdRequests = teamsData.map(({ ids, repo }) => {
         log.debug(ids, ":", repo);
-        Object.values(ids).forEach(id => {
+        Object.values(ids).forEach((id) => {
           log.debug(id, ":", repo);
           return octokit.teams.createDiscussion({
             team_id: id,
@@ -107,7 +109,7 @@ module.exports = {
             body:
               "Your friendly neighborhood bot, Boomerang Joe, has marked **" +
               repo +
-              "** as **private**.\n\n_If you have any questions or concerns please contact your Boomerang DevOps representative._"
+              "** as **private**.\n\n_If you have any questions or concerns please contact your Boomerang DevOps representative._",
           });
         });
         // TODO: if you get back a 404 it means the Access Token doesn't have permissions to teams.
@@ -128,6 +130,8 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { url, token, org, skipRepos } = taskProps;
+    let skipReposArray;
+    let httpsAgent;
 
     try {
       skipReposArray = skipRepos !== null ? skipRepos.split("\n") : [];
@@ -143,20 +147,21 @@ module.exports = {
         baseUrl: url,
         log: console,
         request: {
-          agent: httpsAgent
-        }
+          agent: httpsAgent,
+        },
       });
+      let filteredRepos;
       await octokit.repos
         .listForOrg({
           org: org,
-          type: "public"
+          type: "public",
         })
         .then(({ data }) => {
           log.good("Successful retrieval of public repositories");
           log.debug("Repositories to skip:", skipReposArray);
           filteredRepos = Object.entries(data)
-            .filter(entry => !skipReposArray.includes(entry[1].name))
-            .map(entry => {
+            .filter((entry) => !skipReposArray.includes(entry[1].name))
+            .map((entry) => {
               log.debug(JSON.stringify(entry[1]));
               return entry[1].name;
             });
@@ -172,5 +177,5 @@ module.exports = {
     }
 
     log.debug("Finished addUserToOrg GitHub Plugin");
-  }
+  },
 };
