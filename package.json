@@ -18,7 +18,7 @@
   "scripts": {
     "changed": "lerna changed",
     "version": "lerna version",
-    "release": "learn publish",
+    "release": "lerna publish",
     "lint": "eslint packages",
     "prettier": "prettier --write \"**/*.{js,json,md,yml}\"",
     "coverage": "jest --coverage",
