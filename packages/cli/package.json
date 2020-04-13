@@ -1,6 +1,6 @@
 {
   "name": "@boomerang-worker/cli",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Boomerang Flow Worker CLI",
   "bin": "./src/index.js",
   "repository": "git@github.ibm.com:Boomerang/boomerang.worker.base.git",
@@ -11,7 +11,7 @@
     "node": ">=8.10.0"
   },
   "dependencies": {
-    "@boomerang-worker/core": "^0.2.0",
+    "@boomerang-worker/core": "^0.3.0",
     "@octokit/rest": "^16.28.2",
     "@slack/web-api": "^5.7.0",
     "@slack/webhook": "^5.0.2",
