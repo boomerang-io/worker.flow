@@ -82,3 +82,11 @@ This is the base FROM image and itself is based off Alpine.
   URL: https://scotch.io/tutorials/build-an-interactive-command-line-application-with-nodejs
 
 Tutorial on creating a Node CLI
+
+## Project Structure
+
+Uses yarn workspaces and lerna to manage the monorepo
+
+## Releasing
+
+`npm run-script release`q
