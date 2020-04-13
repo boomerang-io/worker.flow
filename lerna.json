@@ -3,5 +3,11 @@
   "npmClient": "yarn",
   "useWorkspaces": true,
   "version": "independent",
-  "ignoreChanges": ["**/__fixtures__/**", "**/__tests__/**", "**/docs/**", "**/e2e/**", "**/examples/**", "**/*.md"]
+  "ignoreChanges": ["**/__fixtures__/**", "**/__tests__/**", "**/docs/**", "**/e2e/**", "**/examples/**", "**/*.md"],
+  "command": {
+    "publish": {
+      "conventionalCommits": true,
+      "yes": true
+    }
+  }
 }
