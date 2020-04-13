@@ -27,22 +27,22 @@ async function getTagID(instance, username, password, tag) {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      Authorization: "Basic " + new Buffer(username + ":" + password).toString("base64")
+      Authorization: "Basic " + new Buffer(username + ":" + password).toString("base64"),
     },
     agent: agent,
-    body: null
+    body: null,
   })
-    .then(res => res.json())
-    .then(body => {
+    .then((res) => res.json())
+    .then((body) => {
       log.debug("Response Received:", JSON.stringify(body));
-      var labelId = body.result.reduce(function(accumulator, label) {
+      var labelId = body.result.reduce(function (accumulator, label) {
         return label.sys_id;
       }, "");
       log.sys("Label Found:", JSON.stringify(labelId));
       log.good("Response successfully received!");
       return labelId;
     })
-    .catch(err => {
+    .catch((err) => {
       log.err(err);
       process.exit(1);
     });
@@ -110,25 +110,25 @@ module.exports = {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: "Basic " + new Buffer(username + ":" + password).toString("base64")
+        Authorization: "Basic " + new Buffer(username + ":" + password).toString("base64"),
       },
       agent: agent,
-      body: null
+      body: null,
     })
-      .then(res => res.json())
-      .then(body => {
+      .then((res) => res.json())
+      .then((body) => {
         log.debug("Response Received:", JSON.stringify(body));
-        var incidents = body.result.reduce(function(accumulator, incident) {
+        var incidents = body.result.reduce(function (accumulator, incident) {
           return accumulator.concat({
             number: incident.number,
-            sys_id: incident.sys_id
+            sys_id: incident.sys_id,
           });
         }, []);
         log.sys("Incidents Found:", JSON.stringify(incidents));
         utils.setOutputProperty("incidents", JSON.stringify(incidents));
         log.good("Response successfully received!");
       })
-      .catch(err => {
+      .catch((err) => {
         log.err(err);
         process.exit(1);
       });
@@ -159,8 +159,8 @@ module.exports = {
     }
 
     //TODO: also handle a newline entered list of manual sys_id's not just the array element returned by getIncidents
-    JSON.parse(incidents).forEach(incident => {
-      incidentSysId = incident.sys_id;
+    JSON.parse(incidents).forEach((incident) => {
+      let incidentSysId = incident.sys_id;
       log.debug("instance: ", instance);
       var url = "https://" + instance + ".service-now.com/api/now/v2/table/incident/" + incidentSysId;
       log.debug("Updating incident:", incidentSysId);
@@ -169,15 +169,15 @@ module.exports = {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: "Basic " + new Buffer(username + ":" + password).toString("base64")
+          Authorization: "Basic " + new Buffer(username + ":" + password).toString("base64"),
         },
         agent: agent,
-        body: JSON.stringify(body)
-      }).catch(err => {
+        body: JSON.stringify(body),
+      }).catch((err) => {
         log.err(err);
         process.exit(1);
       });
       log.debug("Finished ServiceNow Update Incident State Plugin");
     });
-  }
+  },
 };
