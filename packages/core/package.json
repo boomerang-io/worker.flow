@@ -1,6 +1,6 @@
 {
   "name": "@boomerang-worker/core",
-  "version": "0.3.2",
+  "version": "0.0.1",
   "description": "Boomerang Flow Worker CLI",
   "main": "src/index.js",
   "repository": "git@github.ibm.com:Boomerang/boomerang.worker.base.git",
