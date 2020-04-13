@@ -1,9 +1,4 @@
-const { expect } = require("chai");
-const {
-  createFile,
-  checkFileContainsString,
-  replaceStringInFile
-} = require("../../commands/file");
+const { createFile, checkFileContainsString, replaceStringInFile } = require("../../commands/file");
 const fs = require("fs");
 
 // use "props/test.task.input.properties" to control test props variables
