@@ -1,4 +1,5 @@
 const { NODE_ENV } = process.env;
+const appRoot = require("app-root-path");
 
 const inputOptions = {
   path: true,
@@ -8,7 +9,7 @@ const inputOptions = {
   include: false,
 };
 const workflowProps = {
-  WF_PROPS_PATH: NODE_ENV === "local" || NODE_ENV === "test" ? "../../props" : "/props",
+  WF_PROPS_PATH: NODE_ENV === "local" || NODE_ENV === "test" ? `${appRoot}/props` : "/props",
   // We have two properties that are the same other than the Global regex flag
   // This is as regex.test(), if passed global, will not reset the index from word to word of our search
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test

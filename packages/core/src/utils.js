@@ -1,6 +1,5 @@
 const log = require("./log");
 const properties = require("properties");
-//const axios = require("axios");
 const fetch = require("node-fetch");
 const fs = require("fs");
 const { workflowProps, PROPS_FILES_CONFIG } = require("./config");

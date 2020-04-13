@@ -6,14 +6,20 @@
   "license": "MIT",
   "type": "commonjs",
   "engines": {
-    "node": ">=8.10.0"
+    "node": ">=8.10.0",
+    "yarn": "1"
   },
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
+    "changed": "lerna changed",
+    "version": "lerna version",
+    "publish": "learn publish",
     "lint": "eslint packages",
-    "test": "cross-env NODE_ENV=test jest packages/**/*.spec.js"
+    "prettier": "prettier --write \"**/*.{js,json,md,yml}\"",
+    "coverage": "jest --coverage",
+    "test": "cross-env NODE_ENV=test jest"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
@@ -35,6 +41,7 @@
     }
   },
   "lint-staged": {
+    "*.js": "eslint packages --fix",
     "*.{js,json,css,md}": [
       "prettier --print-width 120 --write"
     ]
@@ -76,5 +83,25 @@
         ]
       ]
     }
-  }
+  },
+  "cacheDirectory": ".jest-cache",
+  "coverageDirectory": ".jest-coverage",
+  "coveragePathIgnorePatterns": [
+    "<rootDir>/packages/(?:.+?)/lib/"
+  ],
+  "coverageReporters": [
+    "html",
+    "text"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "branches": 100,
+      "functions": 100,
+      "lines": 100,
+      "statements": 100
+    }
+  },
+  "testPathIgnorePatterns": [
+    "<rootDir>/packages/(?:.+?)/lib/"
+  ]
 }
