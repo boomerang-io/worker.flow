@@ -21,6 +21,7 @@
     "@octokit/rest": "^16.28.2",
     "@slack/web-api": "^5.7.0",
     "@slack/webhook": "^5.0.2",
+    "app-root-path": "^3.0.0",
     "axios": "^0.18.0",
     "commander": "^2.19.0",
     "dotenv": "^6.2.0",

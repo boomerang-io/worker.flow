@@ -8,6 +8,7 @@ const inputOptions = {
   variables: false,
   include: false,
 };
+console.log(appRoot);
 const workflowProps = {
   WF_PROPS_PATH: NODE_ENV === "local" || NODE_ENV === "test" ? `${appRoot}/props` : "/props",
   // We have two properties that are the same other than the Global regex flag
