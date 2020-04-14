@@ -1,6 +1,6 @@
 {
   "name": "@boomerang-worker/cli",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Boomerang Flow Worker CLI",
   "bin": {
     "boomerang-worker-cli": "./bin/cli.js"
@@ -17,7 +17,7 @@
     "cli:local:nodebug": "cross-env NODE_ENV=local node ./bin/cli.js"
   },
   "dependencies": {
-    "@boomerang-worker/core": "^0.1.1",
+    "@boomerang-worker/core": "^0.1.2",
     "@octokit/rest": "^16.28.2",
     "@slack/web-api": "^5.7.0",
     "@slack/webhook": "^5.0.2",
@@ -40,5 +40,5 @@
   "devDependencies": {
     "cross-env": "^7.0.2"
   },
-  "gitHead": "559879ab1d1357f5c120292c1437cb7b0e4fe6ab"
+  "gitHead": "929ab2c49e9cf070aa56d5fb3c5d5fca796b8c6c"
 }
