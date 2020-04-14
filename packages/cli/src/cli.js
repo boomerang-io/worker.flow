@@ -21,7 +21,7 @@ async function cli() {
 
   program.arguments("<cmd> <method>").action((cmd, method) => {
     if (program.debug) {
-      process.env.DEBUG = "true";
+      process.env.DEBUG = true;
     }
     log.sys("Executing", cmd, method);
     commands[cmd][method]();
