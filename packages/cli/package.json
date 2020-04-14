@@ -2,7 +2,9 @@
   "name": "@boomerang-worker/cli",
   "version": "0.1.2",
   "description": "Boomerang Flow Worker CLI",
-  "bin": "./bin/cli.js",
+  "bin": {
+    "boomerang-worker-cli": "./bin/cli.js"
+  },
   "repository": "git@github.ibm.com:Boomerang/boomerang.worker.base.git",
   "author": "Tyson Lawrie <twlawrie@us.ibm.com>",
   "license": "MIT",
