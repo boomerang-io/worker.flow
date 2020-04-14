@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.ibm.com/Boomerang/boomerang.worker.base/compare/@boomerang-worker/cli@0.1.4...@boomerang-worker/cli@0.2.0) (2020-04-14)
+
+
+### Features
+
+* add debug mode and debug option ([8320a77](https://github.ibm.com/Boomerang/boomerang.worker.base/commit/8320a770f40f418a2fcb005fb18bc9326c59bf67))
+
+
+
+
+
 ## [0.1.4](https://github.ibm.com/Boomerang/boomerang.worker.base/compare/@boomerang-worker/cli@0.1.3...@boomerang-worker/cli@0.1.4) (2020-04-14)
 
 **Note:** Version bump only for package @boomerang-worker/cli
