@@ -11,8 +11,8 @@
     "node": ">=8.10.0"
   },
   "scripts": {
-    "node:cli": "cross-env NODE_ENV=local DEBUG=true node ./bin/cli.js",
-    "node:cli:nodebug": "cross-env NODE_ENV=local node ./bin/cli.js"
+    "cli:local": "cross-env NODE_ENV=local DEBUG=true node ./bin/cli.js",
+    "cli:local:nodebug": "cross-env NODE_ENV=local node ./bin/cli.js"
   },
   "dependencies": {
     "@boomerang-worker/core": "^0.1.1",
