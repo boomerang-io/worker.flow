@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.1](https://github.ibm.com/Boomerang/boomerang.worker.base/compare/@boomerang-worker/cli@0.2.0...@boomerang-worker/cli@0.2.1) (2020-04-14)
+
+**Note:** Version bump only for package @boomerang-worker/cli
+
+
+
+
+
 # [0.2.0](https://github.ibm.com/Boomerang/boomerang.worker.base/compare/@boomerang-worker/cli@0.1.4...@boomerang-worker/cli@0.2.0) (2020-04-14)
 
 
