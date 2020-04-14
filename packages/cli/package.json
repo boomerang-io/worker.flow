@@ -1,6 +1,6 @@
 {
   "name": "@boomerang-worker/cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Boomerang Flow Worker CLI",
   "bin": "./bin/cli.js",
   "repository": "git@github.ibm.com:Boomerang/boomerang.worker.base.git",
