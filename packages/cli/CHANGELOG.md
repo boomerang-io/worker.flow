@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.1](https://github.ibm.com/Boomerang/boomerang.worker.base/compare/@boomerang-worker/cli@0.1.0...@boomerang-worker/cli@0.1.1) (2020-04-14)
+
+
+### Bug Fixes
+
+* remove node_modules, gitignore, readme typo ([4986a8a](https://github.ibm.com/Boomerang/boomerang.worker.base/commit/4986a8a51c76b4d1da9387e4fa3d9b7f91571d80))
+
+
+
+
+
 # 0.1.0 (2020-04-13)
 
 ### Bug Fixes
