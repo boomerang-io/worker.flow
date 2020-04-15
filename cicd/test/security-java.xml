@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
-  <Targets>
-    <Target path="$PROJECT_PATH\target">
-      <CustomBuildInfo additional_classpath="$PROJECT_PATH\target\dependency;$PROJECT_PATH\target\classes" src_root="$PROJECT_PATH\src\main\java;" jdk_path="$JAVA_HOME"/>
-    </Target>
-  </Targets>
-</Configuration>

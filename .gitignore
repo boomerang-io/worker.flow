@@ -1,9 +1,6 @@
 # Dependency directory
 node_modules/
 
-# Config files
-.npmrc
-
 # Editor
 .DS_Store
 *.swp
