@@ -1,1 +1,0 @@
-This is the file from testing the boomerang.worker.flow container
