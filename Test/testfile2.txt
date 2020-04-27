@@ -1,7 +1,0 @@
-test2
-hello world
-${p:pandas}:${p:awesome}
-${d:pandas}:${d:awesome}
-${p:pandas]:${p:awesome}
-pandas
-awesome
