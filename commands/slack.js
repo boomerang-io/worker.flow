@@ -63,7 +63,7 @@ module.exports = {
       icon == ":boomerang:";
     }
 
-    // const url = "***REMOVED***";
+    // const url = "https://hooks.slack.com/services/<revoked>";
     let webhook = new IncomingWebhook(url);
 
     /** @todo see if we can set the proxy at the higher CLI level rather than have each plugin have to support a proxy*/
