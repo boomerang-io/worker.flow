@@ -15,7 +15,7 @@ async function ContentChunker(content, limit) {
 
   let tempLine = "";
   let tempLines;
-  contentByLines.forEach((line) => {
+  contentByLines.forEach(line => {
     if (line.length != 0) {
       if (limitIter + line.length < limit) {
         tempLine += line + "\n";
@@ -23,7 +23,7 @@ async function ContentChunker(content, limit) {
       } else if (limitIter + line.length > limit) {
         tempLines = line.split(char[2999]);
         chunkIter++;
-        tempLines.forEach((l) => {
+        tempLines.forEach(l => {
           contentChunks[chunkIter] = l;
           chunkIter++;
         });
@@ -63,14 +63,13 @@ module.exports = {
       icon == ":boomerang:";
     }
 
-    // const url = "https://hooks.slack.com/services/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";
     let webhook = new IncomingWebhook(url);
 
     /** @todo see if we can set the proxy at the higher CLI level rather than have each plugin have to support a proxy*/
     if (process.env.HTTP_PROXY) {
       log.debug("Using Proxy", process.env.HTTP_PROXY);
       webhook = new IncomingWebhook(url, {
-        agent: new HttpsProxyAgent(process.env.HTTP_PROXY),
+        agent: new HttpsProxyAgent(process.env.HTTP_PROXY)
       });
     }
 
@@ -79,16 +78,14 @@ module.exports = {
       username: username,
       icon_emoji: icon,
       text: message,
-      ts: datetime.create().epoch(),
+      ts: datetime.create().epoch()
     };
     if (!channel || channel === '""') {
-      log.warn(
-        "Channel or user has not been set. Leaving empty to default to the channel or user configured as part of the webhook."
-      );
+      log.warn("Channel or user has not been set. Leaving empty to default to the channel or user configured as part of the webhook.");
       delete payload.channel;
     }
     log.debug("Payload:", payload);
-    await webhook.send(payload, function (err, res) {
+    await webhook.send(payload, function(err, res) {
       if (err) {
         /** @todo Catch HTTP error for timeout so we can return better exits */
         log.err("Slack sendWebhook error", err);
@@ -129,7 +126,7 @@ module.exports = {
     if (process.env.HTTP_PROXY) {
       log.debug("Using Proxy", process.env.HTTP_PROXY);
       webhook = new IncomingWebhook(url, {
-        agent: new HttpsProxyAgent(process.env.HTTP_PROXY),
+        agent: new HttpsProxyAgent(process.env.HTTP_PROXY)
       });
     }
 
@@ -139,10 +136,10 @@ module.exports = {
       icon_emoji: icon,
       ts: datetime.create().epoch(),
       text: fallback,
-      blocks: JSON.parse(blocks),
+      blocks: JSON.parse(blocks)
     };
     log.debug("Payload:", payload);
-    await webhook.send(payload, function (err, res) {
+    await webhook.send(payload, function(err, res) {
       if (err) {
         /** @todo Catch HTTP error for timeout so we can return better exits */
         log.err("Slack sendWebhook error", err);
@@ -175,13 +172,13 @@ module.exports = {
     if (process.env.HTTP_PROXY) {
       log.debug("Using Proxy", process.env.HTTP_PROXY);
       webhook = new IncomingWebhook(url, {
-        agent: new HttpsProxyAgent(process.env.HTTP_PROXY),
+        agent: new HttpsProxyAgent(process.env.HTTP_PROXY)
       });
     }
 
     let payload = JSON.parse(message);
     log.debug("Payload:", payload);
-    await webhook.send(payload, function (err, res) {
+    await webhook.send(payload, function(err, res) {
       if (err) {
         /** @todo Catch HTTP error for timeout so we can return better exits */
         log.err("Slack sendWebhook error", err);
@@ -225,7 +222,7 @@ module.exports = {
     if (process.env.HTTP_PROXY) {
       log.debug("Using Proxy", process.env.HTTP_PROXY);
       webhook = new IncomingWebhook(url, {
-        agent: new HttpsProxyAgent(process.env.HTTP_PROXY),
+        agent: new HttpsProxyAgent(process.env.HTTP_PROXY)
       });
     }
 
@@ -237,34 +234,34 @@ module.exports = {
         type: "section",
         text: {
           type: "plain_text",
-          text: message,
-        },
+          text: message
+        }
       },
       {
-        type: "divider",
+        type: "divider"
       }
     );
-    chunkedContent.forEach((chunk) =>
+    chunkedContent.forEach(chunk =>
       blocks.push({
         type: "section",
         text: {
           type: "plain_text",
-          text: chunk,
-        },
+          text: chunk
+        }
       })
     );
     blocks.push(
       {
-        type: "divider",
+        type: "divider"
       },
       {
         type: "context",
         elements: [
           {
             type: "mrkdwn",
-            text: context,
-          },
-        ],
+            text: context
+          }
+        ]
       }
     );
 
@@ -274,16 +271,14 @@ module.exports = {
       icon_emoji: icon,
       ts: datetime.create().epoch(),
       text: message,
-      blocks: blocks,
+      blocks: blocks
     };
     if (!channel || channel === '""') {
-      log.warn(
-        "Channel or user has not been set. Leaving empty to default to the channel or user configured as part of the webhook."
-      );
+      log.warn("Channel or user has not been set. Leaving empty to default to the channel or user configured as part of the webhook.");
       delete payload.channel;
     }
     log.debug("Payload:", payload);
-    await webhook.send(payload, function (err, res) {
+    await webhook.send(payload, function(err, res) {
       if (err) {
         /** @todo Catch HTTP error for timeout so we can return better exits */
         log.err("Slack upload file error", err);
@@ -333,7 +328,7 @@ module.exports = {
         content: fileContentDecoded,
         channels: channel,
         initial_comment: message,
-        title: "File",
+        title: "File"
       });
       log.debug(response);
     } catch (error) {
@@ -365,16 +360,16 @@ module.exports = {
 
     await web.users
       .lookupByEmail({
-        email: emailAddress,
+        email: emailAddress
       })
-      .then((body) => {
+      .then(body => {
         log.debug("Response Received:", JSON.stringify(body));
         const user_id = body.user.id;
         log.sys("slackUserId Found:", user_id);
         utils.setOutputProperty("slackUserId", user_id);
         log.good("Response successfully received!");
       })
-      .catch((err) => {
+      .catch(err => {
         log.err(err);
         process.exit(1);
       });
@@ -405,9 +400,9 @@ module.exports = {
 
     await web.files
       .info({
-        file: fileId,
+        file: fileId
       })
-      .then((body) => {
+      .then(body => {
         log.debug("Response Received:", JSON.stringify(body));
         const file = body.file;
         log.sys("files returned:", file);
@@ -421,21 +416,21 @@ module.exports = {
         log.debug("Download url:", documentDownloadUrl);
 
         const config = {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` }
         };
 
         axios
           .get(documentDownloadUrl, config)
-          .then((res) => {
+          .then(res => {
             utils.setOutputProperty("slackDocument", res);
             log.good("Response successfully received!");
           })
-          .catch((err) => {
+          .catch(err => {
             log.err(err);
             process.exit(1);
           });
       })
-      .catch((err) => {
+      .catch(err => {
         log.err(err);
         process.exit(1);
       });
@@ -495,9 +490,9 @@ module.exports = {
         user: user,
         ts_from: ts_from,
         ts_to: ts_to,
-        types: types,
+        types: types
       })
-      .then((body) => {
+      .then(body => {
         log.debug("Response Received:", JSON.stringify(body));
         const files = body.files;
         log.sys("files returned:", files);
@@ -506,7 +501,7 @@ module.exports = {
          * what if a user uploads multiple of the same files to the same channel?
          * -current method grabs the first one returned (I believe that would be the oldest)
          */
-        const desiredDocument = files.find((file) => file.name === fileName);
+        const desiredDocument = files.find(file => file.name === fileName);
 
         if (desiredDocument === undefined) {
           log.err("File was not found");
@@ -517,23 +512,23 @@ module.exports = {
         log.debug("Download url:", documentDownloadUrl);
 
         const config = {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` }
         };
 
         axios
           .get(documentDownloadUrl, config)
-          .then((res) => {
+          .then(res => {
             utils.setOutputProperty("slackFoundDocument", res);
             log.good("Response successfully received!");
           })
-          .catch((err) => {
+          .catch(err => {
             log.err(err);
             process.exit(1);
           });
       })
-      .catch((err) => {
+      .catch(err => {
         log.err(err);
         process.exit(1);
       });
-  },
+  }
 };
