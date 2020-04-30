@@ -38,7 +38,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const { json, query, propertyKey } = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { json, query, propertyKey } = taskProps;
+   
 
     if (!isValidJSON(json)) {
       log.err("Invalid JSON string passed to task");
