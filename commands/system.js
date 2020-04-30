@@ -37,7 +37,7 @@ module.exports = {
     log.debug("Inside Json Path To Property Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const { json, query, propertyKey } = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { json, query, propertyKey } = taskProps;
 
     if (!isValidJSON(json)) {
