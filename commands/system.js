@@ -47,7 +47,7 @@ module.exports = {
 
     log.debug("Json:", json);
     log.debug("Json Query:", query);
-    var propertyValue = jp.value(JSON.parse(json), query);
+    const propertyValue = jp.value(JSON.parse(json), query);
     log.debug("Value from Query:", propertyValue);
 
     utils.setOutputProperty(propertyKey, propertyValue);
