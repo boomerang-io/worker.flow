@@ -48,13 +48,7 @@ These files are designed to replicate the properties that would be mounted in co
 
 ## Packaging
 
-### Flow
-
 `VERSION=2.0.0 && docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:$VERSION . && docker push tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:$VERSION`
-
-### Lifecycle
-
-`VERSION=2.0.0 && docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-lifecycle:$VERSION -f Dockerfile.lifecycle . && docker push tools.boomerangplatform.net:8500/ise/bmrg-worker-lifecycle:$VERSION`
 
 ## Clean up
 
