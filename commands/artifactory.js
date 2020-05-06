@@ -1,8 +1,7 @@
-const log = require("../log.js");
+const { log, utils } = require("@boomerang-worker/core");
 const fetch = require("node-fetch");
 var fs = require("fs");
 var shell = require("shelljs");
-const utils = require("../utils.js");
 
 module.exports = {
   downloadFile() {
