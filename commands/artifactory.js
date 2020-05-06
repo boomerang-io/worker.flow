@@ -29,7 +29,7 @@ module.exports = {
       config.headers = { ...config.headers, Authorization: user_token, "Content-Type": "application/json" };
     }
 
-    log.sys("request config:", JSON.stringify(config));
+    log.debug("request config:", JSON.stringify(config));
 
     fetch(url, config)
       .then(res => {
@@ -80,7 +80,7 @@ module.exports = {
       log.debug("Authentication is not enabled");
     }
 
-    log.sys("queryString:", queryString);
+    log.debug("queryString:", queryString);
 
     /** @todo use more parameters */
     shell.exec(queryString);
