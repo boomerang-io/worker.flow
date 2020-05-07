@@ -85,7 +85,7 @@ module.exports = {
       delete payload.channel;
     }
     log.debug("Payload:", payload);
-    await webhook.send(payload, function(err, res) {
+    await webhook.send(payload, function (err, res) {
       if (err) {
         /** @todo Catch HTTP error for timeout so we can return better exits */
         log.err("Slack sendWebhook error", err);
@@ -139,7 +139,7 @@ module.exports = {
       blocks: JSON.parse(blocks)
     };
     log.debug("Payload:", payload);
-    await webhook.send(payload, function(err, res) {
+    await webhook.send(payload, function (err, res) {
       if (err) {
         /** @todo Catch HTTP error for timeout so we can return better exits */
         log.err("Slack sendWebhook error", err);
@@ -178,7 +178,7 @@ module.exports = {
 
     let payload = JSON.parse(message);
     log.debug("Payload:", payload);
-    await webhook.send(payload, function(err, res) {
+    await webhook.send(payload, function (err, res) {
       if (err) {
         /** @todo Catch HTTP error for timeout so we can return better exits */
         log.err("Slack sendWebhook error", err);
@@ -278,7 +278,7 @@ module.exports = {
       delete payload.channel;
     }
     log.debug("Payload:", payload);
-    await webhook.send(payload, function(err, res) {
+    await webhook.send(payload, function (err, res) {
       if (err) {
         /** @todo Catch HTTP error for timeout so we can return better exits */
         log.err("Slack upload file error", err);
