@@ -21,8 +21,6 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { url, method, header, contentType, body, allowUntrustedCerts } = taskProps;
     const headerObject = JSON.parse(header);
-    const bodyStringfy = JSON.stringify(body);
-    /** @todo finish out passing in of parameters*/
 
     var agent = null;
     if (process.env.HTTP_PROXY) {
@@ -30,20 +28,25 @@ module.exports = {
       agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
     }
 
-    if (allowUntrustedCerts) {
+    let allowUntrustedFlag = false;
+
+    if ((typeof allowUntrustedCerts === "string" && allowUntrustedCerts === "true") || (typeof allowUntrustedCerts === "boolean" && allowUntrustedCerts)) {
       log.sys(`Attempting HTTP request allowing untrusted certs`);
+      allowUntrustedFlag = true;
     }
 
     const opts = URL.parse(url);
-    opts.rejectUnauthorized = !allowUntrustedCerts;
+    opts.rejectUnauthorized = !allowUntrustedFlag;
     opts.agent = agent;
     opts.method = method;
-    opts.header = {
+    opts.headers = {
       ...headerObject,
-      "Content-Type": contentType
+      "Content-Type": contentType,
+      "Content-Length": body.length
     };
+
     const req = https.request(opts, res => {
-      log.sys(`statusCode: ${res.statusCode}`);
+      log.debug(`statusCode: ${res.statusCode}`);
       let output = "";
 
       res.on("data", d => {
@@ -63,8 +66,9 @@ module.exports = {
       process.exit(1);
     });
 
-    if (bodyStringfy && bodyStringfy !== "") {
-      req.write(bodyStringfy);
+    if (body && body !== "") {
+      log.debug("writing request body");
+      req.write(body);
     }
 
     req.end();
