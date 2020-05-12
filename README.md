@@ -26,8 +26,8 @@ When developing commands you can run `npm run-script dev` which will run the CLI
 
 Example: `docker build -t bmrg-worker-flow:test -v /props:/props . && docker run -i -t bmrg-worker-flow:test -- slack sendWebhook`
 
-_Note 1:_ This requires developers to have kept this dockerfile up to date
-_Note 2:_ The test Dockerfile will try to immitate the peices that Kubernetes Controller takes care of such as mounting a `/data` directory and `/props/*.properties`
+> This requires developers to have kept this dockerfile up to date
+> The test Dockerfile will try to immitate the peices that Kubernetes Controller takes care of such as mounting a `/data` directory and `/props/*.properties`
 
 ### How to Test locally with Node.js
 
