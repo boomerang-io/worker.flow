@@ -20,7 +20,25 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { url, method, header, contentType, body, allowUntrustedCerts } = taskProps;
-    const headerObject = JSON.parse(header);
+
+    // const headerObject = JSON.parse(header);
+    /**
+     * turn header into object based upon new line delimeters
+     */
+
+    const headerObject = {};
+    if (typeof header === "string" && header !== '""') {
+      let headerSplitArr = header.split("\n");
+      log.debug(headerSplitArr);
+      headerSplitArr.forEach(line => {
+        let splitLine = line.split(":");
+        let key = splitLine[0].trim();
+        let value = splitLine[1].trim();
+        headerObject[key] = value;
+      });
+    }
+
+    log.debug(headerObject);
 
     var agent = null;
     if (process.env.HTTP_PROXY) {
@@ -41,9 +59,11 @@ module.exports = {
     opts.method = method;
     opts.headers = {
       ...headerObject,
-      "Content-Type": contentType,
-      "Content-Length": body.length
+      "Content-Type": contentType ? contentType : "",
+      "Content-Length": body && body.length ? body.length : 0
     };
+
+    log.debug(opts);
 
     const req = https.request(opts, res => {
       log.debug(`statusCode: ${res.statusCode}`);
