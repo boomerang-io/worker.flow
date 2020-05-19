@@ -27,7 +27,7 @@ module.exports = {
      */
 
     const headerObject = {};
-    if (typeof header === "string" && header !== '""') {
+    if (typeof header === "string" && header !== '""' && header !== '" "') {
       let headerSplitArr = header.split("\n");
       log.debug(headerSplitArr);
       headerSplitArr.forEach(line => {
@@ -60,7 +60,7 @@ module.exports = {
     opts.headers = {
       ...headerObject,
       "Content-Type": contentType ? contentType : "",
-      "Content-Length": body && body.length ? body.length : 0
+      "Content-Length": body && body.length && body !== '""' && body !== '" "' ? body.length : 0
     };
 
     log.debug(opts);
@@ -86,7 +86,7 @@ module.exports = {
       process.exit(1);
     });
 
-    if (body && body !== "") {
+    if (body && body !== "" && body !== '""' && body !== '" "') {
       log.debug("writing request body");
       req.write(body);
     }
