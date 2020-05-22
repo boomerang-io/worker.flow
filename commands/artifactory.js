@@ -73,11 +73,11 @@ module.exports = {
     let queryString = "";
 
     if (apiKey) {
-      queryString = "curl -T " + file + " " + url + file + " -H" + `X-JFrog-Art-Api:${apiKey}`;
+      queryString = "curl -T " + file + " " + url + " -H" + `X-JFrog-Art-Api:${apiKey}`;
     } else if (username && password) {
-      queryString = "curl -T " + file + " " + url + file + " --insecure -u " + username + ":" + password;
+      queryString = "curl -T " + file + " " + url + " --insecure -u " + username + ":" + password;
     } else {
-      log.debug("Authentication is not enabled");
+      log.sys("Authentication is not enabled");
     }
 
     log.debug("queryString:", queryString);
