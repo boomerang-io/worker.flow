@@ -83,6 +83,10 @@ If a new version is created for a task, this change needs to be captured within 
 
 If you are looking to make an update to a task's version. You can make this update in QA/Stage and then coordinate with the service team so that they can capture the task templates from stage and update within the loader. They will then run the loader against dev and test, and then run against stage/QA and test, and finally promote to live and make the confirmations there.
 
+## Specifying the worker version
+
+We specify a version of the worker in the controller that is the default for out of the box tasks. You can change which version of the worker that a specific task points to by updating the `image` in the Flow UI for that task. Set it to tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:2.x.x (substitute for your desired version) and save in order to overwrite the default worker.
+
 ## References
 
 - [Docker](https://github.com/docker-library/docker/blob/master/Dockerfile.template)
