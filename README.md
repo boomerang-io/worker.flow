@@ -71,8 +71,9 @@ Basically if this update to a task could potentially break a user's flow, then t
 ## When to overwrite the previous version?
 
 If you are not introducing any breaking changes as listed above, then you do not want to create a new version. Instances where you would want to overwrite a task version may include:
--Updating the task template to add more specific or helpful text in the config for a task
--Your new release of the task fixes a bug or handles some type of edge case that was previously uncovered.
+
+- Updating the task template to add more specific or helpful text in the config for a task
+- Your new release of the task fixes a bug or handles some type of edge case that was previously uncovered.
 
 As long as the release of the worker does not introduce anything that could break an existing flow, a new task version is not needed.
 
