@@ -184,7 +184,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { url, token, org, repo, daysSinceActivity = 30, label = "stale", maxIssues = 30 } = taskProps;
+    const { url, token, org, repo, daysSinceActivity = 30, label = "stale", maxIssues = 30, ignoreLabel = "ignore" } = taskProps;
     let httpsAgent;
     try {
       if (process.env.HTTP_PROXY) {
@@ -207,11 +207,10 @@ module.exports = {
         .subtract(daysSinceActivity, "days")
         .format("YYYY-MM-DD");
       log.debug("Stale Search Since Timestamp:", timestamp);
-      let message = `:warning: This issue has had no activity in ${daysSinceActivity} days.<br/>Stale issues will be closed after an additional 7 days of inactivity.<br/><br/>For any concern or feedback, please contact Boomerang Joe.`;
+      let message = `:warning: This issue has had no activity in ${daysSinceActivity} days.<br/>Stale issues will be closed after an additional period of inactivity.<br/><br/>For any concern or feedback, please contact Boomerang Joe.`;
       log.debug("Stale Message:", message);
 
-      // query = `repo:${org}/${repo} is:open`
-      query = `repo:${org}/${repo} is:open updated:<${timestamp}`;
+      query = `repo:${org}/${repo} is:open updated:<${timestamp} -label:${ignoreLabel}`;
       await octokit.search
         .issuesAndPullRequests({
           q: query,
