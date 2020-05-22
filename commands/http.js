@@ -21,13 +21,12 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { url, method, header, contentType, body, allowUntrustedCerts } = taskProps;
 
-    // const headerObject = JSON.parse(header);
     /**
      * turn header into object based upon new line delimeters
      */
 
     const headerObject = {};
-    if (typeof header === "string" && header !== '""') {
+    if (typeof header === "string" && header !== '""' && header !== '" "') {
       let headerSplitArr = header.split("\n");
       log.debug(headerSplitArr);
       headerSplitArr.forEach(line => {
@@ -36,6 +35,14 @@ module.exports = {
         let value = splitLine[1].trim();
         headerObject[key] = value;
       });
+    }
+
+    if (contentType && contentType !== '""' && contentType !== '" "') {
+      headerObject["Content-Type"] = contentType;
+    }
+
+    if (body && body.length && body !== '""' && body !== '" "') {
+      headerObject["Content-Length"] = body.length;
     }
 
     log.debug(headerObject);
@@ -58,9 +65,7 @@ module.exports = {
     opts.agent = agent;
     opts.method = method;
     opts.headers = {
-      ...headerObject,
-      "Content-Type": contentType ? contentType : "",
-      "Content-Length": body && body.length ? body.length : 0
+      ...headerObject
     };
 
     log.debug(opts);
@@ -86,7 +91,7 @@ module.exports = {
       process.exit(1);
     });
 
-    if (body && body !== "") {
+    if (body && body !== "" && body !== '""' && body !== '" "') {
       log.debug("writing request body");
       req.write(body);
     }
