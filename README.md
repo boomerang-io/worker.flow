@@ -81,7 +81,7 @@ As long as the release of the worker does not introduce anything that could brea
 
 If a new version is created for a task, this change needs to be captured within the loader, so that we can keep the loader as the source of truth and not have version discrepancies between environments.
 
-If you are looking to make an update to a task's version. You can make this update in QA/Stage and then coordinate with the service team so that they can capture the task templates from stage and update within the loader. They will then run the loader against dev and test, and then run against stage/QA and test, and finally promote to live and make the confirmations there.
+If you are looking to make an update to a task's version. You can make this update in QA and then coordinate with the service team so that they can capture the task templates from stage and update within the loader. They will then run the loader against dev and test, continuing this process of promotion and testing until out in live.
 
 ## Specifying the worker version
 
