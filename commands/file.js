@@ -54,7 +54,7 @@ module.exports = {
     try {
       const file = fs.readFileSync(path, "utf-8");
 
-      const fileArray = file.split("\r\n");
+      const fileArray = file.split("\n");
       let fileObject = {};
 
       fileArray.forEach(file => {
@@ -77,25 +77,19 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { path, expression } = taskProps;
 
-    this.checkFileOrFolderExistsWithProps(path, expression);
-
-    log.debug("Finished Check File or Folder Exists Plugin");
-  },
-  checkFileOrFolderExistsWithProps(path, expression) {
-    //Used to check if the path indicates a file or a directory
     const fileExtension = filePath.extname(path);
     try {
       //Search for files and directories that match the expression inside the path dir
       if (expression && !fileExtension) {
         const regExp = new RegExp(expression);
-        fs.readdir(path, (err, files) => {
+        fs.readdirSync(path, (err, files) => {
           let filteredFiles = files.filter(file => {
             return regExp.test(file);
           });
           if (filteredFiles.length === 0) throw new Error("Regex expression doesn't match any file.");
         });
       } else {
-        fs.stat(path, (err, stat) => {
+        fs.statSync(path, (err, stat) => {
           if (!stat) throw new Error("File not found.");
         });
       }
@@ -104,7 +98,10 @@ module.exports = {
       log.err(e);
       process.exit(1);
     }
+
+    log.debug("Finished Check File or Folder Exists Plugin");
   },
+
   checkFileContainsString() {
     // Check if a file contains string or matches regular expression
     log.debug("Started Check File Contains String Plugin");
@@ -112,11 +109,6 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { path, expression, flags, failIfNotFound = false } = taskProps;
 
-    this.checkFileContainsStringWithProps(path, expression, flags, failIfNotFound);
-
-    log.debug("Finished Check File Contains String Plugin");
-  },
-  checkFileContainsStringWithProps(path, expression, flags, failIfNotFound) {
     try {
       const file = fs.readFileSync(path, "utf-8");
       let result;
@@ -133,6 +125,8 @@ module.exports = {
       log.err(e);
       process.exit(1);
     }
+
+    log.debug("Finished Check File Contains String Plugin");
   },
   replaceStringInFile() {
     // Replace string in file finding by string or regular expression
@@ -141,17 +135,12 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { path, expression, replaceString, flags, failIfNotFound = false } = taskProps;
 
-    this.replaceStringInFileWithProps(path, expression, replaceString, flags, failIfNotFound);
-
-    log.debug("Finished Replace String In File Plugin");
-  },
-  replaceStringInFileWithProps(path, expression, replaceString, flags, failIfNotFound) {
     try {
       const file = fs.readFileSync(path, "utf-8");
       let result;
 
       const fileExpression = new RegExp(expression, flags ? flags : undefined);
-      if (failIfNotFound && !fileExpression.test(file)) throw new Error("Not found any matches.");
+      if (failIfNotFound && !fileExpression.test(file)) throw new Error("No matches found!");
       result = file.replace(fileExpression, replaceString);
 
       fs.writeFileSync(path, result, "utf-8");
@@ -160,6 +149,8 @@ module.exports = {
       log.err(e);
       process.exit(1);
     }
+
+    log.debug("Finished Replace String In File Plugin");
   },
   replaceTokensInFile() {
     // Replace tokens in files
@@ -192,29 +183,11 @@ module.exports = {
     //     return filelist;
     // };
 
-    this.replaceTokensInFileWithProps(
-      path,
-      files,
-      tokenStartDelimiter,
-      tokenEndDelimiter,
-      replaceTokenMap,
-      filenameSearchFlags,
-      tokenSearchFlags,
-      failIfNotFound
-    );
+    this.replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
 
     log.debug("Finished Replace Tokens in File Plugin");
   },
-  replaceTokensInFileWithProps(
-    path,
-    files,
-    tokenStartDelimiter,
-    tokenEndDelimiter,
-    replaceTokenMap,
-    filenameSearchFlags,
-    tokenSearchFlags,
-    failIfNotFound
-  ) {
+  replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, filenameSearchFlags, tokenSearchFlags, failIfNotFound) {
     const testFilename = (file, fileName) => {
       let expression;
       if (file.startsWith("/") && file.lastIndexOf("/") > 0) {
@@ -255,10 +228,7 @@ module.exports = {
       const newFileContents = allFileContents.map(fileContent => {
         let file = fileContent;
         Object.keys(replaceTokenMap).forEach(tokenKey => {
-          const expression = new RegExp(
-            `(${tokenStartDelimiter})(${tokenKey})(${tokenEndDelimiter})`,
-            tokenSearchFlags
-          );
+          const expression = new RegExp(`(${tokenStartDelimiter})(${tokenKey})(${tokenEndDelimiter})`, tokenSearchFlags);
           file = file.replace(expression, replaceTokenMap[tokenKey]);
         });
         return file;
