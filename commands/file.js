@@ -2,6 +2,16 @@ const { log, utils } = require("@boomerang-worker/core");
 const filePath = require("path");
 const fs = require("fs");
 
+/**
+ * -task input props are coming in now as empty quotations
+ * instead of checking if the prop is null, we must check to make sure that it
+ * is not empty quotations
+ * @param {*} str
+ */
+const checkForEmptyInputStringHelper = str => {
+  return str !== '""' && str !== '" "' && str !== null && str !== undefined;
+};
+
 module.exports = {
   createFile() {
     //Create file on file system
@@ -80,7 +90,7 @@ module.exports = {
     const fileExtension = filePath.extname(path);
     try {
       //Search for files and directories that match the expression inside the path dir
-      if (expression && !fileExtension) {
+      if (checkForEmptyInputStringHelper(expression) && !fileExtension) {
         const regExp = new RegExp(expression);
         fs.readdirSync(path, (err, files) => {
           let filteredFiles = files.filter(file => {
@@ -113,14 +123,13 @@ module.exports = {
       const file = fs.readFileSync(path, "utf-8");
       let result;
 
-      const fileExpression = new RegExp(expression, flags ? flags : undefined);
+      const fileExpression = new RegExp(expression, checkForEmptyInputStringHelper(flags) ? flags : undefined);
       result = fileExpression.test(file);
 
       if (failIfNotFound && !result) {
         throw new Error("Not found any matches.");
       }
-
-      return result;
+      log.good("The expression has been found in the file");
     } catch (e) {
       log.err(e);
       process.exit(1);
@@ -139,7 +148,7 @@ module.exports = {
       const file = fs.readFileSync(path, "utf-8");
       let result;
 
-      const fileExpression = new RegExp(expression, flags ? flags : undefined);
+      const fileExpression = new RegExp(expression, checkForEmptyInputStringHelper(flags) ? flags : undefined);
       if (failIfNotFound && !fileExpression.test(file)) throw new Error("No matches found!");
       result = file.replace(fileExpression, replaceString);
 
