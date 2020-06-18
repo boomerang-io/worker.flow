@@ -56,11 +56,11 @@ These files are designed to replicate the properties that would be mounted in co
 
 When running against the non production cluster. You will need to clean up your runs using `kubectl delete job -l "app=bmrg-flow"`
 
-# Handling new versions of Tasks
+## Handling new versions of Tasks
 
 Within the Flow UI, you are able to go in and create a new version of a task, you also have the option to overwrite the current version of the task. How do you go about making this decision when creating updates to tasks in the boomerang.flow.worker?
 
-## When to create a new version?
+### When to create a new version?
 
 Basically if this update to a task could potentially break a user's flow, then this needs to be a new version. Examples of this type of behavior include:
 
@@ -68,7 +68,7 @@ Basically if this update to a task could potentially break a user's flow, then t
 - Removing a field from a task
 - Changing the functionality drastically in such a way where a previously configured flow may break or no longer function in the same way due to the changes.
 
-## When to overwrite the previous version?
+### When to overwrite the previous version?
 
 If you are not introducing any breaking changes as listed above, then you do not want to create a new version. Instances where you would want to overwrite a task version may include:
 
@@ -77,13 +77,13 @@ If you are not introducing any breaking changes as listed above, then you do not
 
 As long as the release of the worker does not introduce anything that could break an existing flow, a new task version is not needed.
 
-# How to go about rolling out a new version
+### How to go about rolling out a new version
 
 If a new version is created for a task, this change needs to be captured within the loader, so that we can keep the loader as the source of truth and not have version discrepancies between environments.
 
 If you are looking to make an update to a task's version. You can make this update in QA and then coordinate with the service team so that they can capture the task templates from stage and update within the loader. They will then run the loader against dev and test, continuing this process of promotion and testing until out in live.
 
-## Specifying the worker version
+### Specifying the worker version
 
 We specify a version of the worker in the controller that is the default for out of the box tasks. You can change which version of the worker that a specific task points to by updating the `image` in the Flow UI for that task. Set it to tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:2.x.x (substitute for your desired version) and save in order to overwrite the default worker.
 
