@@ -6,7 +6,7 @@ const fs = require("fs");
  * -task input props are coming in now as empty quotations
  * instead of checking if the prop is null, we must check to make sure that it
  * is not empty quotations
- * @param {*} str
+ * @param {string} str - string value to check for special empty edges cases
  */
 const checkForEmptyInputStringHelper = str => {
   return str !== '""' && str !== '" "' && str !== null && str !== undefined;
@@ -64,7 +64,10 @@ module.exports = {
     try {
       const file = fs.readFileSync(path, "utf-8");
 
-      const fileArray = file.split("\n");
+      let fileArray = file.split("\n");
+      if (file.includes("\r\n")) {
+        fileArray = file.split("\r\n");
+      }
       let fileObject = {};
 
       fileArray.forEach(file => {
