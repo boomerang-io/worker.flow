@@ -32,10 +32,10 @@ Example: `docker build -t bmrg-worker-flow:test -v /props:/props . && docker run
 ### How to Test locally with Node.js
 
 1. Ensure that you have the package cross-env installed
-2. Run the node:cli script and pass in arguments
+2. Run the `run-script dev` script and pass in arguments
 
 ```
-npm run node:cli slack sendWebhook
+npm run-script dev -- slack sendWebhook
 ```
 
 ### Setting input Variables for Testing
