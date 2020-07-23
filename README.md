@@ -22,7 +22,7 @@ When developing commands you can run `npm run-script dev` which will run the CLI
 ### How to Test locally with Docker
 
 1. Build with the Dockerfile-test by passing in `-f Dockerfile.test` to the docker build command
-2. Run and pass in required commander parameters `docker run -i -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:test -- slack sendWebhook`
+2. Run and pass in required commander parameters `docker run -i -t bmrg-worker-flow:test -- slack sendWebhook`
 
 Example: `docker build -t bmrg-worker-flow:test -v /props:/props . && docker run -i -t bmrg-worker-flow:test -- slack sendWebhook`
 
@@ -48,7 +48,7 @@ These files are designed to replicate the properties that would be mounted in co
 
 ## Packaging
 
-`VERSION=2.0.4 && docker build -t tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:$VERSION . && docker push tools.boomerangplatform.net:8500/ise/bmrg-worker-flow:$VERSION`
+`VERSION=2.1.0 && docker build -t docker.pkg.github.com/boomerang-io/bmrg-worker-flow:$VERSION . && docker push docker.pkg.github.com/boomerang-io/bmrg-worker-flow:$VERSION`
 
 ## Clean up
 
