@@ -1,4 +1,4 @@
-const { log, utils } = require("@boomerang-worker/core");
+const { log, utils } = require("@boomerang-io/worker-core");
 const filePath = require("path");
 const fs = require("fs");
 

@@ -4,8 +4,8 @@ This is the Boomerang Flow Worker that runs the out of the box tasks and map to 
 
 Depends on:
 
-- [Boomerang Worker CLI](https://github.ibm.com/Boomerang-Workers/boomerang.worker.base)
-- [Boomerang Worker Core](https://github.ibm.com/Boomerang-Workers/boomerang.worker.base)
+- [Boomerang Worker CLI](https://github.com/boomerang-io/boomerang.worker.interfaces)
+- [Boomerang Worker Core](https://github.com/boomerang-io/boomerang.worker.interfaces)
 
 ## Design
 

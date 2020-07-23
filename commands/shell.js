@@ -1,4 +1,4 @@
-const { log, utils } = require("@boomerang-worker/core");
+const { log, utils } = require("@boomerang-io/worker-core");
 const shelljs = require("shelljs");
 
 module.exports = {
@@ -29,7 +29,7 @@ module.exports = {
     shelljs.config.silent = false;
 
     let config = {
-      verbose: false,
+      verbose: false
     };
     if (!shell || shell === '""') {
       log.debug("No shell interpreter specified. Defaulting...");
@@ -37,7 +37,7 @@ module.exports = {
       config.shell = shell;
     }
     log.debug("Script to execute:", script);
-    shelljs.exec(script, config, function (code, stdout, stderr) {
+    shelljs.exec(script, config, function(code, stdout, stderr) {
       if (code != 0) {
         log.err("  Exit code:", code);
         log.err("  Program stderr:", stderr);
@@ -46,5 +46,5 @@ module.exports = {
     });
 
     log.debug("End Shell Plugin");
-  },
+  }
 };

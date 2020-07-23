@@ -1,4 +1,4 @@
-const { log, utils } = require("@boomerang-worker/core");
+const { log, utils } = require("@boomerang-io/worker-core");
 const systemSleep = require("system-sleep");
 const jp = require("jsonpath");
 
@@ -38,7 +38,6 @@ module.exports = {
 
     //Destructure and get properties ready.
     const { json, query, propertyKey } = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-   
 
     if (!isValidJSON(json)) {
       log.err("Invalid JSON string passed to task");
