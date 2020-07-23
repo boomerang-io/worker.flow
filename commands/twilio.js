@@ -1,4 +1,4 @@
-const { log, utils } = require("@boomerang-worker/core");
+const { log, utils } = require("@boomerang-io/worker-core");
 const Twilio = require("twilio");
 // const TwilioRequestClient = require("twilio/lib/base/RequestClient.js");
 

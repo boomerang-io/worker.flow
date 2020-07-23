@@ -1,4 +1,4 @@
-const { log, utils } = require("@boomerang-worker/core");
+const { log, utils } = require("@boomerang-io/worker-core");
 const fetch = require("node-fetch");
 var fs = require("fs");
 var shell = require("shelljs");

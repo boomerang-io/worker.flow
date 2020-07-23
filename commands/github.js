@@ -1,4 +1,4 @@
-const { log, utils } = require("@boomerang-worker/core");
+const { log, utils } = require("@boomerang-io/worker-core");
 const { Octokit } = require("@octokit/rest");
 const moment = require("moment");
 // https://octokit.github.io/rest.js/
