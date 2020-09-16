@@ -52,6 +52,7 @@ module.exports = {
       log.good("Email successfully sent");
     } catch (err) {
       log.err(err);
+      process.exit(1);
     }
   }
 };
