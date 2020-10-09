@@ -1,5 +1,7 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const fetch = require("node-fetch");
+const { CloudEvent, HTTP } = require("cloudevents");
+const axios = require("axios");
 
 module.exports = {
   async sendMailToMember() {
@@ -8,21 +10,36 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { to, subject, message } = taskProps;
 
-    let bodyString = JSON.stringify({
-      subject: subject,
-      body: message
-    });
-    try {
-      await fetch("http://bmrg-core-services-messaging.bmrg-live/messaging/mail/send/emailUser?memberId=" + to, {
-        method: "POST",
-        body: bodyString,
-        headers: {
-          "Content-Type": "application/json"
+    const event = new CloudEvent({
+      subject: "email_user",
+      type: "com.ibm.essentials.core.event.mail",
+      source: "/messaging/mail/event",
+      datacontenttype: "application/cloudevents+json",
+      data: {
+        inputs: {
+          userId: to,
+          body: message,
+          subject
         }
-      });
-    } catch (e) {
-      log.err(e);
-    }
+      }
+    });
+
+    const binaryMessage = HTTP.binary(event);
+
+    log.debug(binaryMessage);
+
+    axios({
+      method: "post",
+      url: "http://bmrg-core-services-messaging.bmrg-dev/messaging/mail/event",
+      data: binaryMessage.body,
+      headers: binaryMessage.headers
+    })
+      .then(response => {
+        log.debug("response:");
+        log.debug(response);
+        log.good("Email was succesfully sent!");
+      })
+      .catch(e => log.err(e));
 
     log.debug("Finished Send Mail to Member Plugin");
   },
