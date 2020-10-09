@@ -14,7 +14,7 @@ module.exports = {
       subject: "email_user",
       type: "com.ibm.essentials.core.event.mail",
       source: "/messaging/mail/event",
-      datacontenttype: "application/cloudevents+json",
+      datacontenttype: "application/json",
       data: {
         inputs: {
           userId: to,
@@ -24,13 +24,13 @@ module.exports = {
       }
     });
 
-    const binaryMessage = HTTP.binary(event);
+    const binaryMessage = HTTP.structured(event);
 
     log.debug(binaryMessage);
 
     axios({
       method: "post",
-      url: "http://bmrg-core-services-messaging.bmrg-dev/messaging/mail/event",
+      url: "http://localhost:7716/messaging/mail/event",
       data: binaryMessage.body,
       headers: binaryMessage.headers
     })
