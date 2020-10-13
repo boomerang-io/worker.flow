@@ -1,19 +1,6 @@
 const { log, utils } = require("@boomerang-io/worker-core");
-// const sgMail = require("@sendgrid/mail");
 const HttpsProxyAgent = require("https-proxy-agent");
 const client = require("@sendgrid/client");
-
-/**
- *
- * @param {*} str - string that could be seperated by comma. If so, we want to turn that it into an array of strings
- *
- */
-// function strSplit(str) {
-//   if (str && typeof str === "string" && str.includes(",")) {
-//     return str.split(",");
-//   }
-//   return str;
-// }
 
 /**
  *
@@ -81,7 +68,10 @@ function createContent(text, html) {
       value: html
     });
   }
-  return output;
+
+  if (output.length > 0) {
+    return output;
+  } else return null;
 }
 
 module.exports = {
@@ -95,7 +85,6 @@ module.exports = {
     client.setApiKey(apiKey);
 
     let data = {
-      content: [],
       from: {
         email: from
       },
@@ -108,12 +97,16 @@ module.exports = {
       };
     }
 
-    if (protectAgainstEmpty(subject)) {
-      data["subject"] = subject;
+    if (protectAgainstEmpty(templateId)) {
+      data["template_id"] = templateId;
     }
 
     if (splitStrToObjects(to)) {
       data["personalizations"].push({ to: splitStrToObjects(to) });
+    }
+
+    if (protectAgainstEmpty(subject)) {
+      data["subject"] = subject;
     }
 
     if (splitStrToObjects(cc)) {
@@ -126,10 +119,6 @@ module.exports = {
 
     if (createContent(text, html)) {
       data["content"] = createContent(text, html);
-    }
-
-    if (protectAgainstEmpty(templateId)) {
-      data["template_id"] = templateId;
     }
 
     if (checkForJson(dynamicTemplateData)) {
@@ -161,56 +150,4 @@ module.exports = {
     }
     log.debug("Finished Sendgrid Mail");
   }
-  /**
-   * required inputs
-   * -to
-   * -from
-   * -apiKey
-   */
-
-  //   async sendgridMail() {
-  //     log.debug("Started Sendgrid Mail");
-
-  //     //Destructure and get properties ready.
-  //     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-  //     const { to, cc, bcc, from, replyTo, subject, text, html, apiKey, templateId, dynamicTemplateData } = taskProps;
-
-  //     const toInput = strSplit(to);
-  //     const ccInput = strSplit(cc);
-  //     const bccInput = strSplit(bcc);
-  //     const fromInput = strSplit(from);
-  //     const replyToInput = strSplit(replyTo);
-
-  //     sgMail.setApiKey(apiKey);
-
-  //     const msg = {
-  //       to: protectAgainstEmpty(toInput),
-  //       cc: protectAgainstEmpty(ccInput),
-  //       bcc: protectAgainstEmpty(bccInput),
-  //       replyTo: protectAgainstEmpty(replyToInput),
-  //       from: protectAgainstEmpty(fromInput),
-  //       subject: protectAgainstEmpty(subject),
-  //       text: protectAgainstEmpty(text),
-  //       html: protectAgainstEmpty(html),
-  //       templateId: protectAgainstEmpty(templateId),
-  //       dynamic_template_data: checkForJson(dynamicTemplateData),
-  //     };
-
-  //     log.debug(msg);
-
-  //     if (process.env.HTTP_PROXY) {
-  //       sgMail.setDefaultRequest("proxy", process.env.HTTP_PROXY);
-  //     }
-
-  //     sgMail.setDefaultRequest("proxy", "testing proxy");
-
-  //     try {
-  //       await sgMail.send(msg);
-  //       log.good("Email successfully sent");
-  //     } catch (err) {
-  //       log.err(err);
-  //       process.exit(1);
-  //     }
-  //     log.debug("Finished Sendgrid Mail");
-  //   },
 };
