@@ -1,7 +1,6 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const fetch = require("node-fetch");
 const { CloudEvent, HTTP } = require("cloudevents");
-const axios = require("axios");
 
 module.exports = {
   async sendMailToMember() {
@@ -26,20 +25,21 @@ module.exports = {
 
     const binaryMessage = HTTP.structured(event);
 
-    log.debug(binaryMessage);
-
-    axios({
-      method: "post",
-      url: "http://localhost:7716/messaging/mail/event",
-      data: binaryMessage.body,
+    const axiosConfig = {
+      method: "POST",
+      body: binaryMessage.body,
       headers: binaryMessage.headers
-    })
-      .then(response => {
-        log.debug("response:");
-        log.debug(response);
-        log.good("Email was succesfully sent!");
-      })
-      .catch(e => log.err(e));
+    };
+
+    log.debug("axiosConfig:");
+    log.debug(axiosConfig);
+
+    try {
+      await fetch("http://bmrg-core-services-messaging/messaging/mail/event", axiosConfig);
+      log.good("Email was succesfully sent!");
+    } catch (e) {
+      log.err(e);
+    }
 
     log.debug("Finished Send Mail to Member Plugin");
   },
