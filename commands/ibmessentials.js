@@ -39,6 +39,7 @@ module.exports = {
       log.good("Email was succesfully sent!");
     } catch (e) {
       log.err(e);
+      process.exit(1);
     }
 
     log.debug("Finished Send Mail to Member Plugin");
