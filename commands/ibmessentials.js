@@ -1,5 +1,6 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const fetch = require("node-fetch");
+const { CloudEvent, HTTP } = require("cloudevents");
 
 module.exports = {
   async sendMailToMember() {
@@ -8,20 +9,43 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { to, subject, message } = taskProps;
 
-    let bodyString = JSON.stringify({
-      subject: subject,
-      body: message
-    });
-    try {
-      await fetch("http://bmrg-core-services-messaging.bmrg-live/messaging/mail/send/emailUser?memberId=" + to, {
-        method: "POST",
-        body: bodyString,
-        headers: {
-          "Content-Type": "application/json"
+    const event = new CloudEvent({
+      subject: "email_user",
+      type: "com.ibm.essentials.core.event.mail",
+      source: "/messaging/mail/event",
+      datacontenttype: "application/json",
+      data: {
+        inputs: {
+          userId: to,
+          body: message,
+          subject
         }
-      });
+      }
+    });
+
+    const binaryMessage = HTTP.structured(event);
+
+    const requestConfig = {
+      method: "POST",
+      body: binaryMessage.body,
+      headers: binaryMessage.headers
+    };
+
+    log.debug("requestConfig:");
+    log.debug(requestConfig);
+
+    /**
+     * this task is calling internal services. Tried using axios but some default proxy configurations were causing
+     * the request to try to reach a proxy (instead of running without proxy). So defaulted to node-fetch, which we
+     * will continue to use for our internal end points.
+     */
+
+    try {
+      await fetch("http://bmrg-core-services-messaging/messaging/mail/event", requestConfig);
+      log.good("Email was succesfully sent!");
     } catch (e) {
       log.err(e);
+      process.exit(1);
     }
 
     log.debug("Finished Send Mail to Member Plugin");
