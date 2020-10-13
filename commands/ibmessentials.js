@@ -25,17 +25,23 @@ module.exports = {
 
     const binaryMessage = HTTP.structured(event);
 
-    const axiosConfig = {
+    const requestConfig = {
       method: "POST",
       body: binaryMessage.body,
       headers: binaryMessage.headers
     };
 
-    log.debug("axiosConfig:");
-    log.debug(axiosConfig);
+    log.debug("requestConfig:");
+    log.debug(requestConfig);
+
+    /**
+     * this task is calling internal services. Tried using axios but some default proxy configurations were causing
+     * the request to try to reach a proxy (instead of running without proxy). So defaulted to node-fetch, which we
+     * will continue to use for our internal end points.
+     */
 
     try {
-      await fetch("http://bmrg-core-services-messaging/messaging/mail/event", axiosConfig);
+      await fetch("http://bmrg-core-services-messaging/messaging/mail/event", requestConfig);
       log.good("Email was succesfully sent!");
     } catch (e) {
       log.err(e);
