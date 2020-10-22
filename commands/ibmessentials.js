@@ -16,7 +16,7 @@ module.exports = {
       datacontenttype: "application/json",
       data: {
         inputs: {
-          userId: to,
+          toUserIds: to,
           body: message,
           subject
         }
