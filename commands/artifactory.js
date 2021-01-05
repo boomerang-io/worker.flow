@@ -8,7 +8,7 @@ module.exports = {
     log.debug("Started Artifactory Download File Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { url: url, username: username, password: password, destinationPath: destinationPath = "output_file", apiKey: apiKey } = taskProps;
 
     if (!url) {
@@ -58,7 +58,7 @@ module.exports = {
     log.debug("Started Artifactory Upload File Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { url: url, file: file, username: username, password: password, apiKey: apiKey } = taskProps;
 
     if (!file) {

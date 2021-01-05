@@ -9,7 +9,7 @@ module.exports = {
     log.debug("Started checkForPublicRepos GitHub Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { url, token, org, skipRepos } = taskProps;
     let skipReposArray;
     let httpsAgent;
@@ -61,7 +61,7 @@ module.exports = {
   async makeReposInOrgPrivate() {
     log.debug("Started makeReposInOrgPrivate GitHub Plugin");
 
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { url, token, org, repos } = taskProps;
     let reposArray;
     let httpsAgent;
@@ -128,7 +128,7 @@ module.exports = {
     log.debug("Started addUserToOrg GitHub Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { url, token, org, skipRepos } = taskProps;
     let skipReposArray;
     let httpsAgent;
@@ -183,7 +183,7 @@ module.exports = {
     // https://developer.github.com/v3/issues/#list-repository-issues
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { url, token, org, repo, daysSinceActivity = 30, label = "stale", maxIssues = 30, ignoreLabel = "ignore" } = taskProps;
     let httpsAgent;
     try {
@@ -257,7 +257,7 @@ module.exports = {
     log.debug("Started findIssuesInOrgAndRemove() GitHub Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { url, token, org, repo, daysSinceActivity = 7, label = "stale", maxIssues = 30 } = taskProps;
     let httpsAgent;
     try {

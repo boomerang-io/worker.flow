@@ -8,7 +8,7 @@ module.exports = {
     //https://www.twilio.com/docs/sms/tutorials/how-to-send-sms-messages-node-js?code-sample=code-send-an-sms-using-the-programmable-sms-api&code-language=Node.js&code-sdk-version=3.x
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { accountSid, token, from, to, message } = taskProps;
 
     // Do we want a foreach multiline supported?

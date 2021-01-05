@@ -17,7 +17,7 @@ module.exports = {
     log.debug("Inside Sleep Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { duration } = taskProps;
 
     if (!duration || duration === '""') {
@@ -37,7 +37,7 @@ module.exports = {
     log.debug("Inside Json Path To Property Plugin");
 
     //Destructure and get properties ready.
-    const { json, query, propertyKey } = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const { json, query, propertyKey } = utils.resolveInputParameters();
 
     if (!isValidJSON(json)) {
       log.err("Invalid JSON string passed to task");
