@@ -18,7 +18,7 @@ module.exports = {
     log.debug("Started HTTP Call Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { url, method, header, contentType, body, allowUntrustedCerts } = taskProps;
 
     /**
