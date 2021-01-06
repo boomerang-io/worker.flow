@@ -49,7 +49,7 @@ module.exports = {
     const propertyValue = jp.value(JSON.parse(json), query);
     log.debug("Value from Query:", propertyValue);
 
-    utils.setOutputProperty(propertyKey, propertyValue);
+    utils.setOutputParameter(propertyKey, propertyValue);
 
     log.debug("Finished Json Path To Property Plugin");
   }

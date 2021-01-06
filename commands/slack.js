@@ -366,7 +366,7 @@ module.exports = {
         log.debug("Response Received:", JSON.stringify(body));
         const user_id = body.user.id;
         log.sys("slackUserId Found:", user_id);
-        utils.setOutputProperty("slackUserId", user_id);
+        utils.setOutputParameter("slackUserId", user_id);
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -422,7 +422,7 @@ module.exports = {
         axios
           .get(documentDownloadUrl, config)
           .then(res => {
-            utils.setOutputProperty("slackDocument", res);
+            utils.setOutputParameter("slackDocument", res);
             log.good("Response successfully received!");
           })
           .catch(err => {
@@ -518,7 +518,7 @@ module.exports = {
         axios
           .get(documentDownloadUrl, config)
           .then(res => {
-            utils.setOutputProperty("slackFoundDocument", res);
+            utils.setOutputParameter("slackFoundDocument", res);
             log.good("Response successfully received!");
           })
           .catch(err => {
