@@ -44,7 +44,7 @@ module.exports = {
     const { path: path, propertyName: propertyName } = taskProps;
     try {
       const file = fs.readFileSync(path, "utf8");
-      await utils.setOutputProperty(propertyName, file);
+      await utils.setOutputParameter(propertyName, file);
       log.good("The file was succesfully read!");
     } catch (e) {
       log.err(e);
@@ -74,7 +74,7 @@ module.exports = {
         let fileData = file.split(delimiterExpression);
         fileObject[fileData[0]] = fileData[1];
       });
-      utils.setOutputProperties(fileObject);
+      utils.setOutputParameters(fileObject);
       log.good("The file was succesfully read!");
     } catch (e) {
       log.err(e);

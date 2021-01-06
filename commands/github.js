@@ -49,7 +49,7 @@ module.exports = {
           let outputProperties = {};
           outputProperties["repositories"] = JSON.stringify(filteredRepos);
           outputProperties["repositoriesPrettyPrint"] = "- " + filteredRepos.join("\n- ");
-          utils.setOutputProperties(outputProperties);
+          utils.setOutputParameters(outputProperties);
         });
     } catch (error) {
       log.err(error);
@@ -169,7 +169,7 @@ module.exports = {
           let outputProperties = {};
           outputProperties["repositories"] = JSON.stringify(filteredRepos);
           outputProperties["repositoriesPrettyPrint"] = "- " + filteredRepos.join("\n- ");
-          utils.setOutputProperties(outputProperties);
+          utils.setOutputParameters(outputProperties);
         });
     } catch (error) {
       log.err(error);

@@ -125,7 +125,7 @@ module.exports = {
           });
         }, []);
         log.sys("Incidents Found:", JSON.stringify(incidents));
-        utils.setOutputProperty("incidents", JSON.stringify(incidents));
+        utils.setOutputParameter("incidents", JSON.stringify(incidents));
         log.good("Response successfully received!");
       })
       .catch(err => {
