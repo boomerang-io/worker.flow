@@ -172,28 +172,15 @@ module.exports = {
     const {
       path,
       files,
-      tokenStartDelimiter, // need to use double escape "\\" before special characters like "$", otherwise the regex search will fail
-      tokenEndDelimiter,
+      tokenStartDelimiter = "@", // need to use double escape "\\" before special characters like "$", otherwise the regex search will fail
+      tokenEndDelimiter = "@",
       replaceTokenMap,
       filenameSearchFlags = "g",
       tokenSearchFlags = "g",
       failIfNotFound = false
     } = taskProps;
 
-    /* recursive function for deep search */
-    //   const walkSync = (dir, filelist) => {
-    //     const dirFiles = fs.readdirSync(dir);
-    //     filelist = filelist || [];
-    //     dirFiles.forEach(file => {
-    //       if (fs.statSync(filePath.join(dir, file)).isDirectory()) {
-    //         filelist = walkSync(filePath.join(dir, file), filelist);
-    //       }
-    //       else {
-    //         filelist.push(filePath.join(dir, file));
-    //       }
-    //     });
-    //     return filelist;
-    // };
+    log.debug("Map: ", replaceTokenMap instanceof Map);
 
     this.replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
 
