@@ -164,8 +164,7 @@ module.exports = {
 
     log.debug("Finished Replace String In File Plugin");
   },
-  replaceTokensInFile() {
-    // Replace tokens in files
+  async replaceTokensInFile() {
     log.debug("Started Replace Tokens in File Plugin");
 
     const taskProps = utils.resolveInputParameters();
@@ -182,11 +181,13 @@ module.exports = {
 
     log.debug("Map: ", replaceTokenMap instanceof Map);
 
-    this.replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
+    var files = await this.replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
+
+    await utils.setOutputParameter("files", files);
 
     log.debug("Finished Replace Tokens in File Plugin");
   },
-  replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, filenameSearchFlags, tokenSearchFlags, failIfNotFound) {
+  async replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, filenameSearchFlags, tokenSearchFlags, failIfNotFound) {
     const testFilename = (file, fileName) => {
       let expression;
       if (file.startsWith("/") && file.lastIndexOf("/") > 0) {
