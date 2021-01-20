@@ -231,13 +231,13 @@ module.exports = {
       files,
       tokenStartDelimiter = "@", // need to use double escape "\\" before special characters like "$", otherwise the regex search will fail
       tokenEndDelimiter = "@",
-      allParams: replaceTokenMap,
+      allParams,
       filenameSearchFlags = "g",
       tokenSearchFlags = "g",
       failIfNotFound = false
     } = taskProps;
 
-    var replacedFiles = await replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
+    var replacedFiles = await replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, allParams, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
 
     await utils.setOutputParameter("files", replacedFiles);
 
