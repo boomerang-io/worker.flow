@@ -49,12 +49,12 @@ module.exports = {
 
     var agent = null;
     if (process.env.HTTP_PROXY) {
-      if (!process.env.no_proxy) {
+      if (!process.env.NO_PROXY) {
         log.debug("Using Proxy", process.env.HTTP_PROXY);
-        log.debug("no_proxy list not provided by env");
+        log.debug("NO_PROXY list not provided by env");
         agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
       } else {
-        const noProxyList = process.env.no_proxy.split(",");
+        const noProxyList = process.env.NO_PROXY.split(",");
         const skipProxy = noProxyList.some(domain => {
           url.endsWith(domain);
         });
