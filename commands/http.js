@@ -18,7 +18,7 @@ module.exports = {
     log.debug("Started HTTP Call Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { url, method, header, contentType, body, allowUntrustedCerts } = taskProps;
 
     /**
@@ -29,7 +29,7 @@ module.exports = {
     if (typeof header === "string" && header !== '""' && header !== '" "') {
       let headerSplitArr = header.split("\n");
       log.debug(headerSplitArr);
-      headerSplitArr.forEach(line => {
+      headerSplitArr.forEach((line) => {
         let splitLine = line.split(":");
         let key = splitLine[0].trim();
         let value = splitLine[1].trim();
@@ -55,7 +55,7 @@ module.exports = {
         agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
       } else {
         const noProxyList = process.env.NO_PROXY.split(",");
-        const skipProxy = noProxyList.some(domain => {
+        const skipProxy = noProxyList.some((domain) => {
           url.endsWith(domain);
         });
         if (!skipProxy) {
@@ -69,7 +69,10 @@ module.exports = {
 
     let allowUntrustedFlag = false;
 
-    if ((typeof allowUntrustedCerts === "string" && allowUntrustedCerts === "true") || (typeof allowUntrustedCerts === "boolean" && allowUntrustedCerts)) {
+    if (
+      (typeof allowUntrustedCerts === "string" && allowUntrustedCerts === "true") ||
+      (typeof allowUntrustedCerts === "boolean" && allowUntrustedCerts)
+    ) {
       log.sys(`Attempting HTTP request allowing untrusted certs`);
       allowUntrustedFlag = true;
     }
@@ -79,28 +82,28 @@ module.exports = {
     opts.agent = agent;
     opts.method = method;
     opts.headers = {
-      ...headerObject
+      ...headerObject,
     };
 
     log.debug(opts);
 
-    const req = https.request(opts, res => {
+    const req = https.request(opts, (res) => {
       log.debug(`statusCode: ${res.statusCode}`);
       let output = "";
 
-      res.on("data", d => {
+      res.on("data", (d) => {
         output += d;
       });
 
       res.on("end", () => {
         const response = JSON.parse(output);
         log.sys("Response Received:", JSON.stringify(response));
-        utils.setOutputProperty("response", JSON.stringify(response));
+        utils.setOutputParameter("response", JSON.stringify(response));
         log.good("Response successfully received!");
       });
     });
 
-    req.on("error", err => {
+    req.on("error", (err) => {
       log.err(err);
       process.exit(1);
     });
@@ -112,5 +115,5 @@ module.exports = {
 
     req.end();
     log.debug("Finished HTTP Call File Plugin");
-  }
+  },
 };
