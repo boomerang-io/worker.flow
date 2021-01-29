@@ -18,7 +18,7 @@ module.exports = {
     log.debug("Started HTTP Call Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.resolveInputParameters();
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { url, method, header, contentType, body, allowUntrustedCerts } = taskProps;
 
     /**
@@ -49,8 +49,22 @@ module.exports = {
 
     var agent = null;
     if (process.env.HTTP_PROXY) {
-      log.debug("Using Proxy", process.env.HTTP_PROXY);
-      agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+      if (!process.env.no_proxy) {
+        log.debug("Using Proxy", process.env.HTTP_PROXY);
+        log.debug("no_proxy list not provided by env");
+        agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+      } else {
+        const noProxyList = process.env.no_proxy.split(",");
+        const skipProxy = noProxyList.some(domain => {
+          url.endsWith(domain);
+        });
+        if (!skipProxy) {
+          log.debug("Using Proxy", process.env.HTTP_PROXY);
+          agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+        } else if (skipProxy) {
+          log.debug("Not specifying proxy. Domain was found in no_domain list");
+        }
+      }
     }
 
     let allowUntrustedFlag = false;
@@ -81,7 +95,7 @@ module.exports = {
       res.on("end", () => {
         const response = JSON.parse(output);
         log.sys("Response Received:", JSON.stringify(response));
-        utils.setOutputParameter("response", JSON.stringify(response));
+        utils.setOutputProperty("response", JSON.stringify(response));
         log.good("Response successfully received!");
       });
     });
