@@ -29,7 +29,7 @@ module.exports = {
     if (typeof header === "string" && header !== '""' && header !== '" "') {
       let headerSplitArr = header.split("\n");
       log.debug(headerSplitArr);
-      headerSplitArr.forEach((line) => {
+      headerSplitArr.forEach(line => {
         let splitLine = line.split(":");
         let key = splitLine[0].trim();
         let value = splitLine[1].trim();
@@ -55,24 +55,21 @@ module.exports = {
         agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
       } else {
         const noProxyList = process.env.NO_PROXY.split(",");
-        const skipProxy = noProxyList.some((domain) => {
+        const skipProxy = noProxyList.some(domain => {
           url.endsWith(domain);
         });
         if (!skipProxy) {
           log.debug("Using Proxy", process.env.HTTP_PROXY);
           agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
         } else if (skipProxy) {
-          log.debug("Not specifying proxy. Domain was found in no_domain list");
+          log.debug("Not specifying proxy. Domain was found in no_proxy list");
         }
       }
     }
 
     let allowUntrustedFlag = false;
 
-    if (
-      (typeof allowUntrustedCerts === "string" && allowUntrustedCerts === "true") ||
-      (typeof allowUntrustedCerts === "boolean" && allowUntrustedCerts)
-    ) {
+    if ((typeof allowUntrustedCerts === "string" && allowUntrustedCerts === "true") || (typeof allowUntrustedCerts === "boolean" && allowUntrustedCerts)) {
       log.sys(`Attempting HTTP request allowing untrusted certs`);
       allowUntrustedFlag = true;
     }
@@ -82,16 +79,16 @@ module.exports = {
     opts.agent = agent;
     opts.method = method;
     opts.headers = {
-      ...headerObject,
+      ...headerObject
     };
 
     log.debug(opts);
 
-    const req = https.request(opts, (res) => {
+    const req = https.request(opts, res => {
       log.debug(`statusCode: ${res.statusCode}`);
       let output = "";
 
-      res.on("data", (d) => {
+      res.on("data", d => {
         output += d;
       });
 
@@ -103,7 +100,7 @@ module.exports = {
       });
     });
 
-    req.on("error", (err) => {
+    req.on("error", err => {
       log.err(err);
       process.exit(1);
     });
@@ -115,5 +112,5 @@ module.exports = {
 
     req.end();
     log.debug("Finished HTTP Call File Plugin");
-  },
+  }
 };
