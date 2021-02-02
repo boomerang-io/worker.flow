@@ -54,10 +54,14 @@ module.exports = {
         log.debug("NO_PROXY list not provided by env");
         agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
       } else {
+        log.debug("NO_PROXY list detected", process.env.NO_PROXY);
         const noProxyList = process.env.NO_PROXY.split(",");
         const skipProxy = noProxyList.some(domain => {
-          url.endsWith(domain);
+          log.debug("domain:", domain);
+          log.debug(url.endsWith(domain));
+          return url.endsWith(domain);
         });
+        log.debug("skipProxy", skipProxy);
         if (!skipProxy) {
           log.debug("Using Proxy", process.env.HTTP_PROXY);
           agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
