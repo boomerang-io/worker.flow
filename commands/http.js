@@ -49,8 +49,26 @@ module.exports = {
 
     var agent = null;
     if (process.env.HTTP_PROXY) {
-      log.debug("Using Proxy", process.env.HTTP_PROXY);
-      agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+      if (!process.env.NO_PROXY) {
+        log.debug("Using Proxy", process.env.HTTP_PROXY);
+        log.debug("NO_PROXY list not provided by env");
+        agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+      } else {
+        log.debug("NO_PROXY list detected", process.env.NO_PROXY);
+        const noProxyList = process.env.NO_PROXY.split(",");
+        const skipProxy = noProxyList.some(domain => {
+          log.debug("domain:", domain);
+          log.debug(url.endsWith(domain));
+          return url.endsWith(domain);
+        });
+        log.debug("skipProxy", skipProxy);
+        if (!skipProxy) {
+          log.debug("Using Proxy", process.env.HTTP_PROXY);
+          agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+        } else if (skipProxy) {
+          log.debug("Not specifying proxy. Domain was found in no_proxy list");
+        }
+      }
     }
 
     let allowUntrustedFlag = false;

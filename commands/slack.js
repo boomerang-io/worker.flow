@@ -297,7 +297,6 @@ module.exports = {
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { token, channel, message, encoded, fileName, fileContent, filePath, fileTitle } = taskProps;
 
-
     //Variable Checks
     if (!token) {
       log.err("Token has not been set");
