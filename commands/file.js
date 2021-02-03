@@ -12,6 +12,64 @@ const checkForEmptyInputStringHelper = str => {
   return str !== '""' && str !== '" "' && str !== null && str !== undefined;
 };
 
+const replaceTokensInFileWithProps = async function(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, filenameSearchFlags, tokenSearchFlags, failIfNotFound) {
+  const testFilename = (file, fileName) => {
+    let expression;
+    if (file.startsWith("/") && file.lastIndexOf("/") > 0) {
+      const lastSlash = file.lastIndexOf("/");
+      expression = new RegExp(file.slice(1, lastSlash), file.slice(lastSlash + 1));
+    } else {
+      expression = new RegExp(file, filenameSearchFlags);
+    }
+    return expression.test(fileName);
+  };
+
+  try {
+    const allFileNames = fs.readdirSync(path);
+    log.debug("Files in Path: ", allFileNames);
+    let replaceFileNames = [];
+    if (Array.isArray(files)) {
+      allFileNames.forEach(fileName =>
+        files.forEach(file => {
+          if (testFilename(file, fileName)) {
+            replaceFileNames.push(fileName);
+          }
+        })
+      );
+    } else {
+      allFileNames.forEach(fileName => {
+        if (testFilename(files, fileName)) {
+          replaceFileNames.push(fileName);
+        }
+      });
+    }
+    log.debug("All matching files: ", replaceFileNames);
+
+    if (failIfNotFound && replaceFileNames.length === 0) throw new Error("Not found any matches.");
+
+    const allFilePaths = replaceFileNames.map(fileName => filePath.join(path, fileName));
+    const allFileContents = allFilePaths.map(fileDir => fs.readFileSync(fileDir, "utf-8"));
+
+    const newFileContents = allFileContents.map(fileContent => {
+      let file = fileContent;
+      Object.keys(replaceTokenMap).forEach(tokenKey => {
+        const expression = new RegExp(`(${tokenStartDelimiter})(${tokenKey})(${tokenEndDelimiter})`, tokenSearchFlags);
+        file = file.replace(expression, replaceTokenMap[tokenKey]);
+      });
+      return file;
+    });
+
+    allFilePaths.forEach((fileDir, index) => {
+      fs.writeFileSync(fileDir, newFileContents[index], "utf-8");
+    });
+
+    return allFilePaths;
+  } catch (e) {
+    log.err(e);
+    process.exit(1);
+  }
+};
+
 module.exports = {
   createFile() {
     //Create file on file system
@@ -164,96 +222,25 @@ module.exports = {
 
     log.debug("Finished Replace String In File Plugin");
   },
-  replaceTokensInFile() {
-    // Replace tokens in files
+  async replaceTokensInFile() {
     log.debug("Started Replace Tokens in File Plugin");
 
     const taskProps = utils.resolveInputParameters();
     const {
       path,
       files,
-      tokenStartDelimiter, // need to use double escape "\\" before special characters like "$", otherwise the regex search will fail
-      tokenEndDelimiter,
-      replaceTokenMap,
+      tokenStartDelimiter = "@", // need to use double escape "\\" before special characters like "$", otherwise the regex search will fail
+      tokenEndDelimiter = "@",
+      allParams,
       filenameSearchFlags = "g",
       tokenSearchFlags = "g",
       failIfNotFound = false
     } = taskProps;
 
-    /* recursive function for deep search */
-    //   const walkSync = (dir, filelist) => {
-    //     const dirFiles = fs.readdirSync(dir);
-    //     filelist = filelist || [];
-    //     dirFiles.forEach(file => {
-    //       if (fs.statSync(filePath.join(dir, file)).isDirectory()) {
-    //         filelist = walkSync(filePath.join(dir, file), filelist);
-    //       }
-    //       else {
-    //         filelist.push(filePath.join(dir, file));
-    //       }
-    //     });
-    //     return filelist;
-    // };
+    var replacedFiles = await replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, allParams, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
 
-    this.replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
+    await utils.setOutputParameter("files", replacedFiles);
 
     log.debug("Finished Replace Tokens in File Plugin");
-  },
-  replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, replaceTokenMap, filenameSearchFlags, tokenSearchFlags, failIfNotFound) {
-    const testFilename = (file, fileName) => {
-      let expression;
-      if (file.startsWith("/") && file.lastIndexOf("/") > 0) {
-        const lastSlash = file.lastIndexOf("/");
-        expression = new RegExp(file.slice(1, lastSlash), file.slice(lastSlash + 1));
-      } else {
-        expression = new RegExp(file, filenameSearchFlags);
-      }
-      return expression.test(fileName);
-    };
-
-    try {
-      const allFileNames = fs.readdirSync(path);
-      log.debug("Files in Path: ", allFileNames);
-      let replaceFileNames = [];
-      if (Array.isArray(files)) {
-        allFileNames.forEach(fileName =>
-          files.forEach(file => {
-            if (testFilename(file, fileName)) {
-              replaceFileNames.push(fileName);
-            }
-          })
-        );
-      } else {
-        allFileNames.forEach(fileName => {
-          if (testFilename(files, fileName)) {
-            replaceFileNames.push(fileName);
-          }
-        });
-      }
-      log.debug("All matching files: ", replaceFileNames);
-
-      if (failIfNotFound && replaceFileNames.length === 0) throw new Error("Not found any matches.");
-
-      const allFilePaths = replaceFileNames.map(fileName => filePath.join(path, fileName));
-      const allFileContents = allFilePaths.map(fileDir => fs.readFileSync(fileDir, "utf-8"));
-
-      const newFileContents = allFileContents.map(fileContent => {
-        let file = fileContent;
-        Object.keys(replaceTokenMap).forEach(tokenKey => {
-          const expression = new RegExp(`(${tokenStartDelimiter})(${tokenKey})(${tokenEndDelimiter})`, tokenSearchFlags);
-          file = file.replace(expression, replaceTokenMap[tokenKey]);
-        });
-        return file;
-      });
-
-      allFilePaths.forEach((fileDir, index) => {
-        fs.writeFileSync(fileDir, newFileContents[index], "utf-8");
-      });
-
-      return allFilePaths;
-    } catch (e) {
-      log.err(e);
-      process.exit(1);
-    }
   }
 };
