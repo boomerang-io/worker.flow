@@ -294,21 +294,22 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
-    const { token, channel, username, icon, message, encoded, fileName, fileContent, filePath, fileTitle } = taskProps;
+    // const { token, channel, username, icon, message, encoded, fileName, fileContent, filePath, fileTitle } = taskProps;
+    const { token, channel, message, encoded, fileName, fileContent, filePath, fileTitle } = taskProps;
 
     //Variable Checks
     if (!token) {
       log.err("Token has not been set");
       process.exit(1);
     }
-    if (!username) {
-      log.debug("Setting default username to Boomerang Joe");
-      username == "Boomerang Joe";
-    }
-    if (!icon) {
-      log.debug("Setting default icon to :boomerang:");
-      icon == ":boomerang:";
-    }
+    // if (!username) {
+    //   log.debug("Setting default username to Boomerang Joe");
+    //   username == "Boomerang Joe";
+    // }
+    // if (!icon) {
+    //   log.debug("Setting default icon to :boomerang:");
+    //   icon == ":boomerang:";
+    // }
 
     const requestConfig = {
       filename: fileName,
@@ -349,6 +350,7 @@ module.exports = {
       log.debug(response);
     } catch (error) {
       log.err("Well, that was unexpected.", error);
+      process.exit(1);
     }
   },
   async lookUpUser() {
