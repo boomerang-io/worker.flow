@@ -6,7 +6,7 @@ module.exports = {
   async sendMailToMember() {
     log.debug("Starting Send Mail to Member Plugin");
 
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { to, subject, message } = taskProps;
 
     const event = new CloudEvent({
@@ -53,7 +53,7 @@ module.exports = {
   async createSupporTicket() {
     log.debug("Starting Create Support Ticket Plugin");
 
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { project, subject, message } = taskProps;
 
     let bodyString = JSON.stringify({
@@ -77,7 +77,7 @@ module.exports = {
   async sendNotification() {
     log.debug("Starting Platform NotificationPlugin");
 
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { type, target, title, message } = taskProps;
 
     if (type === undefined || type === null) {

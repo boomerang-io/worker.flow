@@ -7,8 +7,8 @@
   "author": "Tyson Lawrie <tyson@lawrie.com.au>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@boomerang-io/worker-cli": "^0.7.12",
-    "@boomerang-io/worker-core": "^0.8.3",
+    "@boomerang-io/worker-cli": "^0.8.0",
+    "@boomerang-io/worker-core": "^1.1.0",
     "@octokit/rest": "^17.3.0",
     "@sendgrid/client": "^7.2.6",
     "@slack/web-api": "^5.8.0",

@@ -47,7 +47,7 @@ module.exports = {
     log.debug("Inside Send Simple Slack Webhook Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { url, channel, username, message, icon } = taskProps;
 
     //Variable Checks
@@ -100,7 +100,7 @@ module.exports = {
     log.debug("Inside Send Rich Slack Webhook Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { url, channel, username, fallback, blocks, icon } = taskProps;
 
     //Variable Checks
@@ -154,7 +154,7 @@ module.exports = {
     log.debug("Inside Send Custom Slack Webhook Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { url, message } = taskProps;
 
     //Variable Checks
@@ -193,7 +193,7 @@ module.exports = {
     log.debug("Inside Send Log Slack Webhook Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { url, channel, icon, username, message, content, encoded, context } = taskProps;
 
     //Variable Checks
@@ -293,8 +293,10 @@ module.exports = {
     log.debug("Inside Send File Slack Plugin");
 
     //Destructure and get properties ready.
+
     const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
     const { token, channel, message, encoded, fileName, fileContent, filePath, fileTitle } = taskProps;
+
 
     //Variable Checks
     if (!token) {
@@ -348,7 +350,7 @@ module.exports = {
     log.debug("Inside Look Up User Slack Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { token, emailAddress } = taskProps;
 
     //Variable Checks
@@ -375,7 +377,7 @@ module.exports = {
         log.debug("Response Received:", JSON.stringify(body));
         const user_id = body.user.id;
         log.sys("slackUserId Found:", user_id);
-        utils.setOutputProperty("slackUserId", user_id);
+        utils.setOutputParameter("slackUserId", user_id);
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -388,7 +390,7 @@ module.exports = {
     log.debug("Inside downloadDocument Slack Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { token, fileId } = taskProps;
 
     //Variable Checks
@@ -431,7 +433,7 @@ module.exports = {
         axios
           .get(documentDownloadUrl, config)
           .then(res => {
-            utils.setOutputProperty("slackDocument", res);
+            utils.setOutputParameter("slackDocument", res);
             log.good("Response successfully received!");
           })
           .catch(err => {
@@ -449,7 +451,7 @@ module.exports = {
     log.debug("Inside findAndDownloadDocument Slack Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { token, fileName, channel, ts_from, ts_to, types, user } = taskProps;
 
     //Variable Checks
@@ -527,7 +529,7 @@ module.exports = {
         axios
           .get(documentDownloadUrl, config)
           .then(res => {
-            utils.setOutputProperty("slackFoundDocument", res);
+            utils.setOutputParameter("slackFoundDocument", res);
             log.good("Response successfully received!");
           })
           .catch(err => {

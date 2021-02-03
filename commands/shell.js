@@ -9,7 +9,7 @@ module.exports = {
     // shelljs.config.fatal = true;
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { path, shell, script } = taskProps;
 
     let dir;

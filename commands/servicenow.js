@@ -56,7 +56,7 @@ module.exports = {
     log.debug("Inside ServiceNow Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { instance, username, password, state, tag } = taskProps;
 
     var agent = null;
@@ -125,7 +125,7 @@ module.exports = {
           });
         }, []);
         log.sys("Incidents Found:", JSON.stringify(incidents));
-        utils.setOutputProperty("incidents", JSON.stringify(incidents));
+        utils.setOutputParameter("incidents", JSON.stringify(incidents));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -138,7 +138,7 @@ module.exports = {
     log.debug("Inside ServiceNow Update Incident State Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { instance, username, password, state, incidents } = taskProps;
 
     var agent = null;
