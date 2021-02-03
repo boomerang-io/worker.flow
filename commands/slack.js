@@ -294,7 +294,7 @@ module.exports = {
 
     //Destructure and get properties ready.
 
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { token, channel, message, encoded, fileName, fileContent, filePath, fileTitle } = taskProps;
 
     //Variable Checks
