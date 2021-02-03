@@ -79,7 +79,7 @@ module.exports = {
     log.debug("Started Sendgrid Mail");
 
     //Destructure and get properties ready.
-    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const taskProps = utils.resolveInputParameters();
     const { to, cc, bcc, from, replyTo, subject, text, html, apiKey, templateId, dynamicTemplateData } = taskProps;
 
     client.setApiKey(apiKey);

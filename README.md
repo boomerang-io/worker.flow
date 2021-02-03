@@ -48,7 +48,7 @@ These files are designed to replicate the properties that would be mounted in co
 
 ## Packaging
 
-`VERSION=2.1.5 && docker build -t boomerangio/worker-flow:$VERSION . && docker push boomerangio/worker-flow:$VERSION`
+`VERSION=2.2.3 && docker build -t boomerangio/worker-flow:$VERSION . && docker push boomerangio/worker-flow:$VERSION`
 
 ## Clean up
 
