@@ -4,6 +4,7 @@ const { IncomingWebhook } = require("@slack/webhook");
 const { WebClient } = require("@slack/web-api");
 const axios = require("axios");
 const datetime = require("node-datetime");
+const fs = require("fs");
 
 // Internal Helper Functions
 async function ContentChunker(content, limit) {
@@ -292,28 +293,43 @@ module.exports = {
     log.debug("Inside Send File Slack Plugin");
 
     //Destructure and get properties ready.
-    const taskProps = utils.resolveInputParameters();
-    const { token, channel, username, icon, message, encoded, fileName, fileContent } = taskProps;
+
+    const taskProps = utils.substituteTaskInputPropsValuesForWorkflowInputProps();
+    const { token, channel, message, encoded, fileName, fileContent, filePath, fileTitle } = taskProps;
+
 
     //Variable Checks
     if (!token) {
       log.err("Token has not been set");
       process.exit(1);
     }
-    if (!username) {
-      log.debug("Setting default username to Boomerang Joe");
-      username == "Boomerang Joe";
+
+    const requestConfig = {
+      filename: fileName,
+      channels: channel,
+      initial_comment: message,
+      title: fileTitle
+    };
+
+    /**
+     * only create a file in the request config if the user provides a file path
+     */
+    if (filePath && filePath !== "") {
+      requestConfig.file = fs.createReadStream(filePath);
+      log.debug(requestConfig);
     }
-    if (!icon) {
-      log.debug("Setting default icon to :boomerang:");
-      icon == ":boomerang:";
-    }
-    let fileContentDecoded;
-    if (!encoded || encoded !== true) {
-      fileContentDecoded = fileContent;
-    } else {
-      log.debug("Decoding log content...");
-      fileContentDecoded = Buffer.from(fileContent, "base64").toString("utf-8");
+
+    /**
+     * if content is provided, check to see if it needs to be decoded
+     */
+    if (fileContent && fileContent !== "") {
+      console.log("in content");
+      if (!encoded || encoded !== true) {
+        requestConfig.content = fileContent;
+      } else {
+        log.debug("Decoding log content...");
+        requestConfig.content = Buffer.from(fileContent, "base64").toString("utf-8");
+      }
     }
 
     let web = new WebClient(token);
@@ -323,16 +339,11 @@ module.exports = {
     }
 
     try {
-      const response = await web.files.upload({
-        filename: fileName,
-        content: fileContentDecoded,
-        channels: channel,
-        initial_comment: message,
-        title: "File"
-      });
+      const response = await web.files.upload(requestConfig);
       log.debug(response);
     } catch (error) {
       log.err("Well, that was unexpected.", error);
+      process.exit(1);
     }
   },
   async lookUpUser() {
