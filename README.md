@@ -48,7 +48,15 @@ These files are designed to replicate the properties that would be mounted in co
 
 ## Packaging
 
-`VERSION=2.2.3 && docker build -t boomerangio/worker-flow:$VERSION . && docker push boomerangio/worker-flow:$VERSION`
+### Automatic
+
+1. Create Git Tag
+2. Push Git Tag
+3. Check Boomerang CICD
+
+### Manual
+
+`VERSION=<tag> && docker build -t boomerangio/worker-flow:$VERSION . && docker push boomerangio/worker-flow:$VERSION`
 
 ## Clean up
 
