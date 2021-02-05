@@ -1,7 +1,7 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const HttpsProxyAgent = require("https-proxy-agent");
 const https = require("https");
-const URL = require("url");
+const Url = require("url");
 
 module.exports = {
   /**
@@ -81,7 +81,7 @@ module.exports = {
       allowUntrustedFlag = true;
     }
 
-    const opts = URL.parse(url);
+    const opts = Url.parse(url);
     opts.rejectUnauthorized = !allowUntrustedFlag;
     opts.agent = agent;
     opts.method = method;
