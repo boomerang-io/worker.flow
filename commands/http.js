@@ -60,8 +60,8 @@ module.exports = {
         let urlHost = urltoUrl.host.split(":")[0];
         const skipProxy = noProxyList.some(domain => {
           log.debug("domain:", domain);
-          log.debug(domain === urlHost);
-          return domain === urlHost;
+          log.debug(urlHost.endsWith(domain));
+          return urlHost.endsWith(domain);
         });
         log.debug("skipProxy", skipProxy);
         if (!skipProxy) {
