@@ -56,10 +56,12 @@ module.exports = {
       } else {
         log.debug("NO_PROXY list detected", process.env.NO_PROXY);
         const noProxyList = process.env.NO_PROXY.split(",");
+        let urltoUrl = new URL(url);
+        let urlHost = urltoUrl.host.split(":")[0];
         const skipProxy = noProxyList.some(domain => {
           log.debug("domain:", domain);
-          log.debug(url.endsWith(domain));
-          return url.endsWith(domain);
+          log.debug(domain === urlHost);
+          return domain === urlHost;
         });
         log.debug("skipProxy", skipProxy);
         if (!skipProxy) {
