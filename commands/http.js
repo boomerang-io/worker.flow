@@ -56,7 +56,7 @@ module.exports = {
       } else {
         log.debug("NO_PROXY list detected", process.env.NO_PROXY);
         const noProxyList = process.env.NO_PROXY.split(",");
-        let urltoUrl = new URL(url);
+        let urltoUrl = new Url.URL(url);
         let urlHost = urltoUrl.host.split(":")[0];
         log.debug("urlHost:", urlHost);
         const skipProxy = noProxyList.some(domain => {
