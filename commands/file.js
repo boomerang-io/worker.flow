@@ -81,7 +81,7 @@ module.exports = {
 
     try {
       if (createDir) {
-        fs.mkdirsync(filePath.dirname(path), { recursive: true }, err => {
+        fs.mkdirSync(filePath.dirname(path), { recursive: true }, err => {
           if (err) throw err;
         });
       } else {
