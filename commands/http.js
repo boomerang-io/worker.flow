@@ -1,7 +1,7 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const HttpsProxyAgent = require("https-proxy-agent");
 const https = require("https");
-const URL = require("url");
+const Url = require("url");
 
 module.exports = {
   /**
@@ -56,10 +56,13 @@ module.exports = {
       } else {
         log.debug("NO_PROXY list detected", process.env.NO_PROXY);
         const noProxyList = process.env.NO_PROXY.split(",");
+        let urltoUrl = new Url.URL(url);
+        let urlHost = urltoUrl.host.split(":")[0];
+        log.debug("urlHost:", urlHost);
         const skipProxy = noProxyList.some(domain => {
           log.debug("domain:", domain);
-          log.debug(url.endsWith(domain));
-          return url.endsWith(domain);
+          log.debug(urlHost.endsWith(domain));
+          return urlHost.endsWith(domain);
         });
         log.debug("skipProxy", skipProxy);
         if (!skipProxy) {
@@ -78,7 +81,7 @@ module.exports = {
       allowUntrustedFlag = true;
     }
 
-    const opts = URL.parse(url);
+    const opts = Url.parse(url);
     opts.rejectUnauthorized = !allowUntrustedFlag;
     opts.agent = agent;
     opts.method = method;
