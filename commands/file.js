@@ -248,7 +248,7 @@ module.exports = {
 
     var replacedFiles = await replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, allParams, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
 
-    await utils.setOutputParameter("files", replacedFiles);
+    await utils.setOutputParameter("files", replacedFiles.toString);
 
     log.debug("Finished Replace Tokens in File Plugin");
   }
