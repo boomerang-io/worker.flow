@@ -77,10 +77,16 @@ module.exports = {
 
     const taskProps = utils.resolveInputParameters();
     log.debug(taskProps);
-    const { path, content } = taskProps;
+    const { path, content, createDir } = taskProps;
 
     try {
-      fs.writeFile(path + "", content, err => {
+      if (createDir) {
+        fs.mkdirsync(filePath.dirname(path), { recursive: true }, err => {
+          if (err) throw err;
+        });
+      } else {
+      }
+      fs.writeFileSync(path + "", content, err => {
         if (err) {
           log.err(err);
           throw err;
@@ -88,6 +94,9 @@ module.exports = {
         log.good("The file was succesfully saved! File contents:\n", fs.readFileSync(path, "utf-8"));
       });
     } catch (e) {
+      if (e.code == "ENOENT") {
+        log.warn("Directory did not exist. If you enable Directory Creation on task we can create the path to file");
+      }
       log.err(e);
       process.exit(1);
     }
