@@ -31,7 +31,7 @@ module.exports = {
       log.debug(headerSplitArr);
       headerSplitArr.forEach(line => {
         let key = line.substring(0, line.indexOf(":"));
-        let value = header.substring(header.indexOf(":") + 1).trim();
+        let value = line.substring(line.indexOf(":") + 1).trim();
         headerObject[key] = value;
       });
     }
