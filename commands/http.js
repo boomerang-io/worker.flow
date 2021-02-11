@@ -30,9 +30,8 @@ module.exports = {
       let headerSplitArr = header.split("\n");
       log.debug(headerSplitArr);
       headerSplitArr.forEach(line => {
-        let splitLine = line.split(":");
-        let key = splitLine[0].trim();
-        let value = splitLine[1].trim();
+        let key = line.substring(0, line.indexOf(":"));
+        let value = header.substring(header.indexOf(":") + 1).trim();
         headerObject[key] = value;
       });
     }
