@@ -246,11 +246,6 @@ module.exports = {
       failIfNotFound = false
     } = taskProps;
 
-    // Hot Fix: Legacy support for a system.
-    // TODO: Remove
-    allParams["version.name"] = allParams["version-name"];
-    allParams["docker.image.name"] = allParams["docker-image-name"];
-
     var replacedFiles = await replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, allParams, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
 
     await utils.setOutputParameter("files", replacedFiles.toString());
