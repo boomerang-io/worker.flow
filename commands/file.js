@@ -1,6 +1,7 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const filePath = require("path");
 const fs = require("fs");
+const properties = require("properties");
 
 /**
  * -task input props are coming in now as empty quotations
@@ -53,6 +54,7 @@ const replaceTokensInFileWithProps = async function(path, files, tokenStartDelim
     const newFileContents = allFileContents.map(fileContent => {
       let file = fileContent;
       Object.keys(replaceTokenMap).forEach(tokenKey => {
+        log.debug("Attempting token replacement. Token key: ", tokenKey);
         const expression = new RegExp(`(${tokenStartDelimiter})(${tokenKey})(${tokenEndDelimiter})`, tokenSearchFlags);
         file = file.replace(expression, replaceTokenMap[tokenKey]);
       });
@@ -246,7 +248,22 @@ module.exports = {
       failIfNotFound = false
     } = taskProps;
 
-    var replacedFiles = await replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, allParams, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
+    var allParamsDecoded = {};
+    var options = {
+      comments: "#",
+      separators: "=",
+      strict: true,
+      reviver: function(key, value) {
+        if (key != null && value == null) {
+          return '""';
+        } else {
+          //Returns all the lines
+          return this.assert();
+        }
+      }
+    };
+    allParamsDecoded = properties.parse(Buffer.from(allParams, "base64").toString("utf-8"), options);
+    var replacedFiles = await replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, allParamsDecoded, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
 
     await utils.setOutputParameter("files", replacedFiles.toString());
 
