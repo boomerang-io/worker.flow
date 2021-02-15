@@ -62,6 +62,7 @@ const replaceTokensInFileWithProps = async function(path, files, tokenStartDelim
     });
 
     allFilePaths.forEach((fileDir, index) => {
+      log.sys("New File Conents - ", fileDir, "\n", newFileContents[index]);
       fs.writeFileSync(fileDir, newFileContents[index], "utf-8");
     });
 
