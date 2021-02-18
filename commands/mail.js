@@ -1,5 +1,7 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const HttpsProxyAgent = require("https-proxy-agent");
+const filePath = require("path");
+const fs = require("fs");
 const client = require("@sendgrid/client");
 
 /**
@@ -74,13 +76,52 @@ function createContent(text, html) {
   } else return null;
 }
 
+/**
+ * -create attachments for the data body of the sendgrid mail client API call
+ * takes in a list file paths to be attached in the email, new line separated
+ * @param {*} attachments
+ */
+function createAttachment(attachments) {
+  if (!protectAgainstEmpty(attachments)) {
+    return null;
+  }
+  let output = [];
+
+  let fileArray = attachments.split("\n");
+  if (attachments.includes("\r\n")) {
+    fileArray = attachments.split("\r\n");
+  }
+
+  fileArray.forEach(attachment => {
+    try {
+      if (protectAgainstEmpty(attachment)) {
+        const file = fs.readFileSync(attachment, "binary");
+        output.push({
+          content: Buffer.from(file, "binary").toString("base64"),
+          filename: filePath.basename(attachment),
+          disposition: "attachment"
+        });
+        log.debug(`Attachment file ${attachment} was added.`);
+      } else {
+        log.debug(`Ignoring empty line fo attachment.`);
+      }
+    } catch (e) {
+      log.err(e);
+    }
+  });
+
+  if (output.length > 0) {
+    return output;
+  } else return null;
+}
+
 module.exports = {
   async sendgridMail() {
     log.debug("Started Sendgrid Mail");
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { to, cc, bcc, from, replyTo, subject, text, html, apiKey, templateId, dynamicTemplateData } = taskProps;
+    const { to, cc, bcc, from, replyTo, subject, text, html, apiKey, templateId, dynamicTemplateData, attachments } = taskProps;
 
     client.setApiKey(apiKey);
 
@@ -123,6 +164,10 @@ module.exports = {
 
     if (checkForJson(dynamicTemplateData)) {
       data["personalizations"][0]["dynamic_template_data"] = checkForJson(dynamicTemplateData);
+    }
+
+    if (protectAgainstEmpty(attachments)) {
+      data["attachments"] = createAttachment(attachments);
     }
 
     if (process.env.HTTP_PROXY) {
