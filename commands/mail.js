@@ -50,27 +50,30 @@ function splitStrToObjects(str) {
 /**
  * -create content for the data body of the sendgrid mail client API call
  * takes in html and/or text content to be sent in the email
- * @param {*} text
- * @param {*} html
+ * contentType, bodyContent
+ * @param {"Text", "HTML"} contentType
+ * @param {*} bodyContent
  */
-function createContent(text, html) {
-  if (!protectAgainstEmpty(text) && !protectAgainstEmpty(html)) {
+function createContent(contentType, bodyContent) {
+  if (!protectAgainstEmpty(contentType) && !protectAgainstEmpty(bodyContent)) {
     return null;
   }
-  let output = [];
-  if (protectAgainstEmpty(text)) {
-    output.push({
-      type: "text",
-      value: text
-    });
-  }
-  if (protectAgainstEmpty(html)) {
-    output.push({
-      type: "text/html",
-      value: html
-    });
-  }
 
+  let output = [];
+  switch (contentType) {
+    case "Text":
+      output.push({
+        type: "text",
+        value: bodyContent
+      });
+      break;
+    case "HTML":
+      output.push({
+        type: "text/html",
+        value: bodyContent
+      });
+      break;
+  }
   if (output.length > 0) {
     return output;
   } else return null;
@@ -116,12 +119,83 @@ function createAttachment(attachments) {
 }
 
 module.exports = {
-  async sendgridMail() {
-    log.debug("Started Sendgrid Mail");
+  async sendEmailWithSendgrid() {
+    log.debug("Started send Email With Sendgrid");
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { to, cc, bcc, from, replyTo, subject, text, html, apiKey, templateId, dynamicTemplateData, attachments } = taskProps;
+    const { to, cc, bcc, from, replyTo, subject, contentType, bodyContent, apiKey, attachments } = taskProps;
+
+    client.setApiKey(apiKey);
+
+    let data = {
+      from: {
+        email: from
+      },
+      personalizations: []
+    };
+
+    if (protectAgainstEmpty(replyTo)) {
+      data["reply_to"] = {
+        email: replyTo
+      };
+    }
+
+    if (splitStrToObjects(to)) {
+      data["personalizations"].push({ to: splitStrToObjects(to) });
+    }
+
+    if (protectAgainstEmpty(subject)) {
+      data["subject"] = subject;
+    }
+
+    if (splitStrToObjects(cc)) {
+      data["personalizations"][0]["cc"] = splitStrToObjects(cc);
+    }
+
+    if (splitStrToObjects(bcc)) {
+      data["personalizations"][0]["bcc"] = splitStrToObjects(bcc);
+    }
+
+    if (createContent(contentType, bodyContent)) {
+      data["content"] = createContent(contentType, bodyContent);
+    }
+
+    if (protectAgainstEmpty(attachments)) {
+      data["attachments"] = createAttachment(attachments);
+    }
+
+    if (process.env.HTTP_PROXY) {
+      log.debug(`Setting Proxy`);
+      let agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+      client.setDefaultRequest("httpsAgent", agent);
+      client.setDefaultRequest("proxy", false);
+    }
+
+    log.debug(`JSON body: ${JSON.stringify(data)}`);
+
+    let request = {};
+    request.body = JSON.stringify(data);
+    request.method = "POST";
+    request.url = "/v3/mail/send";
+
+    log.debug(`stringify request made by client: ${JSON.stringify(client.createRequest(request))}`);
+
+    try {
+      await client.request(request);
+      log.good("Email with Sendgrid successfully sent");
+    } catch (err) {
+      log.err(err);
+      process.exit(1);
+    }
+    log.debug("Finished Send Email With Sendgrid");
+  },
+  async sendEmailWithSendgridTemplate() {
+    log.debug("Started Send Email With Sendgrid Template");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { to, cc, bcc, from, replyTo, subject, apiKey, templateId, dynamicTemplateData, attachments } = taskProps;
 
     client.setApiKey(apiKey);
 
@@ -158,10 +232,6 @@ module.exports = {
       data["personalizations"][0]["bcc"] = splitStrToObjects(bcc);
     }
 
-    if (createContent(text, html)) {
-      data["content"] = createContent(text, html);
-    }
-
     if (checkForJson(dynamicTemplateData)) {
       data["personalizations"][0]["dynamic_template_data"] = checkForJson(dynamicTemplateData);
     }
@@ -188,11 +258,11 @@ module.exports = {
 
     try {
       await client.request(request);
-      log.good("Email successfully sent");
+      log.good("Email with Sendgrid Template successfully sent");
     } catch (err) {
       log.err(err);
       process.exit(1);
     }
-    log.debug("Finished Sendgrid Mail");
+    log.debug("Finished Send Email With Sendgrid Template");
   }
 };
