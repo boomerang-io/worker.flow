@@ -263,7 +263,13 @@ module.exports = {
         }
       }
     };
-    allParamsDecoded = properties.parse(Buffer.from(allParams, "base64").toString("utf-8"), options);
+    allParamsBuffer = Buffer.from(allParams, "base64").toString("utf-8");
+    if (!allParamsBuffer || 0 === allParamsBuffer.length || "��" === allParamsBuffer) {
+      allParamsDecoded = allParams;
+    } else {
+      allParamsDecoded = properties.parse(allParamsBuffer, options);
+    }
+    log.debug("allParamsDecoded:", allParamsDecoded);
     var replacedFiles = await replaceTokensInFileWithProps(path, files, tokenStartDelimiter, tokenEndDelimiter, allParamsDecoded, filenameSearchFlags, tokenSearchFlags, failIfNotFound);
 
     await utils.setOutputParameter("files", replacedFiles.toString());
