@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: questtest-research-quest-nlidb
+  namespace: cloudadvisorypgrd-dev
+  annotations:
+    platform: boomerang
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      org: questtest
+      component: research-quest-nlidb
+      env: deploytoaiceocpfromibmcloud
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        org: questtest
+        component: research-quest-nlidb
+        env: deploytoaiceocpfromibmcloud
+    spec:
+      containers:
+        - image: us.icr.io:443registryPath@/research-quest-nlidb:0.0.5-4
+          imagePullPolicy: Always
+          name: cntr
+          ports:
+            - name: port-cntr
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: DEPLOY_TARGET
+              value: "deploytoaiceocpfromibmcloud"
+          volumeMounts:
+            - name: db-server-certificate
+              mountPath: "/home/quest/cert/cognos"
+              readOnly: true
+            env:
+            - name: CCERT_PSWD
+              valueFrom: 
+                secretKeyRef:
+                  name: access-ssl
+                  key: password
+            - name: SCHEMA_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: schema-name
+                  key: folder
+      volumes:
+        - name: db-server-certificate
+          secret:
+          secretName: cognos-ssl 
+      restartPolicy: Always  

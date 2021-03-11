@@ -266,7 +266,8 @@ module.exports = {
 
     allParamsBuffer = Buffer.from(allParams, "base64").toString("utf-8");
     if (!allParamsBuffer || 0 === allParamsBuffer.length || "��" === allParamsBuffer) {
-      allParamsDecoded = properties.parse(allParams.substring(1).substring(0, allParams.length), options);
+      // allParamsDecoded = properties.parse(allParams.substring(1).substring(0, allParams.length), options);
+      allParamsDecoded = properties.parse(allParams, options);
     } else {
       allParamsDecoded = properties.parse(allParamsBuffer, options);
     }
