@@ -2,6 +2,18 @@ const { log, utils } = require("@boomerang-io/worker-core");
 const fetch = require("node-fetch");
 const { CloudEvent, HTTP } = require("cloudevents");
 
+/**
+ *
+ * @param {} input - if the string is empty, we want to pass it as undefined to the api
+ *
+ */
+function protectAgainstEmpty(input) {
+  if (input && typeof input === "string" && input === '""') {
+    return undefined;
+  }
+  return input;
+}
+
 module.exports = {
   async sendMailToMember() {
     log.debug("Starting Send Mail to Member Plugin");
@@ -50,29 +62,67 @@ module.exports = {
 
     log.debug("Finished Send Mail to Member Plugin");
   },
-  async createSupporTicket() {
-    log.debug("Starting Create Support Ticket Plugin");
+  async createSupportCenterTicket() {
+    log.debug("Starting Create Support Center Ticket Plugin");
 
+    //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { project, subject, message } = taskProps;
+    const { url, accessToken, ownerId, teamId, catalogServiceId, subject, description } = taskProps;
 
-    let bodyString = JSON.stringify({
-      subject: subject,
-      body: message
-    });
+    //validate mandatory fields
+    if (!url) {
+      log.err("no endpoint has been specified");
+      process.exit(1);
+    }
+    if (!accessToken) {
+      log.err("no accessToken has been specified");
+      process.exit(1);
+    }
+    if (!ownerId) {
+      log.err("no ticket owner has been specified");
+      process.exit(1);
+    }
+    if (!subject) {
+      log.err("no subject has been specified");
+      process.exit(1);
+    }
+    if (!description) {
+      log.err("no description has been specified");
+      process.exit(1);
+    }
+
+    let data = {
+      ownerId: ownerId,
+      summary: subject,
+      description: description,
+      type: "issue",
+      fromSupport: false
+    };
+
+    if (protectAgainstEmpty(teamId)) {
+      data["highLevelGroupId"] = teamId;
+    }
+    if (protectAgainstEmpty(catalogServiceId)) {
+      data["catalogServiceId"] = catalogServiceId;
+    }
+
+    log.debug(`JSON body: ${JSON.stringify(data)}`);
+
     try {
-      await fetch("http://bmrg-core-services-support/internal/support/ticket?projectId=" + project, {
+      await fetch(url, {
         method: "POST",
-        body: bodyString,
+        body: data,
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "x-access-token": accessToken
         }
       });
     } catch (e) {
       log.err(e);
+      process.exit(1);
     }
 
-    log.debug("Finished Send Mail to Member Plugin");
+    log.debug("Finished Create Support Center Ticket Plugin");
   },
   async sendNotification() {
     log.debug("Starting Platform NotificationPlugin");
