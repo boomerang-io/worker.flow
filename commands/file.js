@@ -54,7 +54,7 @@ const replaceTokensInFileWithProps = async function(path, files, tokenStartDelim
     const newFileContents = allFileContents.map(fileContent => {
       let file = fileContent;
       Object.keys(replaceTokenMap).forEach(tokenKey => {
-        log.debug("Attempting token replacement. Token key: ", tokenKey);
+        log.debug("Attempting token replacement. Token key: ", tokenKey, ", Token value: ", replaceTokenMap[tokenKey]);
         const expression = new RegExp(`(${tokenStartDelimiter})(${tokenKey})(${tokenEndDelimiter})`, tokenSearchFlags);
         file = file.replace(expression, replaceTokenMap[tokenKey]);
       });
@@ -263,9 +263,10 @@ module.exports = {
         }
       }
     };
+
     allParamsBuffer = Buffer.from(allParams, "base64").toString("utf-8");
     if (!allParamsBuffer || 0 === allParamsBuffer.length || "��" === allParamsBuffer) {
-      allParamsDecoded = allParams;
+      allParamsDecoded = properties.parse(allParams.substring(1).substring(0, allParams.length), options);
     } else {
       allParamsDecoded = properties.parse(allParamsBuffer, options);
     }
