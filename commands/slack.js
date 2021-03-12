@@ -774,7 +774,7 @@ module.exports = {
       });
     log.debug("Finished Delete Channel Slack Plugin");
   },
-  async getUserById() {
+  async getUser() {
     log.debug("Inside Get User by id Slack Plugin");
 
     //Destructure and get properties ready.
@@ -817,7 +817,7 @@ module.exports = {
       });
     log.debug("Finished Get User by id Slack Plugin");
   },
-  async invite() {
+  async inviteChannelMembers() {
     log.debug("Inside Invite Users to a Slack Channel Plugin");
 
     //Destructure and get properties ready.
