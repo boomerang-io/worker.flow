@@ -94,7 +94,8 @@ module.exports = {
     let data = {
       ownerId: ownerId,
       subject: subject,
-      description: description
+      description: description,
+      type: "issue"
     };
 
     if (protectAgainstEmpty(teamId)) {
