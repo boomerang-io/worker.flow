@@ -93,14 +93,12 @@ module.exports = {
 
     let data = {
       ownerId: ownerId,
-      summary: subject,
-      description: description,
-      type: "issue",
-      fromSupport: false
+      subject: subject,
+      description: description
     };
 
     if (protectAgainstEmpty(teamId)) {
-      data["highLevelGroupId"] = teamId;
+      data["teamId"] = teamId;
     }
     if (protectAgainstEmpty(catalogServiceId)) {
       data["catalogServiceId"] = catalogServiceId;
