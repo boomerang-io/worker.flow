@@ -611,7 +611,7 @@ module.exports = {
       name: name
     };
     if (!(isPrivate === undefined || isPrivate === null)) {
-      data["isPrivate"] = isPrivate;
+      data["is_private"] = isPrivate;
     }
     if (team) {
       data["team_id"] = team;
@@ -625,8 +625,8 @@ module.exports = {
         const statusOK = body.ok;
         log.sys("statusOK Found:", statusOK);
         utils.setOutputParameter("ok", statusOK);
-        const channelInfo = body.channel;
-        log.sys("channelInfo Found:", channelInfo);
+        const channel = body.channel;
+        log.sys("channelInfo Found:", channel);
         utils.setOutputParameter("channel", channel);
         log.good("Response successfully received!");
       })
@@ -694,10 +694,6 @@ module.exports = {
       log.err("Token has not been set");
       process.exit(1);
     }
-    if (!channel) {
-      log.err("Channel Id has not been specified");
-      process.exit(1);
-    }
 
     let web = new WebClient(token);
     if (process.env.HTTP_PROXY) {
@@ -705,9 +701,7 @@ module.exports = {
       web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
     }
 
-    let data = {
-      channel: channel
-    };
+    let data = {};
     if (team) {
       data["team_id"] = team;
     }
