@@ -569,13 +569,9 @@ module.exports = {
         channel: channel
       })
       .then(body => {
-        log.debug("Response Received:", JSON.stringify(body));
-        const statusOK = body.ok;
-        log.sys("statusOK Found:", statusOK);
-        utils.setOutputParameter("ok", statusOK);
-        const channelInfo = body.channel;
-        log.sys("channelInfo Found:", channelInfo);
-        utils.setOutputParameter("channel", channelInfo);
+        const response = JSON.parse(body);
+        log.sys("Response Received:", JSON.stringify(response));
+        utils.setOutputParameter("response", JSON.stringify(response));
         log.good("Response successfully received!");
       })
       .catch(err => {
