@@ -569,9 +569,8 @@ module.exports = {
         channel: channel
       })
       .then(body => {
-        const response = JSON.parse(body);
-        log.sys("Response Received:", JSON.stringify(response));
-        utils.setOutputParameter("response", JSON.stringify(response));
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", body);
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -617,13 +616,8 @@ module.exports = {
     await web.conversations
       .create(data)
       .then(body => {
-        log.debug("Response Received:", JSON.stringify(body));
-        const statusOK = body.ok;
-        log.sys("statusOK Found:", statusOK);
-        utils.setOutputParameter("ok", statusOK);
-        const channel = body.channel;
-        log.sys("channelInfo Found:", channel);
-        utils.setOutputParameter("channel", channel);
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", body);
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -660,16 +654,8 @@ module.exports = {
         channel: channel
       })
       .then(body => {
-        log.debug("Response Received:", JSON.stringify(body));
-        const statusOK = body.ok;
-        log.sys("statusOK Found:", statusOK);
-        utils.setOutputParameter("ok", statusOK);
-        const members = body.members;
-        log.sys("Members Found:", members);
-        utils.setOutputParameter("members", members);
-        const metadata = body.response_metadata;
-        log.sys("Response Metadata Found:", metadata);
-        utils.setOutputParameter("response_metadata", metadata);
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", body);
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -709,13 +695,8 @@ module.exports = {
     await web.conversations
       .list(data)
       .then(body => {
-        log.debug("Response Received:", JSON.stringify(body));
-        const statusOK = body.ok;
-        log.sys("statusOK Found:", statusOK);
-        utils.setOutputParameter("ok", statusOK);
-        const channels = body.channels;
-        log.sys("Channels Found:", channels);
-        utils.setOutputParameter("channels", channels);
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", body);
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -752,10 +733,8 @@ module.exports = {
         channel: channel
       })
       .then(body => {
-        log.debug("Response Received:", JSON.stringify(body));
-        const statusOK = body.ok;
-        log.sys("statusOK Found:", statusOK);
-        utils.setOutputParameter("ok", statusOK);
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", body);
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -792,13 +771,8 @@ module.exports = {
         user: user
       })
       .then(body => {
-        log.debug("Response Received:", JSON.stringify(body));
-        const statusOK = body.ok;
-        log.sys("statusOK Found:", statusOK);
-        utils.setOutputParameter("ok", statusOK);
-        const userInfo = body.user;
-        log.sys("userInfo Found:", userInfo);
-        utils.setOutputParameter("user", userInfo);
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", body);
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -840,13 +814,8 @@ module.exports = {
         users: users
       })
       .then(body => {
-        log.debug("Response Received:", JSON.stringify(body));
-        const statusOK = body.ok;
-        log.sys("statusOK Found:", statusOK);
-        utils.setOutputParameter("ok", statusOK);
-        const channelInfo = body.channel;
-        log.sys("channelInfo Found:", channelInfo);
-        utils.setOutputParameter("channel", channelInfo);
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", body);
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -888,10 +857,8 @@ module.exports = {
         user: user
       })
       .then(body => {
-        log.debug("Response Received:", JSON.stringify(body));
-        const statusOK = body.ok;
-        log.sys("statusOK Found:", statusOK);
-        utils.setOutputParameter("ok", statusOK);
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", body);
         log.good("Response successfully received!");
       })
       .catch(err => {
