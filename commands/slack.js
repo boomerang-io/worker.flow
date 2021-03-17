@@ -617,7 +617,7 @@ module.exports = {
       .create(data)
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", body);
+        utils.setOutputParameter("response", JSON.stringify(body));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -655,7 +655,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", body);
+        utils.setOutputParameter("response", JSON.stringify(body));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -696,7 +696,7 @@ module.exports = {
       .list(data)
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", body);
+        utils.setOutputParameter("response", JSON.stringify(body));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -734,7 +734,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", body);
+        utils.setOutputParameter("response", JSON.stringify(body));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -772,7 +772,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", body);
+        utils.setOutputParameter("response", JSON.stringify(body));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -815,7 +815,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", body);
+        utils.setOutputParameter("response", JSON.stringify(body));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -858,7 +858,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", body);
+        utils.setOutputParameter("response", JSON.stringify(body));
         log.good("Response successfully received!");
       })
       .catch(err => {
