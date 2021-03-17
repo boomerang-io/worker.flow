@@ -570,7 +570,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", body);
+        utils.setOutputParameter("response", JSON.stringify(body));
         log.good("Response successfully received!");
       })
       .catch(err => {
