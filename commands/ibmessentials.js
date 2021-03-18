@@ -119,7 +119,15 @@ module.exports = {
           "Content-Type": "application/json",
           "x-access-token": accessToken
         }
-      });
+      })
+        .then(body => {
+          log.sys("Response Received:", body);
+          log.good("Response successfully received!");
+        })
+        .catch(err => {
+          log.err(err);
+          process.exit(1);
+        });
     } catch (e) {
       log.err(e);
       process.exit(1);
