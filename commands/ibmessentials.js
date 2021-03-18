@@ -114,14 +114,14 @@ module.exports = {
     try {
       await fetch(url, {
         method: "POST",
-        body: data,
+        body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json",
           "x-access-token": accessToken
         }
       })
         .then(body => {
-          log.sys("Response Received:", body);
+          log.debug(`Response Received: ${JSON.stringify(body)}`);
           log.good("Response successfully received!");
         })
         .catch(err => {
