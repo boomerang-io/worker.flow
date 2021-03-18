@@ -67,7 +67,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, accessToken, ownerId, teamId, catalogServiceId, subject, description } = taskProps;
+    const { url, accessToken, ownerId, teamId, catalogServiceId, subject, description, type } = taskProps;
 
     //validate mandatory fields
     if (!url) {
@@ -90,12 +90,16 @@ module.exports = {
       log.err("no description has been specified");
       process.exit(1);
     }
+    if (!type) {
+      log.err("no ticket type has been specified");
+      process.exit(1);
+    }
 
     let data = {
       ownerId: ownerId,
       subject: subject,
       description: description,
-      type: "issue"
+      type: type
     };
 
     if (protectAgainstEmpty(teamId)) {
