@@ -327,5 +327,45 @@ module.exports = {
     }
 
     log.debug("Finished findIssuesInOrgAndRemove() GitHub Plugin");
+  },
+  async listAllOrganizations() {
+    log.debug("Started listAllOrganizations() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, since, maxIssues } = taskProps;
+    let httpsAgent;
+    try {
+      if (process.env.HTTP_PROXY) {
+        httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+      } else {
+        httpsAgent = undefined;
+      }
+
+      const octokit = new Octokit({
+        auth: token,
+        userAgent: "Boomerang Flow Joe Bot",
+        baseUrl: url,
+        log: console,
+        request: {
+          agent: httpsAgent
+        }
+      });
+
+      await octokit.orgs
+        .list({
+          since: since,
+          per_page: maxIssues
+        })
+        .then(({ body }) => {
+          log.sys("Response Received:", body);
+          utils.setOutputParameter("response", JSON.stringify(body));
+          log.good("Response successfully received!");
+        });
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished listAllOrganizations() GitHub Plugin");
   }
 };
