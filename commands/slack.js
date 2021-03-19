@@ -540,5 +540,331 @@ module.exports = {
         log.err(err);
         process.exit(1);
       });
+  },
+  async getChannelInfo() {
+    log.debug("Inside Channel Info Slack Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { token, channel } = taskProps;
+
+    //Variable Checks
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+    if (!channel) {
+      log.err("Channel Id has not been specified");
+      process.exit(1);
+    }
+
+    let web = new WebClient(token);
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
+    }
+
+    await web.conversations
+      .info({
+        channel: channel
+      })
+      .then(body => {
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(body));
+        log.good("Response successfully received!");
+      })
+      .catch(err => {
+        log.err(err);
+        process.exit(1);
+      });
+    log.debug("Finished Channel Info Slack Plugin");
+  },
+  async createChannel() {
+    log.debug("Inside Create Channel Slack Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { token, name, isPrivate, team } = taskProps;
+
+    //Variable Checks
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+    if (!name) {
+      log.err("Channel Name has not been specified");
+      process.exit(1);
+    }
+
+    let web = new WebClient(token);
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
+    }
+
+    let data = {
+      name: name
+    };
+    if (!(isPrivate === undefined || isPrivate === null)) {
+      data["is_private"] = isPrivate;
+    }
+    if (team) {
+      data["team_id"] = team;
+    }
+    log.debug(`stringify request made by client: ${JSON.stringify(data)}`);
+
+    await web.conversations
+      .create(data)
+      .then(body => {
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(body));
+        log.good("Response successfully received!");
+      })
+      .catch(err => {
+        log.err(err);
+        process.exit(1);
+      });
+    log.debug("Finished Create Channel Slack Plugin");
+  },
+  async getChannelMembers() {
+    log.debug("Inside Get Channel Members Slack Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { token, channel } = taskProps;
+
+    //Variable Checks
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+    if (!channel) {
+      log.err("Channel Id has not been specified");
+      process.exit(1);
+    }
+
+    let web = new WebClient(token);
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
+    }
+
+    await web.conversations
+      .members({
+        channel: channel
+      })
+      .then(body => {
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(body));
+        log.good("Response successfully received!");
+      })
+      .catch(err => {
+        log.err(err);
+        process.exit(1);
+      });
+    log.debug("Finished Get Channel Members Slack Plugin");
+  },
+  async getChannels() {
+    log.debug("Inside Get Channels Slack Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { token, team, types } = taskProps;
+
+    //Variable Checks
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+
+    let web = new WebClient(token);
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
+    }
+
+    let data = {};
+    if (team) {
+      data["team_id"] = team;
+    }
+    if (types) {
+      data["types"] = types;
+    }
+    log.debug(`stringify request made by client: ${JSON.stringify(data)}`);
+
+    await web.conversations
+      .list(data)
+      .then(body => {
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(body));
+        log.good("Response successfully received!");
+      })
+      .catch(err => {
+        log.err(err);
+        process.exit(1);
+      });
+    log.debug("Finished Get Channels Slack Plugin");
+  },
+  async deleteChannel() {
+    log.debug("Inside Delete Channel Slack Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { token, channel } = taskProps;
+
+    //Variable Checks
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+    if (!channel) {
+      log.err("Channel Id has not been specified");
+      process.exit(1);
+    }
+
+    let web = new WebClient(token);
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
+    }
+
+    await web.conversations
+      .archive({
+        channel: channel
+      })
+      .then(body => {
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(body));
+        log.good("Response successfully received!");
+      })
+      .catch(err => {
+        log.err(err);
+        process.exit(1);
+      });
+    log.debug("Finished Delete Channel Slack Plugin");
+  },
+  async getUser() {
+    log.debug("Inside Get User by id Slack Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { token, user } = taskProps;
+
+    //Variable Checks
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+    if (!user) {
+      log.err("User has not been specified");
+      process.exit(1);
+    }
+
+    let web = new WebClient(token);
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
+    }
+
+    await web.users
+      .info({
+        user: user
+      })
+      .then(body => {
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(body));
+        log.good("Response successfully received!");
+      })
+      .catch(err => {
+        log.err(err);
+        process.exit(1);
+      });
+    log.debug("Finished Get User by id Slack Plugin");
+  },
+  async inviteChannelMembers() {
+    log.debug("Inside Invite Users to a Slack Channel Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { token, channel, users } = taskProps;
+
+    //Variable Checks
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+    if (!channel) {
+      log.err("Channel Id has not been specified");
+      process.exit(1);
+    }
+    if (!users) {
+      log.err("Users has not been specified");
+      process.exit(1);
+    }
+
+    let web = new WebClient(token);
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
+    }
+
+    await web.conversations
+      .invite({
+        channel: channel,
+        users: users
+      })
+      .then(body => {
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(body));
+        log.good("Response successfully received!");
+      })
+      .catch(err => {
+        log.err(err);
+        process.exit(1);
+      });
+    log.debug("Finished Invite Users to a Slack Channel Plugin");
+  },
+  async removeChannelMember() {
+    log.debug("Inside Remove Channel Member Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { token, channel, user } = taskProps;
+
+    //Variable Checks
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+    if (!channel) {
+      log.err("Channel Id has not been specified");
+      process.exit(1);
+    }
+    if (!user) {
+      log.err("User has not been specified");
+      process.exit(1);
+    }
+
+    let web = new WebClient(token);
+    if (process.env.HTTP_PROXY) {
+      log.debug("Using Proxy", process.env.HTTP_PROXY);
+      web = new WebClient(token, { agent: new HttpsProxyAgent(process.env.HTTP_PROXY) });
+    }
+
+    await web.conversations
+      .kick({
+        channel: channel,
+        user: user
+      })
+      .then(body => {
+        log.sys("Response Received:", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(body));
+        log.good("Response successfully received!");
+      })
+      .catch(err => {
+        log.err(err);
+        process.exit(1);
+      });
+    log.debug("Finished Remove Channel Member Plugin");
   }
 };
