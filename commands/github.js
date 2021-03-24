@@ -5,24 +5,35 @@ const moment = require("moment");
 const HttpsProxyAgent = require("https-proxy-agent");
 
 //Internal helper function
-async function RetrieveTeamByOrgName(url, token, organizationName, teamName) {
-  let httpsAgent;
-  try {
-    if (process.env.HTTP_PROXY) {
-      httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-    } else {
-      httpsAgent = undefined;
-    }
+function validateMandatoryParameter(parameterValue, errorMessage) {
+  if (!parameterValue) {
+    log.err(errorMessage);
+    process.exit(1);
+  }
+}
 
-    const octokit = new Octokit({
-      auth: token,
-      userAgent: "Boomerang Flow Joe Bot",
-      baseUrl: url,
-      log: console,
-      request: {
-        agent: httpsAgent
-      }
-    });
+function GetConfiguredClient(url, token) {
+  let httpsAgent;
+  if (process.env.HTTP_PROXY) {
+    httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+  } else {
+    httpsAgent = undefined;
+  }
+
+  return new Octokit({
+    auth: token,
+    userAgent: "Boomerang Flow Joe Bot",
+    baseUrl: url,
+    log: console,
+    request: {
+      agent: httpsAgent
+    }
+  });
+}
+
+async function RetrieveTeamByOrgName(url, token, organizationName, teamName) {
+  try {
+    const octokit = GetConfiguredClient(url, token);
 
     //Variable Checks
     if (!url) {
@@ -78,23 +89,8 @@ async function RetrieveTeamByOrgName(url, token, organizationName, teamName) {
 }
 
 async function FindUsersByEmail(url, token, emailAddress) {
-  let httpsAgent;
   try {
-    if (process.env.HTTP_PROXY) {
-      httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-    } else {
-      httpsAgent = undefined;
-    }
-
-    const octokit = new Octokit({
-      auth: token,
-      userAgent: "Boomerang Flow Joe Bot",
-      baseUrl: url,
-      log: console,
-      request: {
-        agent: httpsAgent
-      }
-    });
+    const octokit = GetConfiguredClient(url, token);
 
     //Variable Checks
     if (!url) {
@@ -459,33 +455,12 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
     const { url, token, since, maxIssues } = taskProps;
-    let httpsAgent;
     try {
-      if (process.env.HTTP_PROXY) {
-        httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-      } else {
-        httpsAgent = undefined;
-      }
-
-      const octokit = new Octokit({
-        auth: token,
-        userAgent: "Boomerang Flow Joe Bot",
-        baseUrl: url,
-        log: console,
-        request: {
-          agent: httpsAgent
-        }
-      });
+      const octokit = GetConfiguredClient(url, token);
 
       //Variable Checks
-      if (!url) {
-        log.err("URL has not been set");
-        process.exit(1);
-      }
-      if (!token) {
-        log.err("Token has not been set");
-        process.exit(1);
-      }
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
       await octokit.orgs
         .list({
           since: since,
@@ -508,37 +483,13 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
     const { url, token, organizationName } = taskProps;
-    let httpsAgent;
     try {
-      if (process.env.HTTP_PROXY) {
-        httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-      } else {
-        httpsAgent = undefined;
-      }
-
-      const octokit = new Octokit({
-        auth: token,
-        userAgent: "Boomerang Flow Joe Bot",
-        baseUrl: url,
-        log: console,
-        request: {
-          agent: httpsAgent
-        }
-      });
+      const octokit = GetConfiguredClient(url, token);
 
       //Variable Checks
-      if (!url) {
-        log.err("URL has not been set");
-        process.exit(1);
-      }
-      if (!token) {
-        log.err("Token has not been set");
-        process.exit(1);
-      }
-      if (!organizationName) {
-        log.err("Organization name has not been set");
-        process.exit(1);
-      }
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
       await octokit.orgs
         .get({
           org: organizationName
@@ -560,37 +511,13 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
     const { url, token, organizationName, teamsPerPage, pageNumber } = taskProps;
-    let httpsAgent;
     try {
-      if (process.env.HTTP_PROXY) {
-        httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-      } else {
-        httpsAgent = undefined;
-      }
-
-      const octokit = new Octokit({
-        auth: token,
-        userAgent: "Boomerang Flow Joe Bot",
-        baseUrl: url,
-        log: console,
-        request: {
-          agent: httpsAgent
-        }
-      });
+      const octokit = GetConfiguredClient(url, token);
 
       //Variable Checks
-      if (!url) {
-        log.err("URL has not been set");
-        process.exit(1);
-      }
-      if (!token) {
-        log.err("Token has not been set");
-        process.exit(1);
-      }
-      if (!organizationName) {
-        log.err("Organization name has not been set");
-        process.exit(1);
-      }
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
       let data = {
         org: organizationName
       };
@@ -617,41 +544,14 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
     const { url, token, organizationName, teamName } = taskProps;
-    let httpsAgent;
     try {
-      if (process.env.HTTP_PROXY) {
-        httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-      } else {
-        httpsAgent = undefined;
-      }
-
-      const octokit = new Octokit({
-        auth: token,
-        userAgent: "Boomerang Flow Joe Bot",
-        baseUrl: url,
-        log: console,
-        request: {
-          agent: httpsAgent
-        }
-      });
+      const octokit = GetConfiguredClient(url, token);
 
       //Variable Checks
-      if (!url) {
-        log.err("URL has not been set");
-        process.exit(1);
-      }
-      if (!token) {
-        log.err("Token has not been set");
-        process.exit(1);
-      }
-      if (!organizationName) {
-        log.err("Organization name has not been set");
-        process.exit(1);
-      }
-      if (!teamName) {
-        log.err("Team name has not been set");
-        process.exit(1);
-      }
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      validateMandatoryParameter(teamName, "Team name has not been set");
       let pageNumber = 0,
         returnedEntries = 0,
         teamFound = false;
@@ -690,41 +590,15 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
     const { url, token, organizationName, teamName } = taskProps;
-    let httpsAgent;
     try {
-      if (process.env.HTTP_PROXY) {
-        httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-      } else {
-        httpsAgent = undefined;
-      }
-
-      const octokit = new Octokit({
-        auth: token,
-        userAgent: "Boomerang Flow Joe Bot",
-        baseUrl: url,
-        log: console,
-        request: {
-          agent: httpsAgent
-        }
-      });
+      const octokit = GetConfiguredClient(url, token);
 
       //Variable Checks
-      if (!url) {
-        log.err("URL has not been set");
-        process.exit(1);
-      }
-      if (!token) {
-        log.err("Token has not been set");
-        process.exit(1);
-      }
-      if (!organizationName) {
-        log.err("Organization name has not been set");
-        process.exit(1);
-      }
-      if (!teamName) {
-        log.err("Team name has not been set");
-        process.exit(1);
-      }
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      validateMandatoryParameter(teamName, "Team name has not been set");
+
       const team = await RetrieveTeamByOrgName(url, token, organizationName, teamName);
       log.debug("Proceding with removing team: ", team);
 
@@ -750,41 +624,15 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
     const { url, token, organizationName, teamName, description, maintainers, repositoryNames, privacy, permission = "pull", parentTeamId } = taskProps;
-    let httpsAgent;
     try {
-      if (process.env.HTTP_PROXY) {
-        httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-      } else {
-        httpsAgent = undefined;
-      }
-
-      const octokit = new Octokit({
-        auth: token,
-        userAgent: "Boomerang Flow Joe Bot",
-        baseUrl: url,
-        log: console,
-        request: {
-          agent: httpsAgent
-        }
-      });
+      const octokit = GetConfiguredClient(url, token);
 
       //Variable Checks
-      if (!url) {
-        log.err("URL has not been set");
-        process.exit(1);
-      }
-      if (!token) {
-        log.err("Token has not been set");
-        process.exit(1);
-      }
-      if (!organizationName) {
-        log.err("Organization name has not been set");
-        process.exit(1);
-      }
-      if (!teamName) {
-        log.err("Team name has not been set");
-        process.exit(1);
-      }
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      validateMandatoryParameter(teamName, "Team name has not been set");
+
       let data = {
         org: organizationName,
         name: teamName,
@@ -823,45 +671,16 @@ module.exports = {
     const taskProps = utils.resolveInputParameters();
     const { url, token, organizationName, teamName, userEmail, role } = taskProps;
 
-    let httpsAgent;
     try {
-      if (process.env.HTTP_PROXY) {
-        httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-      } else {
-        httpsAgent = undefined;
-      }
-
-      const octokit = new Octokit({
-        auth: token,
-        userAgent: "Boomerang Flow Joe Bot",
-        baseUrl: url,
-        log: console,
-        request: {
-          agent: httpsAgent
-        }
-      });
+      const octokit = GetConfiguredClient(url, token);
 
       //Variable Checks
-      if (!url) {
-        log.err("URL has not been set");
-        process.exit(1);
-      }
-      if (!token) {
-        log.err("Token has not been set");
-        process.exit(1);
-      }
-      if (!organizationName) {
-        log.err("Organization name has not been set");
-        process.exit(1);
-      }
-      if (!teamName) {
-        log.err("Team name has not been set");
-        process.exit(1);
-      }
-      if (!userEmail) {
-        log.err("User email has not been set");
-        process.exit(1);
-      }
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      validateMandatoryParameter(teamName, "Team name has not been set");
+      validateMandatoryParameter(userEmail, "User Email has not been set");
+
       const team = await RetrieveTeamByOrgName(url, token, organizationName, teamName);
 
       log.debug("Proceding with looking-up the user by email: ", userEmail);
@@ -896,45 +715,16 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
     const { url, token, organizationName, teamName, userEmail } = taskProps;
-    let httpsAgent;
     try {
-      if (process.env.HTTP_PROXY) {
-        httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-      } else {
-        httpsAgent = undefined;
-      }
-
-      const octokit = new Octokit({
-        auth: token,
-        userAgent: "Boomerang Flow Joe Bot",
-        baseUrl: url,
-        log: console,
-        request: {
-          agent: httpsAgent
-        }
-      });
+      const octokit = GetConfiguredClient(url, token);
 
       //Variable Checks
-      if (!url) {
-        log.err("URL has not been set");
-        process.exit(1);
-      }
-      if (!token) {
-        log.err("Token has not been set");
-        process.exit(1);
-      }
-      if (!organizationName) {
-        log.err("Organization name has not been set");
-        process.exit(1);
-      }
-      if (!teamName) {
-        log.err("Team name has not been set");
-        process.exit(1);
-      }
-      if (!userEmail) {
-        log.err("User email has not been set");
-        process.exit(1);
-      }
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      validateMandatoryParameter(teamName, "Team name has not been set");
+      validateMandatoryParameter(userEmail, "User Email has not been set");
+
       const team = await RetrieveTeamByOrgName(url, token, organizationName, teamName);
 
       log.debug("Proceding with looking-up the user by email: ", userEmail);
@@ -965,42 +755,16 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, organizationName, userEmail, role, teamIds } = taskProps;
-    let httpsAgent;
+    const { url, token, organizationName, userEmail, role } = taskProps;
     try {
-      if (process.env.HTTP_PROXY) {
-        httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-      } else {
-        httpsAgent = undefined;
-      }
-
-      const octokit = new Octokit({
-        auth: token,
-        userAgent: "Boomerang Flow Joe Bot",
-        baseUrl: url,
-        log: console,
-        request: {
-          agent: httpsAgent
-        }
-      });
+      const octokit = GetConfiguredClient(url, token);
 
       //Variable Checks
-      if (!url) {
-        log.err("URL has not been set");
-        process.exit(1);
-      }
-      if (!token) {
-        log.err("Token has not been set");
-        process.exit(1);
-      }
-      if (!organizationName) {
-        log.err("Organization name has not been set");
-        process.exit(1);
-      }
-      if (!userEmail) {
-        log.err("User Email has not been set");
-        process.exit(1);
-      }
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      validateMandatoryParameter(userEmail, "User Email has not been set");
+
       log.debug("Proceding with looking-up the user by email: ", userEmail);
       const users = await FindUsersByEmail(url, token, userEmail);
       if (users.length != 1) {
