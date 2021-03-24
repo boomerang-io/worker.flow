@@ -12,6 +12,13 @@ function validateMandatoryParameter(parameterValue, errorMessage) {
   }
 }
 
+function protectAgainstEmpty(input) {
+  if (input && typeof input === "string" && input === '""') {
+    return undefined;
+  }
+  return input;
+}
+
 function GetConfiguredClient(url, token) {
   let httpsAgent;
   if (process.env.HTTP_PROXY) {
@@ -461,16 +468,18 @@ module.exports = {
       //Variable Checks
       validateMandatoryParameter(url, "URL has not been set");
       validateMandatoryParameter(token, "Token has not been set");
-      await octokit.orgs
-        .list({
-          since: since,
-          per_page: maxIssues
-        })
-        .then(body => {
-          log.debug("Response Received:", body);
-          utils.setOutputParameter("organizations", JSON.stringify(body.data));
-          log.good("Response successfully received!");
-        });
+      let data = {};
+      if (protectAgainstEmpty(since)) {
+        data["since"] = since;
+      }
+      if (protectAgainstEmpty(maxIssues)) {
+        data["per_page"] = maxIssues;
+      }
+      await octokit.orgs.list(data).then(body => {
+        log.debug("Response Received:", body);
+        utils.setOutputParameter("organizations", JSON.stringify(body.data));
+        log.good("Response successfully received!");
+      });
     } catch (error) {
       log.err(error);
       process.exit(1);
@@ -521,10 +530,10 @@ module.exports = {
       let data = {
         org: organizationName
       };
-      if (teamsPerPage) {
+      if (protectAgainstEmpty(teamsPerPage)) {
         data["per_page"] = teamsPerPage;
       }
-      if (pageNumber) {
+      if (protectAgainstEmpty(pageNumber)) {
         data["page"] = pageNumber;
       }
       await octokit.teams.list(data).then(body => {
@@ -635,22 +644,24 @@ module.exports = {
 
       let data = {
         org: organizationName,
-        name: teamName,
-        permission: permission
+        name: teamName
       };
-      if (description) {
+      if (protectAgainstEmpty(permission)) {
+        data["permission"] = permission;
+      }
+      if (protectAgainstEmpty(description)) {
         data["description"] = description;
       }
-      if (maintainers) {
+      if (protectAgainstEmpty(maintainers)) {
         data["maintainers"] = maintainers;
       }
-      if (repositoryNames) {
+      if (protectAgainstEmpty(repositoryNames)) {
         data["repo_names"] = repositoryNames;
       }
-      if (privacy) {
+      if (protectAgainstEmpty(privacy)) {
         data["privacy"] = privacy;
       }
-      if (parentTeamId) {
+      if (protectAgainstEmpty(parentTeamId)) {
         data["parent_team_id"] = parentTeamId;
       }
       await octokit.teams.create(data).then(body => {
@@ -695,7 +706,7 @@ module.exports = {
         team_slug: team.slug,
         username: users[0].login
       };
-      if (role) {
+      if (protectAgainstEmpty(role)) {
         data["role"] = role;
       }
       await octokit.teams.addOrUpdateMembershipForUserInOrg(data).then(body => {
@@ -775,7 +786,7 @@ module.exports = {
         org: organizationName,
         username: users[0].login
       };
-      if (role) {
+      if (protectAgainstEmpty(role)) {
         data["role"] = role;
       }
       await octokit.orgs.setMembershipForUser(data).then(body => {
