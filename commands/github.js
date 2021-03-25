@@ -461,7 +461,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, since, maxIssues } = taskProps;
+    const { url, token, since, maxNoOrg } = taskProps;
     try {
       const octokit = GetConfiguredClient(url, token);
 
@@ -472,8 +472,8 @@ module.exports = {
       if (protectAgainstEmpty(since)) {
         data["since"] = since;
       }
-      if (protectAgainstEmpty(maxIssues)) {
-        data["per_page"] = maxIssues;
+      if (protectAgainstEmpty(maxNoOrg)) {
+        data["per_page"] = maxNoOrg;
       }
       await octokit.orgs.list(data).then(body => {
         log.debug("Response Received:", body);
@@ -617,8 +617,7 @@ module.exports = {
           team_slug: team.slug
         })
         .then(body => {
-          log.debug("Successful delete team response: ", body.data);
-          utils.setOutputParameter("result", JSON.stringify(body.data));
+          log.debug("Successful delete team response: ", body);
           log.good("Successfully deleted the team!");
         });
     } catch (error) {
@@ -666,7 +665,7 @@ module.exports = {
       }
       await octokit.teams.create(data).then(body => {
         log.debug("Response Received:", body);
-        utils.setOutputParameter("teams", JSON.stringify(body.data));
+        utils.setOutputParameter("team", JSON.stringify(body.data));
         log.good("Response successfully received!");
       });
     } catch (error) {
@@ -751,8 +750,7 @@ module.exports = {
         username: users[0].login
       };
       await octokit.teams.removeMembershipForUserInOrg(data).then(body => {
-        log.debug("Successful remove team membership for a user: ", body.data);
-        utils.setOutputParameter("result", JSON.stringify(body.data));
+        log.debug("Successful remove team membership for a user: ", body);
         log.good("Successfully removed team membership for a user!");
       });
     } catch (error) {
@@ -791,7 +789,7 @@ module.exports = {
       }
       await octokit.orgs.setMembershipForUser(data).then(body => {
         log.debug("Response Received:", body);
-        utils.setOutputParameter("results", JSON.stringify(body.data));
+        utils.setOutputParameter("result", JSON.stringify(body.data));
         log.good("Response successfully received!");
       });
     } catch (error) {
