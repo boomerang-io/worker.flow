@@ -4,6 +4,134 @@ const moment = require("moment");
 // https://octokit.github.io/rest.js/
 const HttpsProxyAgent = require("https-proxy-agent");
 
+//Internal helper function
+function validateMandatoryParameter(parameterValue, errorMessage) {
+  if (!parameterValue) {
+    log.err(errorMessage);
+    process.exit(1);
+  }
+}
+
+function protectAgainstEmpty(input) {
+  if (input && typeof input === "string" && input === '""') {
+    return undefined;
+  }
+  return input;
+}
+
+function GetConfiguredClient(url, token) {
+  let httpsAgent;
+  if (process.env.HTTP_PROXY) {
+    httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+  } else {
+    httpsAgent = undefined;
+  }
+
+  return new Octokit({
+    auth: token,
+    userAgent: "Boomerang Flow Joe Bot",
+    baseUrl: url,
+    log: console,
+    request: {
+      agent: httpsAgent
+    }
+  });
+}
+
+async function RetrieveTeamByOrgName(url, token, organizationName, teamName) {
+  try {
+    const octokit = GetConfiguredClient(url, token);
+
+    //Variable Checks
+    if (!url) {
+      log.err("URL has not been set");
+      process.exit(1);
+    }
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+    if (!organizationName) {
+      log.err("Organization name has not been set");
+      process.exit(1);
+    }
+    if (!teamName) {
+      log.err("Team name has not been set");
+      process.exit(1);
+    }
+    let pageNumber = 0,
+      returnedEntries = 0,
+      teamFound = false;
+    let team;
+    do {
+      pageNumber++;
+      let data = {
+        org: organizationName,
+        per_page: "100",
+        page: pageNumber
+      };
+      await octokit.teams.list(data).then(body => {
+        log.debug("Successful response: ", body.data);
+        returnedEntries = body.data.length;
+        log.good("Successful retrieval of teams");
+        log.debug("Searching for team name: ", teamName);
+        foundTeam = Object.entries(body.data)
+          .filter(entry => teamName === entry[1].name || teamName === entry[1].slug)
+          .map(entry => {
+            log.debug(JSON.stringify(entry[1]));
+            teamFound = true;
+            return entry[1];
+          });
+        team = foundTeam[0];
+        log.good("Team found:", JSON.stringify(team));
+      });
+    } while (returnedEntries > 0 && !teamFound);
+
+    log.debug("Returning team found:", team);
+    return team;
+  } catch (error) {
+    log.err(error);
+    process.exit(1);
+  }
+}
+
+async function FindUsersByEmail(url, token, emailAddress) {
+  try {
+    const octokit = GetConfiguredClient(url, token);
+
+    //Variable Checks
+    if (!url) {
+      log.err("URL has not been set");
+      process.exit(1);
+    }
+    if (!token) {
+      log.err("Token has not been set");
+      process.exit(1);
+    }
+    if (!emailAddress) {
+      log.err("Email address has not been set");
+      process.exit(1);
+    }
+    let data = {
+      q: emailAddress,
+      per_page: "100"
+    };
+    let foundUsers;
+    await octokit.search.users(data).then(body => {
+      log.debug("Successful response: ", body.data);
+      returnedEntries = body.data.items.length;
+      foundUsers = body.data.items;
+      log.good("Users found:", JSON.stringify(foundUsers));
+    });
+
+    log.debug("Returning users found:", foundUsers);
+    return foundUsers;
+  } catch (error) {
+    log.err(error);
+    process.exit(1);
+  }
+}
+
 module.exports = {
   async findPublicReposInOrg() {
     log.debug("Started checkForPublicRepos GitHub Plugin");
@@ -327,5 +455,347 @@ module.exports = {
     }
 
     log.debug("Finished findIssuesInOrgAndRemove() GitHub Plugin");
+  },
+  async listAllOrganizations() {
+    log.debug("Started listAllOrganizations() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, since, maxNoOrg } = taskProps;
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      let data = {};
+      if (protectAgainstEmpty(since)) {
+        data["since"] = since;
+      }
+      if (protectAgainstEmpty(maxNoOrg)) {
+        data["per_page"] = maxNoOrg;
+      }
+      await octokit.orgs.list(data).then(body => {
+        log.debug("Response Received:", body);
+        utils.setOutputParameter("organizations", JSON.stringify(body.data));
+        log.good("Response successfully received!");
+      });
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished listAllOrganizations() GitHub Plugin");
+  },
+  async getOrganization() {
+    log.debug("Started getOrganization() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, organizationName } = taskProps;
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      await octokit.orgs
+        .get({
+          org: organizationName
+        })
+        .then(body => {
+          log.debug("Response Received:", body);
+          utils.setOutputParameter("organization", JSON.stringify(body.data));
+          log.good("Response successfully received!");
+        });
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished getOrganization() GitHub Plugin");
+  },
+  async findTeamsInOrg() {
+    log.debug("Started findTeamsInOrg() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, organizationName, teamsPerPage, pageNumber } = taskProps;
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      let data = {
+        org: organizationName
+      };
+      if (protectAgainstEmpty(teamsPerPage)) {
+        data["per_page"] = teamsPerPage;
+      }
+      if (protectAgainstEmpty(pageNumber)) {
+        data["page"] = pageNumber;
+      }
+      await octokit.teams.list(data).then(body => {
+        log.debug("Response Received:", body);
+        utils.setOutputParameter("teams", JSON.stringify(body.data));
+        log.good("Response successfully received!");
+      });
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished findTeamsInOrg() GitHub Plugin");
+  },
+  async getTeamInOrgByName() {
+    log.debug("Started getTeamInOrgByName() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, organizationName, teamName } = taskProps;
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      validateMandatoryParameter(teamName, "Team name has not been set");
+      let pageNumber = 0,
+        returnedEntries = 0,
+        teamFound = false;
+      do {
+        pageNumber++;
+        let data = {
+          org: organizationName,
+          per_page: "100",
+          page: pageNumber
+        };
+        await octokit.teams.list(data).then(body => {
+          log.debug("Successful response: ", body.data);
+          returnedEntries = body.data.length;
+          log.good("Successful retrieval of teams");
+          log.debug("Searching for team name: ", teamName);
+          foundTeam = Object.entries(body.data)
+            .filter(entry => teamName === entry[1].name || teamName === entry[1].slug)
+            .map(entry => {
+              log.debug(JSON.stringify(entry[1]));
+              teamFound = true;
+              return entry[1];
+            });
+          log.good("Team found:", foundTeam);
+          utils.setOutputParameter("team", JSON.stringify(foundTeam));
+        });
+      } while (returnedEntries > 0 && !teamFound);
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished getTeamInOrgByName() GitHub Plugin");
+  },
+  async deleteTeamByNameInOrg() {
+    log.debug("Started deleteTeamByNameInOrg() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, organizationName, teamName } = taskProps;
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      validateMandatoryParameter(teamName, "Team name has not been set");
+
+      const team = await RetrieveTeamByOrgName(url, token, organizationName, teamName);
+      log.debug("Proceding with removing team: ", team);
+
+      await octokit.teams
+        .deleteInOrg({
+          org: organizationName,
+          team_slug: team.slug
+        })
+        .then(body => {
+          log.debug("Successful delete team response: ", body);
+          log.good("Successfully deleted the team!");
+        });
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished deleteTeamByNameInOrg() GitHub Plugin");
+  },
+  async createTeamInOrg() {
+    log.debug("Started createTeamInOrg() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, organizationName, teamName, description, maintainers, repositoryNames, privacy, permission = "pull", parentTeamId } = taskProps;
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      validateMandatoryParameter(teamName, "Team name has not been set");
+
+      let data = {
+        org: organizationName,
+        name: teamName
+      };
+      if (protectAgainstEmpty(permission)) {
+        data["permission"] = permission;
+      }
+      if (protectAgainstEmpty(description)) {
+        data["description"] = description;
+      }
+      if (protectAgainstEmpty(maintainers)) {
+        data["maintainers"] = maintainers;
+      }
+      if (protectAgainstEmpty(repositoryNames)) {
+        data["repo_names"] = repositoryNames;
+      }
+      if (protectAgainstEmpty(privacy)) {
+        data["privacy"] = privacy;
+      }
+      if (protectAgainstEmpty(parentTeamId)) {
+        data["parent_team_id"] = parentTeamId;
+      }
+      await octokit.teams.create(data).then(body => {
+        log.debug("Response Received:", body);
+        utils.setOutputParameter("team", JSON.stringify(body.data));
+        log.good("Response successfully received!");
+      });
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished createTeamInOrg() GitHub Plugin");
+  },
+  async inviteMemberToTeamInOrg() {
+    log.debug("Started inviteMemberToTeamInOrg() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, organizationName, teamName, userEmail, role } = taskProps;
+
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      validateMandatoryParameter(teamName, "Team name has not been set");
+      validateMandatoryParameter(userEmail, "User Email has not been set");
+
+      const team = await RetrieveTeamByOrgName(url, token, organizationName, teamName);
+
+      log.debug("Proceding with looking-up the user by email: ", userEmail);
+      const users = await FindUsersByEmail(url, token, userEmail);
+      if (users.length != 1) {
+        log.err("Number of users found based on email is not 1.");
+        process.exit(1);
+      }
+
+      let data = {
+        org: organizationName,
+        team_slug: team.slug,
+        username: users[0].login
+      };
+      if (protectAgainstEmpty(role)) {
+        data["role"] = role;
+      }
+      await octokit.teams.addOrUpdateMembershipForUserInOrg(data).then(body => {
+        log.debug("Successful add member to team response: ", body.data);
+        utils.setOutputParameter("result", JSON.stringify(body.data));
+        log.good("Successfully added organization member to a team!");
+      });
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished inviteMemberToTeamInOrg() GitHub Plugin");
+  },
+  async removeMemberFromTeamInOrg() {
+    log.debug("Started removeMemberFromTeamInOrg() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, organizationName, teamName, userEmail } = taskProps;
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      validateMandatoryParameter(teamName, "Team name has not been set");
+      validateMandatoryParameter(userEmail, "User Email has not been set");
+
+      const team = await RetrieveTeamByOrgName(url, token, organizationName, teamName);
+
+      log.debug("Proceding with looking-up the user by email: ", userEmail);
+      const users = await FindUsersByEmail(url, token, userEmail);
+      if (users.length != 1) {
+        log.err("Number of users found based on email is not 1.");
+        process.exit(1);
+      }
+
+      let data = {
+        org: organizationName,
+        team_slug: team.slug,
+        username: users[0].login
+      };
+      await octokit.teams.removeMembershipForUserInOrg(data).then(body => {
+        log.debug("Successful remove team membership for a user: ", body);
+        log.good("Successfully removed team membership for a user!");
+      });
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished removeMemberFromTeamInOrg() GitHub Plugin");
+  },
+  async inviteMemberToOrg() {
+    log.debug("Started inviteMemberToOrg() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, organizationName, userEmail, role } = taskProps;
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(organizationName, "Organization name has not been set");
+      validateMandatoryParameter(userEmail, "User Email has not been set");
+
+      log.debug("Proceding with looking-up the user by email: ", userEmail);
+      const users = await FindUsersByEmail(url, token, userEmail);
+      if (users.length != 1) {
+        log.err("Number of users found based on email is not 1.");
+        process.exit(1);
+      }
+      let data = {
+        org: organizationName,
+        username: users[0].login
+      };
+      if (protectAgainstEmpty(role)) {
+        data["role"] = role;
+      }
+      await octokit.orgs.setMembershipForUser(data).then(body => {
+        log.debug("Response Received:", body);
+        utils.setOutputParameter("result", JSON.stringify(body.data));
+        log.good("Response successfully received!");
+      });
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished inviteMemberToOrg() GitHub Plugin");
   }
 };
