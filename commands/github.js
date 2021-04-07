@@ -913,5 +913,35 @@ module.exports = {
       process.exit(1);
     }
     log.debug("Finished removeCollaboratorFromProject() GitHub Plugin");
+  },
+  async getRepositoryFromRepoURL() {
+    log.debug("Started getRepositoryFromRepoURL() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, repoURL } = taskProps;
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(repoURL, "Repository URL has not been set");
+
+      repoURLAtomsArray = repoURL !== null ? repoURL.split("/") : [];
+      if (repoURLAtomsArray.length <= 1) {
+        log.err("The repository URL is not a valid github repo url.");
+        process.exit(1);
+      }
+
+      log.debug("Proceding with looking-up the repository by repoURL: ", repoURL);
+      const repository = await GetRepository(url, token, repoURLAtomsArray[repoURLAtomsArray.length - 2], repoURLAtomsArray[repoURLAtomsArray.length - 1]);
+      utils.setOutputParameter("result", repository);
+      log.good("Response successfully received!");
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished getRepositoryFromRepoURL() GitHub Plugin");
   }
 };
