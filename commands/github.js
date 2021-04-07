@@ -934,10 +934,15 @@ module.exports = {
         process.exit(1);
       }
 
-      log.debug("Proceding with looking-up the repository by repoURL: ", repoURL);
-      const repository = await GetRepository(url, token, repoURLAtomsArray[repoURLAtomsArray.length - 2], repoURLAtomsArray[repoURLAtomsArray.length - 1]);
-      utils.setOutputParameter("result", repository);
-      log.good("Response successfully received!");
+      let data = {
+        owner: repoURLAtomsArray[repoURLAtomsArray.length - 2],
+        repo: repoURLAtomsArray[repoURLAtomsArray.length - 1]
+      };
+      await octokit.repos.get(data).then(body => {
+        log.debug("Successful get repo: ", body.data);
+        utils.setOutputParameter("result", JSON.stringify(body.data));
+        log.good("Response successfully received!");
+      });
     } catch (error) {
       log.err(error);
       process.exit(1);
