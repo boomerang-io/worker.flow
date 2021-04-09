@@ -1,10 +1,33 @@
 const { log, utils } = require("@boomerang-io/worker-core");
+const { CloudEvent } = require("cloudevents");
 const HttpsProxyAgent = require("https-proxy-agent");
 const { IncomingWebhook } = require("@slack/webhook");
 const { WebClient } = require("@slack/web-api");
 const axios = require("axios");
 const datetime = require("node-datetime");
 const fs = require("fs");
+
+function protectAgainstEmpty(input) {
+  if (input && typeof input === "string" && input === '""') {
+    return undefined;
+  }
+  return input;
+}
+
+function getCloudEvent(eventSubject, eventType, eventPayload) {
+  const ce = new CloudEvent({
+    source: "boomerang-io/worker.flow/slack",
+    type: eventType
+  });
+  if (protectAgainstEmpty(eventSubject)) {
+    ce["subject"] = eventSubject;
+  }
+  if (protectAgainstEmpty(eventPayload)) {
+    ce["data"] = eventPayload;
+  }
+
+  return ce;
+}
 
 // Internal Helper Functions
 async function ContentChunker(content, limit) {
@@ -570,7 +593,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-conversations-info", "SlackChannel", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -617,7 +640,7 @@ module.exports = {
       .create(data)
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-conversations-create", "SlackChannel", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -655,7 +678,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-conversations-members", "SlackMembers", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -696,7 +719,7 @@ module.exports = {
       .list(data)
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-conversations-list", "SlackChannels", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -734,7 +757,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-conversations-archive", "ActionStatus", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -772,7 +795,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-user-data", "SlackUser", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -815,7 +838,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-conversations-invite", "ActionStatus", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -858,7 +881,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        utils.setOutputParameter("response", JSON.stringify(body));
+        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-conversations-kick", "ActionStatus", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
