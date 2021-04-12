@@ -679,8 +679,7 @@ module.exports = {
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
         log.sys("Setting output param:", getCloudEvent("slack-conversations-members", "SlackMembers", body));
-        //utils.setOutputParameter("output", JSON.stringify(getCloudEvent("slack-conversations-members", "SlackMembers", body)));
-        utils.setOutputParameter("output", JSON.stringify(body));
+        utils.setOutputParameter("output", JSON.stringify(getCloudEvent("slack-conversations-members", "SlackMembers", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
