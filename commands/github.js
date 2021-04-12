@@ -95,6 +95,35 @@ async function RetrieveTeamByOrgName(url, token, organizationName, teamName) {
   }
 }
 
+async function GetRepository(url, token, owner, repository) {
+  try {
+    const octokit = GetConfiguredClient(url, token);
+
+    //Variable Checks
+    validateMandatoryParameter(url, "URL has not been set");
+    validateMandatoryParameter(token, "Token has not been set");
+    validateMandatoryParameter(owner, "Owner has not been set");
+    validateMandatoryParameter(repository, "Repository has not been set");
+
+    let data = {
+      owner: owner,
+      repo: repository
+    };
+    let foundRepository;
+    await octokit.repos.get(data).then(body => {
+      log.debug("Response Received:", body);
+      foundRepository = body.data;
+      log.good("Response successfully received!");
+    });
+
+    log.debug("Returning repository found:", foundRepository);
+    return foundRepository;
+  } catch (error) {
+    log.err(error);
+    process.exit(1);
+  }
+}
+
 async function FindUsersByEmail(url, token, emailAddress) {
   try {
     const octokit = GetConfiguredClient(url, token);
@@ -797,5 +826,127 @@ module.exports = {
       process.exit(1);
     }
     log.debug("Finished inviteMemberToOrg() GitHub Plugin");
+  },
+  async inviteCollaboratorToProject() {
+    log.debug("Started inviteCollaboratorToProject() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, repoURL, userEmail, permission = "pull" } = taskProps;
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(repoURL, "Repository URL has not been set");
+      validateMandatoryParameter(userEmail, "User Email has not been set");
+
+      repoURLAtomsArray = repoURL !== null ? repoURL.split("/") : [];
+      if (repoURLAtomsArray.length <= 1) {
+        log.err("The repository URL is not a valid github repo url.");
+        process.exit(1);
+      }
+
+      log.debug("Proceding with looking-up the user by email: ", userEmail);
+      const users = await FindUsersByEmail(url, token, userEmail);
+      if (users.length != 1) {
+        log.err("Number of users found based on email is not 1.");
+        process.exit(1);
+      }
+      let data = {
+        owner: repoURLAtomsArray[repoURLAtomsArray.length - 2],
+        repo: repoURLAtomsArray[repoURLAtomsArray.length - 1],
+        username: users[0].login
+      };
+      if (protectAgainstEmpty(permission)) {
+        data["permission"] = permission;
+      }
+      await octokit.repos.addCollaborator(data).then(body => {
+        log.debug("Response Received:", body);
+        log.good("Response successfully received!");
+      });
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished inviteCollaboratorToProject() GitHub Plugin");
+  },
+  async removeCollaboratorFromProject() {
+    log.debug("Started removeCollaboratorFromProject() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, repoURL, userEmail } = taskProps;
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(repoURL, "Repository URL has not been set");
+      validateMandatoryParameter(userEmail, "User Email has not been set");
+
+      repoURLAtomsArray = repoURL !== null ? repoURL.split("/") : [];
+      if (repoURLAtomsArray.length <= 1) {
+        log.err("The repository URL is not a valid github repo url.");
+        process.exit(1);
+      }
+
+      log.debug("Proceding with looking-up the user by email: ", userEmail);
+      const users = await FindUsersByEmail(url, token, userEmail);
+      if (users.length != 1) {
+        log.err("Number of users found based on email is not 1.");
+        process.exit(1);
+      }
+      let data = {
+        owner: repoURLAtomsArray[repoURLAtomsArray.length - 2],
+        repo: repoURLAtomsArray[repoURLAtomsArray.length - 1],
+        username: users[0].login
+      };
+      await octokit.repos.removeCollaborator(data).then(body => {
+        log.debug("Response Received:", body);
+        log.good("Response successfully received!");
+      });
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished removeCollaboratorFromProject() GitHub Plugin");
+  },
+  async getRepositoryFromRepoURL() {
+    log.debug("Started getRepositoryFromRepoURL() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { url, token, repoURL } = taskProps;
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(repoURL, "Repository URL has not been set");
+
+      repoURLAtomsArray = repoURL !== null ? repoURL.split("/") : [];
+      if (repoURLAtomsArray.length <= 1) {
+        log.err("The repository URL is not a valid github repo url.");
+        process.exit(1);
+      }
+
+      let data = {
+        owner: repoURLAtomsArray[repoURLAtomsArray.length - 2],
+        repo: repoURLAtomsArray[repoURLAtomsArray.length - 1]
+      };
+      await octokit.repos.get(data).then(body => {
+        log.debug("Successful get repo: ", body.data);
+        utils.setOutputParameter("result", JSON.stringify(body.data));
+        log.good("Response successfully received!");
+      });
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished getRepositoryFromRepoURL() GitHub Plugin");
   }
 };
