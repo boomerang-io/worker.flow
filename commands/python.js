@@ -29,7 +29,7 @@ module.exports = {
     if (protectAgainstEmpty(args)) {
       options["args"] = args.split(" ");
     }
-    fs.writeFileSync("custom_script.py", pythonScript, err => {
+    fs.writeFileSync("/tmp/custom_script.py", pythonScript, err => {
       if (err) {
         log.err(err);
         throw err;
@@ -37,7 +37,7 @@ module.exports = {
       log.good("The python script was succesfully saved to the file!");
     });
 
-    let pyshell = new PythonShell("custom_script.py", options);
+    let pyshell = new PythonShell("/tmp/custom_script.py", options);
     //pyshell.send('hello');
     pyshell.on("message", function(message) {
       // received a message sent from the Python script (a simple "print" statement)
