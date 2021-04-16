@@ -1,7 +1,6 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const { PythonShell } = require("python-shell");
 const fs = require("fs");
-const stringifier = require("properties/lib/stringifier");
 
 function protectAgainstEmpty(input) {
   if (input && typeof input === "string" && input === '""') {
@@ -30,7 +29,7 @@ module.exports = {
     if (protectAgainstEmpty(args)) {
       options["args"] = args.split(" ");
     }
-    fs.writeFileSync("/tmp/custom_script.py", pythonScript, err => {
+    fs.writeFileSync("custom_script.py", pythonScript, err => {
       if (err) {
         log.err(err);
         throw err;
@@ -38,7 +37,14 @@ module.exports = {
       log.good("The python script was succesfully saved to the file!");
     });
 
-    let pyshell = new PythonShell("/tmp/custom_script.py", options);
+    let pyshell = new PythonShell("custom_script.py", options);
+    //pyshell.send('hello');
+    pyshell.on("message", function(message) {
+      // received a message sent from the Python script (a simple "print" statement)
+      console.log(message);
+    });
+
+    // end the input stream and allow the process to exit
     pyshell.end(function(err, code, signal) {
       if (err) throw err;
       console.log("The exit code was: " + code);
