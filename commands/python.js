@@ -15,29 +15,31 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { pythonScript, args } = taskProps;
+    const { pythonScript, pythonArguments } = taskProps;
 
     if (!pythonScript) {
       log.err("Python script not been set");
       process.exit(1);
     }
 
+    let fileTemp = "/tmp/custom_script.py";
     let options = {
       mode: "text",
       pythonOptions: ["-u"] // get print results in real-time
     };
-    if (protectAgainstEmpty(args)) {
-      options["args"] = args.split(" ");
+    if (protectAgainstEmpty(pythonArguments)) {
+      options["args"] = pythonArguments.split(" ");
     }
-    fs.writeFileSync("/tmp/custom_script.py", pythonScript, err => {
+    fs.writeFileSync(fileTemp, pythonScript, err => {
       if (err) {
         log.err(err);
         throw err;
       }
       log.good("The python script was succesfully saved to the file!");
     });
+    log.debug("The file was succesfully saved! File contents:\n", fs.readFileSync(fileTemp, "utf-8"));
 
-    let pyshell = new PythonShell("/tmp/custom_script.py", options);
+    let pyshell = new PythonShell(fileTemp, options);
     //pyshell.send('hello');
     pyshell.on("message", function(message) {
       // received a message sent from the Python script (a simple "print" statement)
