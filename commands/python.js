@@ -66,7 +66,7 @@ module.exports = {
     }
 
     if (okToRunScript) {
-      log.good("Pre-req met to rung python script!");
+      log.good("Pre-req met to run python script!");
       let pyshell = new PythonShell(fileTemp, options);
       //pyshell.send('hello');
       pyshell.on("message", function(message) {
