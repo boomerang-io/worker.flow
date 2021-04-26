@@ -1,5 +1,4 @@
-const { log, utils } = require("@boomerang-io/worker-core");
-const { CloudEvent } = require("cloudevents");
+const { log, utils, ce } = require("@boomerang-io/worker-core");
 const HttpsProxyAgent = require("https-proxy-agent");
 const { IncomingWebhook } = require("@slack/webhook");
 const { WebClient } = require("@slack/web-api");
@@ -7,27 +6,9 @@ const axios = require("axios");
 const datetime = require("node-datetime");
 const fs = require("fs");
 
-function protectAgainstEmpty(input) {
-  if (input && typeof input === "string" && input === '""') {
-    return undefined;
-  }
-  return input;
-}
-
-function getCloudEvent(eventSubject, eventType, eventPayload) {
-  const ce = new CloudEvent({
-    source: "boomerang-io/worker.flow/slack",
-    type: eventType
-  });
-  if (protectAgainstEmpty(eventSubject)) {
-    ce["subject"] = eventSubject;
-  }
-  if (protectAgainstEmpty(eventPayload)) {
-    ce["data"] = eventPayload;
-  }
-
-  return ce;
-}
+process.cloudEventsContext = {
+  source: "boomerang-io/worker.flow/slack"
+};
 
 // Internal Helper Functions
 async function ContentChunker(content, limit) {
@@ -113,13 +94,11 @@ module.exports = {
       if (err) {
         /** @todo Catch HTTP error for timeout so we can return better exits */
         log.err("Slack sendWebhook error", err);
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-simple-message", "ActionStatus", { messageSent: "fail" })));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-simple-message", "ActionStatus", { messageSent: "fail" })));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-simple-message", "ActionStatus", { messageSent: "fail" })));
         process.exit(1);
       } else {
         log.good("Message sent: " + res.text);
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-simple-message", "ActionStatus", { messageSent: "success" })));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-simple-message", "ActionStatus", { messageSent: "success" })));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-simple-message", "ActionStatus", { messageSent: "success" })));
       }
     });
   },
@@ -171,13 +150,11 @@ module.exports = {
       if (err) {
         /** @todo Catch HTTP error for timeout so we can return better exits */
         log.err("Slack sendWebhook error", err);
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-rich-message", "ActionStatus", { messageSent: "fail" })));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-rich-message", "ActionStatus", { messageSent: "fail" })));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-rich-message", "ActionStatus", { messageSent: "fail" })));
         process.exit(1);
       } else {
         log.good("Message sent: " + res.text);
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-rich-message", "ActionStatus", { messageSent: "success" })));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-rich-message", "ActionStatus", { messageSent: "success" })));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-rich-message", "ActionStatus", { messageSent: "success" })));
       }
     });
   },
@@ -314,13 +291,11 @@ module.exports = {
       if (err) {
         /** @todo Catch HTTP error for timeout so we can return better exits */
         log.err("Slack upload file error", err);
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-files-message", "ActionStatus", { messageSent: "fail" })));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-files-message", "ActionStatus", { messageSent: "fail" })));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-files-message", "ActionStatus", { messageSent: "fail" })));
         process.exit(1);
       } else {
         log.good("Message sent: " + res.text);
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-files-message", "ActionStatus", { messageSent: "success" })));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-files-message", "ActionStatus", { messageSent: "success" })));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-files-message", "ActionStatus", { messageSent: "success" })));
       }
     });
   },
@@ -374,8 +349,7 @@ module.exports = {
 
     try {
       const response = await web.files.upload(requestConfig);
-      log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-files-upload", "ActionStatus", { slackFileUploadStatus: "success" })));
-      utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-files-upload", "ActionStatus", { slackFileUploadStatus: "success" })));
+      utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-files-upload", "ActionStatus", { slackFileUploadStatus: "success" })));
       log.debug(response);
     } catch (error) {
       log.err("Well, that was unexpected.", error);
@@ -413,8 +387,7 @@ module.exports = {
         log.debug("Response Received:", JSON.stringify(body));
         const user_id = body.user.id;
         log.sys("slackUserId Found:", user_id);
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-user-id", "SlackUser", { slackUserId: user_id })));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-files-id", "SlackUser", { slackUserId: user_id })));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-files-id", "SlackUser", { slackUserId: user_id })));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -566,8 +539,7 @@ module.exports = {
         axios
           .get(documentDownloadUrl, config)
           .then(res => {
-            log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-files-list", "ActionStatus", { slackFoundDocument: res })));
-            utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-files-list", "ActionStatus", { slackFoundDocument: res })));
+            utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-files-list", "ActionStatus", { slackFoundDocument: res })));
             log.good("Response successfully received!");
           })
           .catch(err => {
@@ -609,8 +581,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-conversations-info", "SlackChannel", body)));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-conversations-info", "SlackChannel", body)));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-conversations-info", "SlackChannel", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -657,8 +628,7 @@ module.exports = {
       .create(data)
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-conversations-create", "SlackChannel", body)));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-conversations-create", "SlackChannel", body)));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-conversations-create", "SlackChannel", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -696,8 +666,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-conversations-members", "SlackMembers", body)));
-        utils.setOutputParameter("output", JSON.stringify(getCloudEvent("slack-conversations-members", "SlackMembers", body)));
+        utils.setOutputParameter("output", JSON.stringify(ce.getCloudEvent("slack-conversations-members", "SlackMembers", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -738,8 +707,7 @@ module.exports = {
       .list(data)
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-conversations-list", "SlackChannels", body)));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-conversations-list", "SlackChannels", body)));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-conversations-list", "SlackChannels", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -777,8 +745,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-conversations-archive", "ActionStatus", body)));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-conversations-archive", "ActionStatus", body)));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-conversations-archive", "ActionStatus", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -816,8 +783,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-user-data", "SlackUser", body)));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-user-data", "SlackUser", body)));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-user-data", "SlackUser", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -860,8 +826,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-conversations-invite", "ActionStatus", body)));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-conversations-invite", "ActionStatus", body)));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-conversations-invite", "ActionStatus", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
@@ -904,8 +869,7 @@ module.exports = {
       })
       .then(body => {
         log.sys("Response Received:", JSON.stringify(body));
-        log.sys("Setting output param:", JSON.stringify(getCloudEvent("slack-conversations-kick", "ActionStatus", body)));
-        utils.setOutputParameter("response", JSON.stringify(getCloudEvent("slack-conversations-kick", "ActionStatus", body)));
+        utils.setOutputParameter("response", JSON.stringify(ce.getCloudEvent("slack-conversations-kick", "ActionStatus", body)));
         log.good("Response successfully received!");
       })
       .catch(err => {
