@@ -162,12 +162,12 @@ async function FindUsersByEmail(url, token, emailAddress) {
 }
 
 module.exports = {
-  async findPublicReposInOrg() {
-    log.debug("Started checkForPublicRepos GitHub Plugin");
+  async findReposInOrg() {
+    log.debug("Started checkForRepos GitHub Plugin");
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, org, skipRepos } = taskProps;
+    const { url, token, org, visibility, skipRepos } = taskProps;
     let skipReposArray;
     let httpsAgent;
     try {
@@ -180,7 +180,7 @@ module.exports = {
 
       const octokit = new Octokit({
         auth: token,
-        userAgent: "Boomerang Flow Joe Bot",
+        userAgent: "Boomerang Flow GitHub Bot",
         baseUrl: url,
         log: console,
         request: {
@@ -191,7 +191,7 @@ module.exports = {
       await octokit.repos
         .listForOrg({
           org: org,
-          type: "public"
+          type: visibility
         })
         .then(({ data }) => {
           log.good("Successful retrieval of public repositories");
@@ -202,7 +202,7 @@ module.exports = {
               log.debug(JSON.stringify(entry[1]));
               return entry[1].name;
             });
-          log.good("Public Repositories:", filteredRepos);
+          log.good("Repositories:", filteredRepos);
           let outputProperties = {};
           outputProperties["repositories"] = JSON.stringify(filteredRepos);
           outputProperties["repositoriesPrettyPrint"] = "- " + filteredRepos.join("\n- ");
@@ -213,7 +213,7 @@ module.exports = {
       process.exit(1);
     }
 
-    log.debug("Finished checkForPublicRepos GitHub Plugin");
+    log.debug("Finished checkForRepos GitHub Plugin");
   },
   async makeReposInOrgPrivate() {
     log.debug("Started makeReposInOrgPrivate GitHub Plugin");
