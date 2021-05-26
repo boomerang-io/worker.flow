@@ -167,7 +167,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, org, visibility, skipRepos, reposToRetrieve } = taskProps;
+    const { url, token, org, visibility, skipRepos, numToRetrieve } = taskProps;
     let skipReposArray;
     let httpsAgent;
     try {
@@ -192,7 +192,7 @@ module.exports = {
         .listForOrg({
           org: org,
           type: visibility,
-          per_page: reposToRetrieve
+          per_page: numToRetrieve
         })
         .then(({ data }) => {
           log.good("Successful retrieval of repositories.");
