@@ -1,6 +1,5 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const { Octokit } = require("@octokit/rest");
-const fs = require("fs");
 const moment = require("moment");
 // https://octokit.github.io/rest.js/
 const HttpsProxyAgent = require("https-proxy-agent");
@@ -507,18 +506,7 @@ module.exports = {
       }
       await octokit.orgs.list(data).then(body => {
         log.debug("Response Received:", body);
-
-        //Trying a new way to setup the output results
-        utils.setOutputParameter("organizations", JSON.stringify("file:///tekton/results/boomerang.organizations"));
-        fs.writeFileSync("/tekton/results/boomerang.organizations", JSON.stringify(body.data), err => {
-          if (err) {
-            log.err(err);
-            throw err;
-          }
-          log.debug("The task output parameter successfully saved.");
-        });
-
-        //utils.setOutputParameter("organizations", JSON.stringify(body.data));
+        utils.setOutputParameter("organizations", JSON.stringify(body.data));
         log.good("Response successfully received!");
       });
     } catch (error) {
