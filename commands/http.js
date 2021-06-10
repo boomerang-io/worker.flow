@@ -2,6 +2,7 @@ const { log, utils } = require("@boomerang-io/worker-core");
 const HttpsProxyAgent = require("https-proxy-agent");
 const https = require("https");
 const Url = require("url");
+const fs = require("fs");
 
 module.exports = {
   /**
@@ -19,7 +20,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, method, header, contentType, body, allowUntrustedCerts } = taskProps;
+    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath } = taskProps;
 
     /**
      * turn header into object based upon new line delimeters
@@ -101,7 +102,18 @@ module.exports = {
       res.on("end", () => {
         const response = JSON.parse(output);
         log.sys("Response Received:", JSON.stringify(response));
-        utils.setOutputParameter("response", JSON.stringify(response));
+        if (outputFilePath && outputFilePath.length && outputFilePath !== '""' && outputFilePath !== '" "') {
+          fs.writeFileSync(outputFilePath, JSON.stringify(response), err => {
+            if (err) {
+              log.err(err);
+              throw err;
+            }
+            log.debug("The task output parameter successfully saved to provided file path.");
+          });
+        } else {
+          utils.setOutputParameter("response", JSON.stringify(response));
+          log.debug("The task output parameter successfully saved to standard response file.");
+        }
         log.good("Response successfully received!");
       });
     });
