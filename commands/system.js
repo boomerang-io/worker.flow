@@ -1,5 +1,6 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const systemSleep = require("system-sleep");
+const fs = require("fs");
 const jp = require("jsonpath");
 
 // Borrowed from https://stackoverflow.com/questions/3710204/how-to-check-if-a-string-is-a-valid-json-string-in-javascript-without-using-try
@@ -52,5 +53,34 @@ module.exports = {
     utils.setOutputParameter(propertyKey, propertyValue);
 
     log.debug("Finished Json Path To Property Plugin");
+  },
+  jsonFilePathToProperty() {
+    log.debug("Inside Json File Path To Property Plugin");
+
+    //Destructure and get properties ready.
+    const { filePath, query, propertyKey } = utils.resolveInputParameters();
+
+    try {
+      const fileContent = fs.readFileSync(filePath, "utf8");
+      log.good("The file was succesfully read!");
+      if (!isValidJSON(fileContent)) {
+        log.err("Invalid JSON content in the file passed to task");
+        return process.exit(1);
+      }
+      log.good("Valid JSON content in the file!");
+
+      log.debug("Json:", JSON.parse(fileContent));
+      log.debug("Json Query:", query);
+      const propertyValue = jp.value(JSON.parse(fileContent), query);
+      log.debug("Value from Query:", propertyValue);
+
+      utils.setOutputParameter(propertyKey, propertyValue);
+      log.good("Value set to the property key!");
+    } catch (e) {
+      log.err(e);
+      process.exit(1);
+    }
+
+    log.debug("Finished Json File Path To Property Plugin");
   }
 };
