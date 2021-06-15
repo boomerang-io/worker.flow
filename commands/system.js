@@ -38,7 +38,7 @@ module.exports = {
     log.debug("Inside Json Path To Property Plugin");
 
     //Destructure and get properties ready.
-    const { json, query, propertyKey } = utils.resolveInputParameters();
+    const { json, query } = utils.resolveInputParameters();
 
     if (!isValidJSON(json)) {
       log.err("Invalid JSON string passed to task");
@@ -50,7 +50,7 @@ module.exports = {
     const propertyValue = jp.value(JSON.parse(json), query);
     log.debug("Value from Query:", propertyValue);
 
-    utils.setOutputParameter(propertyKey, propertyValue);
+    utils.setOutputParameter("evaluation", propertyValue);
 
     log.debug("Finished Json Path To Property Plugin");
   },
@@ -58,7 +58,7 @@ module.exports = {
     log.debug("Inside Json File Path To Property Plugin");
 
     //Destructure and get properties ready.
-    const { filePath, query, propertyKey } = utils.resolveInputParameters();
+    const { filePath, query } = utils.resolveInputParameters();
 
     try {
       const fileContent = fs.readFileSync(filePath, "utf8");
@@ -74,7 +74,7 @@ module.exports = {
       const propertyValue = jp.value(JSON.parse(fileContent), query);
       log.debug("Value from Query:", propertyValue);
 
-      utils.setOutputParameter(propertyKey, propertyValue);
+      utils.setOutputParameter("evaluation", propertyValue);
       log.good("Value set to the property key!");
     } catch (e) {
       log.err(e);
