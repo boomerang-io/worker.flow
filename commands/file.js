@@ -111,10 +111,10 @@ module.exports = {
     log.debug("Started Read File to Property Plugin");
 
     const taskProps = utils.resolveInputParameters();
-    const { path: path, propertyName: propertyName } = taskProps;
+    const { path: path } = taskProps;
     try {
       const file = fs.readFileSync(path, "utf8");
-      await utils.setOutputParameter(propertyName, file);
+      await utils.setOutputParameter("content", file);
       log.good("The file was succesfully read!");
     } catch (e) {
       log.err(e);
