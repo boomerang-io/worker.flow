@@ -167,11 +167,11 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, org, visibility, skipRepos } = taskProps;
+    const { url, token, org, visibility, skipRepos, numToRetrieve } = taskProps;
     let skipReposArray;
     let httpsAgent;
     try {
-      skipReposArray = skipRepos !== null ? skipRepos.split("\n") : [];
+      skipReposArray = skipRepos !== null && skipRepos != undefined ? skipRepos.split("\n") : [];
       if (process.env.HTTP_PROXY) {
         httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
       } else {
@@ -191,10 +191,11 @@ module.exports = {
       await octokit.repos
         .listForOrg({
           org: org,
-          type: visibility
+          type: visibility,
+          per_page: numToRetrieve
         })
         .then(({ data }) => {
-          log.good("Successful retrieval of public repositories");
+          log.good("Successful retrieval of repositories.");
           log.debug("Repositories to skip:", skipReposArray);
           filteredRepos = Object.entries(data)
             .filter(entry => !skipReposArray.includes(entry[1].name))
