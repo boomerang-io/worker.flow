@@ -860,13 +860,32 @@ module.exports = {
         repo: repoURLAtomsArray[repoURLAtomsArray.length - 1],
         username: users[0].login
       };
-      if (protectAgainstEmpty(permission)) {
-        data["permission"] = permission;
-      }
-      await octokit.repos.addCollaborator(data).then(body => {
-        log.debug("Response Received:", body);
-        log.good("Response successfully received!");
+      let collaboratorExists = false;
+      octokit.hook.after("request", async response => {
+        log.debug("response.status : ", response.status);
+        if (response.status === 204) {
+          collaboratorExists = true;
+        }
       });
+      octokit.hook.error("request", async error => {
+        log.debug("error.status : ", error.status);
+        if (error.status === 404) {
+          collaboratorExists = false;
+        }
+      });
+      await octokit.repos.checkCollaborator(data).then(body => {
+        log.debug("Check collaborator response received:", body);
+      });
+      log.good("Collaborator already exists: ", collaboratorExists);
+      if (!collaboratorExists) {
+        if (protectAgainstEmpty(permission)) {
+          data["permission"] = permission;
+        }
+        await octokit.repos.addCollaborator(data).then(body => {
+          log.debug("Response Received:", body);
+          log.good("Response successfully received!");
+        });
+      }
     } catch (error) {
       log.err(error);
       process.exit(1);
