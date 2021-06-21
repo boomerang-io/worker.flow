@@ -867,12 +867,13 @@ module.exports = {
         }
       });
       octokit.hook.error("request", async error => {
+        log.debug("error.status : ", error.status);
         if (error.status === 404) {
           collaboratorExists = false;
         }
       });
       await octokit.repos.checkCollaborator(data).then(body => {
-        log.debug("Check Collaborator Response Received:", body);
+        log.debug("Check collaborator response received:", body);
       });
       log.good("Collaborator already exists: ", collaboratorExists);
       if (!collaboratorExists) {
