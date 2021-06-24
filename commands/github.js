@@ -1,6 +1,7 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const { Octokit } = require("@octokit/rest");
 const moment = require("moment");
+const fs = require("fs");
 // https://octokit.github.io/rest.js/
 const HttpsProxyAgent = require("https-proxy-agent");
 
@@ -17,6 +18,21 @@ function protectAgainstEmpty(input) {
     return undefined;
   }
   return input;
+}
+
+function setOutputParameters(outputFilePath, outputProperties) {
+  if (outputFilePath && outputFilePath.length && outputFilePath !== '""' && outputFilePath !== '" "') {
+    fs.writeFileSync(outputFilePath, JSON.stringify(outputProperties), err => {
+      if (err) {
+        log.err(err);
+        throw err;
+      }
+      log.debug("The task output parameter successfully saved to provided file path.");
+    });
+  } else {
+    utils.setOutputParameters(outputProperties);
+    log.debug("The task output parameter successfully saved to standard response file.");
+  }
 }
 
 function GetConfiguredClient(url, token) {
@@ -167,7 +183,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, org, visibility, skipRepos, numToRetrieve } = taskProps;
+    const { url, token, org, visibility, skipRepos, numToRetrieve, outputFilePath } = taskProps;
     let skipReposArray;
     let httpsAgent;
     try {
@@ -207,7 +223,8 @@ module.exports = {
           let outputProperties = {};
           outputProperties["repositories"] = JSON.stringify(filteredRepos);
           outputProperties["repositoriesPrettyPrint"] = "- " + filteredRepos.join("\n- ");
-          utils.setOutputParameters(outputProperties);
+
+          setOutputParameters(outputFilePath, outputProperties);
         });
     } catch (error) {
       log.err(error);
@@ -287,7 +304,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, org, skipRepos } = taskProps;
+    const { url, token, org, skipRepos, outputFilePath } = taskProps;
     let skipReposArray;
     let httpsAgent;
 
@@ -327,7 +344,8 @@ module.exports = {
           let outputProperties = {};
           outputProperties["repositories"] = JSON.stringify(filteredRepos);
           outputProperties["repositoriesPrettyPrint"] = "- " + filteredRepos.join("\n- ");
-          utils.setOutputParameters(outputProperties);
+
+          setOutputParameters(outputFilePath, outputProperties);
         });
     } catch (error) {
       log.err(error);
@@ -491,7 +509,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, since, maxNoOrg } = taskProps;
+    const { url, token, since, maxNoOrg, outputFilePath } = taskProps;
     try {
       const octokit = GetConfiguredClient(url, token);
 
@@ -507,7 +525,8 @@ module.exports = {
       }
       await octokit.orgs.list(data).then(body => {
         log.debug("Response Received:", body);
-        utils.setOutputParameter("organizations", JSON.stringify(body.data));
+
+        setOutputParameters(outputFilePath, JSON.stringify(body.data));
         log.good("Response successfully received!");
       });
     } catch (error) {
@@ -521,7 +540,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, organizationName } = taskProps;
+    const { url, token, organizationName, outputFilePath } = taskProps;
     try {
       const octokit = GetConfiguredClient(url, token);
 
@@ -535,7 +554,7 @@ module.exports = {
         })
         .then(body => {
           log.debug("Response Received:", body);
-          utils.setOutputParameter("organization", JSON.stringify(body.data));
+          setOutputParameters(outputFilePath, JSON.stringify(body.data));
           log.good("Response successfully received!");
         });
     } catch (error) {
@@ -549,7 +568,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, organizationName, teamsPerPage, pageNumber } = taskProps;
+    const { url, token, organizationName, teamsPerPage, pageNumber, outputFilePath } = taskProps;
     try {
       const octokit = GetConfiguredClient(url, token);
 
@@ -568,7 +587,7 @@ module.exports = {
       }
       await octokit.teams.list(data).then(body => {
         log.debug("Response Received:", body);
-        utils.setOutputParameter("teams", JSON.stringify(body.data));
+        setOutputParameters(outputFilePath, JSON.stringify(body.data));
         log.good("Response successfully received!");
       });
     } catch (error) {
@@ -582,7 +601,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, organizationName, teamName } = taskProps;
+    const { url, token, organizationName, teamName, outputFilePath } = taskProps;
     try {
       const octokit = GetConfiguredClient(url, token);
 
@@ -614,7 +633,7 @@ module.exports = {
               return entry[1];
             });
           log.good("Team found:", foundTeam);
-          utils.setOutputParameter("team", JSON.stringify(foundTeam));
+          setOutputParameters(outputFilePath, JSON.stringify(foundTeam));
         });
       } while (returnedEntries > 0 && !teamFound);
     } catch (error) {
@@ -661,7 +680,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, organizationName, teamName, description, maintainers, repositoryNames, privacy, permission = "pull", parentTeamId } = taskProps;
+    const { url, token, organizationName, teamName, description, maintainers, repositoryNames, privacy, permission = "pull", parentTeamId, outputFilePath } = taskProps;
     try {
       const octokit = GetConfiguredClient(url, token);
 
@@ -695,7 +714,7 @@ module.exports = {
       }
       await octokit.teams.create(data).then(body => {
         log.debug("Response Received:", body);
-        utils.setOutputParameter("team", JSON.stringify(body.data));
+        setOutputParameters(outputFilePath, JSON.stringify(body.data));
         log.good("Response successfully received!");
       });
     } catch (error) {
@@ -709,7 +728,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, organizationName, teamName, userEmail, role } = taskProps;
+    const { url, token, organizationName, teamName, userEmail, role, outputFilePath } = taskProps;
 
     try {
       const octokit = GetConfiguredClient(url, token);
@@ -740,7 +759,7 @@ module.exports = {
       }
       await octokit.teams.addOrUpdateMembershipForUserInOrg(data).then(body => {
         log.debug("Successful add member to team response: ", body.data);
-        utils.setOutputParameter("result", JSON.stringify(body.data));
+        setOutputParameters(outputFilePath, JSON.stringify(body.data));
         log.good("Successfully added organization member to a team!");
       });
     } catch (error) {
@@ -794,7 +813,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, organizationName, userEmail, role } = taskProps;
+    const { url, token, organizationName, userEmail, role, outputFilePath } = taskProps;
     try {
       const octokit = GetConfiguredClient(url, token);
 
@@ -819,7 +838,7 @@ module.exports = {
       }
       await octokit.orgs.setMembershipForUser(data).then(body => {
         log.debug("Response Received:", body);
-        utils.setOutputParameter("result", JSON.stringify(body.data));
+        setOutputParameters(outputFilePath, JSON.stringify(body.data));
         log.good("Response successfully received!");
       });
     } catch (error) {
@@ -939,7 +958,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, repoURL } = taskProps;
+    const { url, token, repoURL, outputFilePath } = taskProps;
     try {
       const octokit = GetConfiguredClient(url, token);
 
@@ -960,7 +979,7 @@ module.exports = {
       };
       await octokit.repos.get(data).then(body => {
         log.debug("Successful get repo: ", body.data);
-        utils.setOutputParameter("result", JSON.stringify(body.data));
+        setOutputParameters(outputFilePath, JSON.stringify(body.data));
         log.good("Response successfully received!");
       });
     } catch (error) {
