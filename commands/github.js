@@ -20,18 +20,33 @@ function protectAgainstEmpty(input) {
   return input;
 }
 
-function setOutputParameters(outputFilePath, outputProperties) {
+function setOutputs(outputFilePath, outputProperties) {
   if (outputFilePath && outputFilePath.length && outputFilePath !== '""' && outputFilePath !== '" "') {
     fs.writeFileSync(outputFilePath, JSON.stringify(outputProperties), err => {
       if (err) {
         log.err(err);
         throw err;
       }
-      log.debug("The task output parameter successfully saved to provided file path.");
+      log.good("The task output parameter successfully saved to provided file path.");
     });
   } else {
     utils.setOutputParameters(outputProperties);
-    log.debug("The task output parameter successfully saved to standard response file.");
+    log.good("The task output parameter successfully saved to standard response file.");
+  }
+}
+
+function setOutput(outputFilePath, outputKey, outputValue) {
+  if (outputFilePath && outputFilePath.length && outputFilePath !== '""' && outputFilePath !== '" "') {
+    fs.writeFileSync(outputFilePath, JSON.stringify(outputValue), err => {
+      if (err) {
+        log.err(err);
+        throw err;
+      }
+    });
+    log.good("The task output parameter successfully saved to provided file path ", outputFilePath);
+  } else {
+    utils.setOutputParameter(outputKey, outputValue);
+    log.good("The task output parameter successfully saved to standard response file.");
   }
 }
 
@@ -224,7 +239,7 @@ module.exports = {
           outputProperties["repositories"] = JSON.stringify(filteredRepos);
           outputProperties["repositoriesPrettyPrint"] = "- " + filteredRepos.join("\n- ");
 
-          setOutputParameters(outputFilePath, outputProperties);
+          setOutputs(outputFilePath, outputProperties);
         });
     } catch (error) {
       log.err(error);
@@ -345,7 +360,7 @@ module.exports = {
           outputProperties["repositories"] = JSON.stringify(filteredRepos);
           outputProperties["repositoriesPrettyPrint"] = "- " + filteredRepos.join("\n- ");
 
-          setOutputParameters(outputFilePath, outputProperties);
+          setOutputs(outputFilePath, outputProperties);
         });
     } catch (error) {
       log.err(error);
@@ -525,8 +540,7 @@ module.exports = {
       }
       await octokit.orgs.list(data).then(body => {
         log.debug("Response Received:", body);
-
-        setOutputParameters(outputFilePath, JSON.stringify(body.data));
+        setOutput(outputFilePath, "organizations", JSON.stringify(body.data));
         log.good("Response successfully received!");
       });
     } catch (error) {
@@ -554,7 +568,7 @@ module.exports = {
         })
         .then(body => {
           log.debug("Response Received:", body);
-          setOutputParameters(outputFilePath, JSON.stringify(body.data));
+          setOutput(outputFilePath, "organization", JSON.stringify(body.data));
           log.good("Response successfully received!");
         });
     } catch (error) {
@@ -587,7 +601,7 @@ module.exports = {
       }
       await octokit.teams.list(data).then(body => {
         log.debug("Response Received:", body);
-        setOutputParameters(outputFilePath, JSON.stringify(body.data));
+        setOutput(outputFilePath, "teams", JSON.stringify(body.data));
         log.good("Response successfully received!");
       });
     } catch (error) {
@@ -633,7 +647,7 @@ module.exports = {
               return entry[1];
             });
           log.good("Team found:", foundTeam);
-          setOutputParameters(outputFilePath, JSON.stringify(foundTeam));
+          setOutput(outputFilePath, "team", JSON.stringify(foundTeam));
         });
       } while (returnedEntries > 0 && !teamFound);
     } catch (error) {
@@ -714,7 +728,7 @@ module.exports = {
       }
       await octokit.teams.create(data).then(body => {
         log.debug("Response Received:", body);
-        setOutputParameters(outputFilePath, JSON.stringify(body.data));
+        setOutput(outputFilePath, "team", JSON.stringify(body.data));
         log.good("Response successfully received!");
       });
     } catch (error) {
@@ -759,7 +773,7 @@ module.exports = {
       }
       await octokit.teams.addOrUpdateMembershipForUserInOrg(data).then(body => {
         log.debug("Successful add member to team response: ", body.data);
-        setOutputParameters(outputFilePath, JSON.stringify(body.data));
+        setOutput(outputFilePath, "result", JSON.stringify(body.data));
         log.good("Successfully added organization member to a team!");
       });
     } catch (error) {
@@ -838,7 +852,7 @@ module.exports = {
       }
       await octokit.orgs.setMembershipForUser(data).then(body => {
         log.debug("Response Received:", body);
-        setOutputParameters(outputFilePath, JSON.stringify(body.data));
+        setOutput(outputFilePath, "result", JSON.stringify(body.data));
         log.good("Response successfully received!");
       });
     } catch (error) {
@@ -979,7 +993,7 @@ module.exports = {
       };
       await octokit.repos.get(data).then(body => {
         log.debug("Successful get repo: ", body.data);
-        setOutputParameters(outputFilePath, JSON.stringify(body.data));
+        setOutput(outputFilePath, "result", JSON.stringify(body.data));
         log.good("Response successfully received!");
       });
     } catch (error) {
