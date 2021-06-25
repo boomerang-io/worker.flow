@@ -19,7 +19,13 @@ module.exports = {
     log.debug("Starting Send Mail to Member Plugin");
 
     const taskProps = utils.resolveInputParameters();
-    const { to, subject, message } = taskProps;
+    const { url, to, subject, message } = taskProps;
+
+    //validate mandatory fields
+    if (!url) {
+      log.err("no endpoint has been specified");
+      process.exit(1);
+    }
 
     const event = new CloudEvent({
       subject: "email_user",
@@ -53,7 +59,7 @@ module.exports = {
      */
 
     try {
-      await fetch("http://bmrg-core-services-messaging/messaging/mail/event", requestConfig);
+      await fetch(url, requestConfig);
       log.good("Email was succesfully sent!");
     } catch (e) {
       log.err(e);
@@ -136,11 +142,16 @@ module.exports = {
     log.debug("Finished Create Support Center Ticket Plugin");
   },
   async sendNotification() {
-    log.debug("Starting Platform NotificationPlugin");
+    log.debug("Starting Platform Notification Plugin");
 
     const taskProps = utils.resolveInputParameters();
-    const { type, target, title, message } = taskProps;
+    const { url, type, target, title, message } = taskProps;
 
+    //validate mandatory fields
+    if (!url) {
+      log.err("no endpoint has been specified");
+      process.exit(1);
+    }
     if (type === undefined || type === null) {
       log.err("No type has been specified");
       process.exit(1);
@@ -159,7 +170,7 @@ module.exports = {
       }
     });
     try {
-      await fetch("http://bmrg-core-services-notifications.bmrg-live/notifications/submit", {
+      await fetch(url, {
         method: "POST",
         body: bodyString,
         headers: {
