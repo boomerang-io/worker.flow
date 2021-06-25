@@ -1,0 +1,11 @@
+{
+  "status": 1,
+  "Username": "NEWTESTFOCACOPY",
+  "file": "A table of contents often abbreviated as TOC is what outlines the titles and/or gives a brief description of the first-level headers, second level headers or even third level headers in more detailed books. It can also be referred to as Contents and the depth of the details will be determined by the length of the given book. Longer books will tend to have less details. The TOC is not only found in books, formal reports which are longer than 10 pages also have a table of contents. It usually comes after the title page, the copyright notices as well as the abstract if it’s available especially in technical journals. It also appears before any list of tables or figures, the foreword and the preface.\nIn printed table of contents, the page numbers will indicate where each part starts. In digital table of contents, one will be offered hyperlinks to the specific sections. The location and the format will be determined by the publisher. For the case where page numbers appears after heading texts, some characters referred to as leaders might precede them. They are usually dots or periods that run from the section or chapter to the page numbers on the opposite side of the page. In some instances the page number will be located close to the section or the titles. In other scenarios the page numbers will come before the sections or texts.\n",
+  "array": [
+    {
+      "key": "I am a key",
+      "value": "I am a value"
+    }
+  ]
+}
