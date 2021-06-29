@@ -179,7 +179,7 @@ module.exports = {
     request.method = "POST";
     request.url = "/v3/mail/send";
 
-    log.debug(`stringify request made by client: ${JSON.stringify(client.createRequest(request))}`);
+    log.sys(`stringify request made by client: ${JSON.stringify(client.createRequest(request))}`);
 
     try {
       await client.request(request);
@@ -254,7 +254,7 @@ module.exports = {
     request.method = "POST";
     request.url = "/v3/mail/send";
 
-    log.debug(`stringify request made by client: ${JSON.stringify(client.createRequest(request))}`);
+    log.sys(`stringify request made by client: ${JSON.stringify(client.createRequest(request))}`);
 
     try {
       await client.request(request);
