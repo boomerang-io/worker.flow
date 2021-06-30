@@ -115,7 +115,7 @@ module.exports = {
       data["catalogServiceId"] = catalogServiceId;
     }
 
-    log.debug(`JSON body: ${JSON.stringify(data)}`);
+    log.sys(`JSON body: ${JSON.stringify(data)}`);
 
     try {
       await fetch(url, {

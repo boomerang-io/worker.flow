@@ -47,10 +47,12 @@ module.exports = {
 
     log.debug("Json:", json);
     log.debug("Json Query:", query);
+    log.sys("Commencing json parsing of", query, "query.");
     const propertyValue = jp.value(JSON.parse(json), query);
-    log.debug("Value from Query:", propertyValue);
+    log.sys("Finished parsing, value from query:", propertyValue);
 
     utils.setOutputParameter("evaluation", propertyValue);
+    log.good("Parameter 'evaluation' set:", propertyValue);
 
     log.debug("Finished Json Path To Property Plugin");
   },
@@ -71,11 +73,12 @@ module.exports = {
 
       log.debug("Json:", JSON.parse(fileContent));
       log.debug("Json Query:", query);
+      log.sys("Commencing json parsing of", query, "query.");
       const propertyValue = jp.value(JSON.parse(fileContent), query);
-      log.debug("Value from Query:", propertyValue);
+      log.sys("Finished parsing, value from query:", propertyValue);
 
       utils.setOutputParameter("evaluation", propertyValue);
-      log.good("Value set to the property key!");
+      log.good("Parameter 'evaluation' set:", propertyValue);
     } catch (e) {
       log.err(e);
       process.exit(1);

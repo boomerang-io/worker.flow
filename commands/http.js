@@ -89,7 +89,7 @@ module.exports = {
       ...headerObject
     };
 
-    log.debug(opts);
+    log.sys("Commencing to execute HTTP call with", opts);
 
     const req = https.request(opts, res => {
       log.debug(`statusCode: ${res.statusCode}`);
