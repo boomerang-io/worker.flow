@@ -93,6 +93,7 @@ module.exports = {
 
     const req = https.request(opts, res => {
       log.debug(`statusCode: ${res.statusCode}`);
+      utils.setOutputParameter("statusCode", JSON.stringify(res.statusCode));
       let output = "";
 
       res.on("data", d => {
