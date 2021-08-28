@@ -272,27 +272,46 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
     // const { to, cc, bcc, from, replyTo, subject, contentType, bodyContent, apiKey, attachments } = taskProps;
-    const { token, from, to, templateId, templateModel } = taskProps;
+    const { token, from, to, templateId, templateAlias, templateVariables, tag } = taskProps;
 
     // Validate input
-    if (!token || !from || !to || !templateId) {
-      log.err("A required parameter has not been provided. Please check your parameters and try again.", "\nToken: " + token, "\nFrom: " + from, "\nTo: " + to, "\nTemplate ID: " + templateId);
+    if (!token || !from || !to) {
+      log.err("A required parameter has not been provided. Please check your parameters and try again.", "\nToken: " + token, "\nFrom: " + from, "\nTo: " + to);
+      process.exit(1);
+    }
+
+    var templateModel = {};
+    if (templateVariables) {
+      templateModel = checkForJson(templateVariables);
+    }
+
+    if (!templateId && !templateAlias) {
+      log.err("Either Template ID or Template Alias needs to be provided. Please check your parameters and try again.", "\nTemplate ID: " + templateId, "\nTemplate Alias: " + templateAlias);
       process.exit(1);
     }
 
     var client = new postmark.ServerClient(token);
 
+    let data = {
+      From: from,
+      To: to,
+      TemplateModel: templateModel
+    };
+
+    if (templateId) {
+      data.templateId = templateId;
+    } else {
+      data.templateAlias = templateAlias;
+    }
+
+    if (tag) {
+      data.tag = tag;
+    }
+
     // It catches itself and prints a more descriptive error message
-    await client
-      .sendEmailWithTemplate({
-        From: from,
-        To: to,
-        TemplateId: templateId,
-        TemplateModel: checkForJson(templateModel)
-      })
-      .then(res => {
-        utils.setOutputParameters(res);
-        log.good("The task completed successfully with response saved as result parameter.", "\nTo: " + res.To, "\nSubmitted At: " + res.SubmittedAt, "\nMessage: " + res.Message, "\nID: " + res.MessageID);
-      });
+    await client.sendEmailWithTemplate(JSON.stringify(data)).then(res => {
+      utils.setOutputParameters(res);
+      log.good("The task completed successfully with response saved as result parameter.", "\nTo: " + res.To, "\nSubmitted At: " + res.SubmittedAt, "\nMessage: " + res.Message, "\nID: " + res.MessageID);
+    });
   }
 };
