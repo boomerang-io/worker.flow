@@ -3,6 +3,7 @@ const HttpsProxyAgent = require("https-proxy-agent");
 const filePath = require("path");
 const fs = require("fs");
 const client = require("@sendgrid/client");
+const postmark = require("postmark");
 
 /**
  *
@@ -264,5 +265,34 @@ module.exports = {
       process.exit(1);
     }
     log.debug("Finished Send Email With Sendgrid Template");
+  },
+  async sendPostmarkEmailWithTemplate() {
+    log.debug("Started Send Email with Template");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    // const { to, cc, bcc, from, replyTo, subject, contentType, bodyContent, apiKey, attachments } = taskProps;
+    const { token, from, to, templateId, templateModel } = taskProps;
+
+    // Validate input
+    if (!token || !from || !to || !templateId) {
+      log.err("A required parameter has not been provided. Please check your parameters and try again.", "\nToken: " + token, "\nFrom: " + from, "\nTo: " + to, "\nTemplate ID: " + templateId);
+      process.exit(1);
+    }
+
+    var client = new postmark.ServerClient(token);
+
+    // It catches itself and prints a more descriptive error message
+    await client
+      .sendEmailWithTemplate({
+        From: from,
+        To: to,
+        TemplateId: templateId,
+        TemplateModel: checkForJson(templateModel)
+      })
+      .then(res => {
+        utils.setOutputParameters(res);
+        log.good("The task completed successfully with response saved as result parameter.", "\nTo: " + res.To, "\nSubmitted At: " + res.SubmittedAt, "\nMessage: " + res.Message, "\nID: " + res.MessageID);
+      });
   }
 };
