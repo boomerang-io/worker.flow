@@ -101,10 +101,19 @@ module.exports = {
       });
 
       res.on("end", () => {
-        const response = JSON.parse(output);
-        log.sys("Response Received:", JSON.stringify(response));
+        try {
+          //make sure non-empty output is a valid JSON,
+          //if not throw exception
+          if (!(output === null || output.match(/^ *$/) !== null)) {
+            JSON.parse(output);
+          }
+        } catch (e) {
+          log.err(e);
+          process.exit(1);
+        }
+        log.sys("Response Received:", output);
         if (outputFilePath && outputFilePath.length && outputFilePath !== '""' && outputFilePath !== '" "') {
-          fs.writeFileSync(outputFilePath, JSON.stringify(response), err => {
+          fs.writeFileSync(outputFilePath, output, err => {
             if (err) {
               log.err(err);
               throw err;
@@ -112,7 +121,7 @@ module.exports = {
             log.debug("The task output parameter successfully saved to provided file path.");
           });
         } else {
-          utils.setOutputParameter("response", JSON.stringify(response));
+          utils.setOutputParameter("response", output);
           log.debug("The task output parameter successfully saved to standard response file.");
         }
         log.good("Response successfully received!");
