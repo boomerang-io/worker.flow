@@ -272,7 +272,7 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
     // const { to, cc, bcc, from, replyTo, subject, contentType, bodyContent, apiKey, attachments } = taskProps;
-    const { token, from, to, templateId, templateAlias, templateVariables, tag } = taskProps;
+    const { token, from, to, templateId, templateAlias, templateModel, tag } = taskProps;
 
     // Validate input
     if (!token || !from || !to) {
@@ -280,9 +280,9 @@ module.exports = {
       process.exit(1);
     }
 
-    var templateModel = {};
-    if (templateVariables) {
-      templateModel = checkForJson(templateVariables);
+    var templateModelPayload = {};
+    if (templateModel) {
+      templateModelPayload = checkForJson(templateModel);
     }
 
     if (!templateId && !templateAlias) {
@@ -295,7 +295,7 @@ module.exports = {
     let data = {
       From: from,
       To: to,
-      TemplateModel: templateModel
+      TemplateModel: templateModelPayload
     };
 
     if (templateId) {
