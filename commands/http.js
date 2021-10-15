@@ -42,7 +42,7 @@ module.exports = {
     }
 
     if (body && body.length && body !== '""' && body !== '" "') {
-      headerObject["Content-Length"] = body.length;
+      headerObject["Content-Length"] = ~-encodeURI(body).split(/%..|./).length;
     }
 
     log.debug(headerObject);
@@ -102,6 +102,7 @@ module.exports = {
 
       res.on("end", () => {
         try {
+          log.debug(`output: ${output}`);
           //make sure non-empty output is a valid JSON,
           //if not throw exception
           if (!(output === null || output.match(/^ *$/) !== null)) {
