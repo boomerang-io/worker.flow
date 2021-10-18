@@ -42,7 +42,7 @@ module.exports = {
     }
 
     if (body && body.length && body !== '""' && body !== '" "') {
-      headerObject["Content-Length"] = body.length;
+      headerObject["Content-Length"] = ~-encodeURI(body).split(/%..|./).length;
     }
 
     log.debug(headerObject);
