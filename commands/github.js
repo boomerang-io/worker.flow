@@ -1008,10 +1008,9 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, token, projectId, issueId } = taskProps;
+    const { token, projectId, issueId } = taskProps;
     try {
       //Variable Checks
-      validateMandatoryParameter(url, "URL has not been set");
       validateMandatoryParameter(token, "Token has not been set");
       validateMandatoryParameter(projectId, "Project ID has not been set");
       validateMandatoryParameter(issueId, "Issue ID has not been set");
