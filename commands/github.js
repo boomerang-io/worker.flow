@@ -1023,8 +1023,10 @@ module.exports = {
       headersObject["GraphQL-Features"] = "projects_next_graphql";
       headersObject["User-Agent"] = `Flowabl`;
 
-      await graphql(`{"query":"mutation {addProjectNextItem(input: {projectId: \"${projectId}\" contentId: \"${issueId}\"}) {projectNextItem {id}}}"}`, {
-        headers: headersObject
+      await graphql({
+        query: `mutation {addProjectNextItem(input: {projectId: \"${projectId}\" contentId: \"${issueId}\"}) {projectNextItem {id}}`,
+        headers: headersObject,
+        baseUrl: url
       });
 
       let data = {
