@@ -1027,15 +1027,10 @@ module.exports = {
         query: `mutation {addProjectNextItem(input: {projectId: \"${projectId}\" contentId: \"${issueId}\"}) {projectNextItem {id}}`,
         headers: headersObject,
         baseUrl: url
-      });
-
-      let data = {
-        owner: repoURLAtomsArray[repoURLAtomsArray.length - 2],
-        repo: repoURLAtomsArray[repoURLAtomsArray.length - 1]
-      };
-      await octokit.repos.get(data).then(body => {
-        log.debug("Successful get repo: ", body.data);
-        setOutput(outputFilePath, "result", body.data);
+      }).then(body => {
+        log.debug("Successfully received response: ", body.data);
+        utils.setOutputParameter("result", body.data);
+        setOutput("result", body.data);
         log.good("Response successfully received!");
       });
     } catch (error) {
