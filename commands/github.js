@@ -1,6 +1,6 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const { Octokit } = require("@octokit/rest");
-const { graphql } = require("@octokit/graphql");
+let { graphql } = require("@octokit/graphql"); //cant be const as we use later on
 const moment = require("moment");
 const fs = require("fs");
 // https://octokit.github.io/rest.js/
@@ -1010,8 +1010,6 @@ module.exports = {
     const taskProps = utils.resolveInputParameters();
     const { url, token, projectId, issueId } = taskProps;
     try {
-      const octokit = GetConfiguredClient(url, token);
-
       //Variable Checks
       validateMandatoryParameter(url, "URL has not been set");
       validateMandatoryParameter(token, "Token has not been set");
@@ -1023,18 +1021,18 @@ module.exports = {
       headersObject["GraphQL-Features"] = "projects_next_graphql";
       headersObject["User-Agent"] = `Flowabl`;
 
-      const result = await graphql({
-        query: `mutation {addProjectNextItem(input: {projectId: \"${projectId}\" contentId: \"${issueId}\"}) {projectNextItem {id}}`,
-        headers: headersObject,
-        baseUrl: url
-      });
-      log.good("Response successfully received.", result);
-      // .then(body => {
-      //   log.debug("Successfully received response: ", body.data);
-      //   utils.setOutputParameter("result", body.data);
-      //   setOutput("result", body.data);
-      //   log.good("Response successfully received!");
+      // TODO allow custom URLs
+      // graphql = graphql.defaults({
+      //   baseUrl: `${url}`,
+      //   headers: headersObject,
       // });
+
+      const result = await graphql({
+        query: `mutation {addProjectNextItem(input: {projectId: \"${projectId}\" contentId: \"${issueId}\"}) {projectNextItem {id}}}`,
+        headers: headersObject
+      });
+      log.good("Response successfully received.", JSON.stringify(result));
+      utils.setOutputParameter("result", result);
     } catch (error) {
       log.err(error);
       process.exit(1);
