@@ -1,5 +1,6 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const { Octokit } = require("@octokit/rest");
+const { graphql } = require("@octokit/graphql");
 const moment = require("moment");
 const fs = require("fs");
 // https://octokit.github.io/rest.js/
@@ -986,6 +987,45 @@ module.exports = {
         log.err("The repository URL is not a valid github repo url.");
         process.exit(1);
       }
+
+      let data = {
+        owner: repoURLAtomsArray[repoURLAtomsArray.length - 2],
+        repo: repoURLAtomsArray[repoURLAtomsArray.length - 1]
+      };
+      await octokit.repos.get(data).then(body => {
+        log.debug("Successful get repo: ", body.data);
+        setOutput(outputFilePath, "result", body.data);
+        log.good("Response successfully received!");
+      });
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished getRepositoryFromRepoURL() GitHub Plugin");
+  },
+  async addIssueToProject() {
+    log.debug("Started addIssueToProject() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { token, projectId, issueId } = taskProps;
+    try {
+      const octokit = GetConfiguredClient(url, token);
+
+      //Variable Checks
+      validateMandatoryParameter(url, "URL has not been set");
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(projectId, "Project ID has not been set");
+      validateMandatoryParameter(issueId, "Issue ID has not been set");
+
+      headersObject = {};
+      headers["Authorization"] = `token ${token}`;
+      headers["GraphQL-Features"] = "projects_next_graphql";
+      headers["User-Agent"] = `Flowabl`;
+
+      await graphql(`{"query":"mutation {addProjectNextItem(input: {projectId: \"${projectId}\" contentId: \"${issueId}\"}) {projectNextItem {id}}}"}`, {
+        headers: headersObject
+      });
 
       let data = {
         owner: repoURLAtomsArray[repoURLAtomsArray.length - 2],
