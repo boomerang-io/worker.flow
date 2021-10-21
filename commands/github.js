@@ -1008,7 +1008,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { token, projectId, issueId } = taskProps;
+    const { url, token, projectId, issueId } = taskProps;
     try {
       const octokit = GetConfiguredClient(url, token);
 
