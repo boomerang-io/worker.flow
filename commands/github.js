@@ -1040,6 +1040,6 @@ module.exports = {
       log.err(error);
       process.exit(1);
     }
-    log.debug("Finished getRepositoryFromRepoURL() GitHub Plugin");
+    log.debug("Finished addIssueToProject() GitHub Plugin");
   }
 };
