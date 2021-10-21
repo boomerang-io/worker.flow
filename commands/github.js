@@ -1023,16 +1023,18 @@ module.exports = {
       headersObject["GraphQL-Features"] = "projects_next_graphql";
       headersObject["User-Agent"] = `Flowabl`;
 
-      await graphql({
+      const result = await graphql({
         query: `mutation {addProjectNextItem(input: {projectId: \"${projectId}\" contentId: \"${issueId}\"}) {projectNextItem {id}}`,
         headers: headersObject,
         baseUrl: url
-      }).then(body => {
-        log.debug("Successfully received response: ", body.data);
-        utils.setOutputParameter("result", body.data);
-        setOutput("result", body.data);
-        log.good("Response successfully received!");
       });
+      log.good("Response successfully received.", result);
+      // .then(body => {
+      //   log.debug("Successfully received response: ", body.data);
+      //   utils.setOutputParameter("result", body.data);
+      //   setOutput("result", body.data);
+      //   log.good("Response successfully received!");
+      // });
     } catch (error) {
       log.err(error);
       process.exit(1);
