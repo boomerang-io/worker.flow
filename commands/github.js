@@ -1019,9 +1019,9 @@ module.exports = {
       validateMandatoryParameter(issueId, "Issue ID has not been set");
 
       headersObject = {};
-      headers["Authorization"] = `token ${token}`;
-      headers["GraphQL-Features"] = "projects_next_graphql";
-      headers["User-Agent"] = `Flowabl`;
+      headersObject["Authorization"] = `token ${token}`;
+      headersObject["GraphQL-Features"] = "projects_next_graphql";
+      headersObject["User-Agent"] = `Flowabl`;
 
       await graphql(`{"query":"mutation {addProjectNextItem(input: {projectId: \"${projectId}\" contentId: \"${issueId}\"}) {projectNextItem {id}}}"}`, {
         headers: headersObject
