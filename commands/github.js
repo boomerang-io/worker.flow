@@ -1,5 +1,6 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const { Octokit } = require("@octokit/rest");
+let { graphql } = require("@octokit/graphql"); //cant be const as we use later on
 const moment = require("moment");
 const fs = require("fs");
 // https://octokit.github.io/rest.js/
@@ -1001,5 +1002,40 @@ module.exports = {
       process.exit(1);
     }
     log.debug("Finished getRepositoryFromRepoURL() GitHub Plugin");
+  },
+  async addIssueToProject() {
+    log.debug("Started addIssueToProject() GitHub Plugin");
+
+    //Destructure and get properties ready.
+    const taskProps = utils.resolveInputParameters();
+    const { token, projectId, issueId } = taskProps;
+    try {
+      //Variable Checks
+      validateMandatoryParameter(token, "Token has not been set");
+      validateMandatoryParameter(projectId, "Project ID has not been set");
+      validateMandatoryParameter(issueId, "Issue ID has not been set");
+
+      headersObject = {};
+      headersObject["Authorization"] = `token ${token}`;
+      headersObject["GraphQL-Features"] = "projects_next_graphql";
+      headersObject["User-Agent"] = `Flowabl`;
+
+      // TODO allow custom URLs
+      // graphql = graphql.defaults({
+      //   baseUrl: `${url}`,
+      //   headers: headersObject,
+      // });
+
+      const result = await graphql({
+        query: `mutation {addProjectNextItem(input: {projectId: \"${projectId}\" contentId: \"${issueId}\"}) {projectNextItem {id}}}`,
+        headers: headersObject
+      });
+      log.good("Response successfully received.", JSON.stringify(result));
+      utils.setOutputParameter("result", result);
+    } catch (error) {
+      log.err(error);
+      process.exit(1);
+    }
+    log.debug("Finished addIssueToProject() GitHub Plugin");
   }
 };
