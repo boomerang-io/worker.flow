@@ -272,9 +272,9 @@ async function append() {
       }
     })
     .then(body => {
-      const response = JSON.stringify(body);
-      log.sys("Response Received:", response);
-      utils.setOutputParameter("response", response);
+      const data = JSON.stringify(body.data);
+      log.sys("Response Received:", data);
+      utils.setOutputParameter("response", data);
       log.good("Response successfully received!");
     })
     .catch(err => {
