@@ -4,6 +4,7 @@ const filePath = require("path");
 const fs = require("fs");
 const client = require("@sendgrid/client");
 const postmark = require("postmark");
+const { UpdateMessageStreamRequest } = require("postmark/dist/client/models");
 
 /**
  *
@@ -272,7 +273,7 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
     // const { to, cc, bcc, from, replyTo, subject, contentType, bodyContent, apiKey, attachments } = taskProps;
-    const { token, from, to, templateId, templateAlias, templateModel, tag } = taskProps;
+    const { token, from, to, templateId, templateAlias, templateModel, tag, messageStream } = taskProps;
 
     // Validate input
     if (!token || !from || !to) {
@@ -290,12 +291,18 @@ module.exports = {
       process.exit(1);
     }
 
+    if (!messageStream) {
+      log.warn("Message Stream not provided. Defaulting to 'outbound'.");
+      messageStream = "outbound";
+    }
+
     var client = new postmark.ServerClient(token);
 
     let data = {
       From: from,
       To: to,
-      TemplateModel: templateModelPayload
+      TemplateModel: templateModelPayload,
+      MessageStream: messageStream
     };
 
     if (templateId) {
