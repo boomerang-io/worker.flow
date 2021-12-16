@@ -1,8 +1,9 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const HttpsProxyAgent = require("https-proxy-agent");
 const https = require("https");
-const Url = require("url");
+const URL = require("url");
 const fs = require("fs");
+const HTTPRetryRequest = require("./HTTPRetryRequest");
 
 module.exports = {
   /**
@@ -16,11 +17,12 @@ module.exports = {
    */
 
   execute() {
+    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     log.debug("Started HTTP Call Plugin");
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath } = taskProps;
+    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, errorcodes, httperrorretry } = taskProps;
 
     /**
      * turn header into object based upon new line delimeters
@@ -56,7 +58,7 @@ module.exports = {
       } else {
         log.debug("NO_PROXY list detected", process.env.NO_PROXY);
         const noProxyList = process.env.NO_PROXY.split(",");
-        let urltoUrl = new Url.URL(url);
+        let urltoUrl = new URL(url);
         let urlHost = urltoUrl.host.split(":")[0];
         log.debug("urlHost:", urlHost);
         const skipProxy = noProxyList.some(domain => {
@@ -81,7 +83,7 @@ module.exports = {
       allowUntrustedFlag = true;
     }
 
-    const opts = Url.parse(url);
+    const opts = new URL.URL(url);
     opts.rejectUnauthorized = !allowUntrustedFlag;
     opts.agent = agent;
     opts.method = method;
@@ -91,30 +93,33 @@ module.exports = {
 
     log.sys("Commencing to execute HTTP call with", opts);
 
-    const req = https.request(opts, res => {
-      log.debug(`statusCode: ${res.statusCode}`);
-      utils.setOutputParameter("statusCode", JSON.stringify(res.statusCode));
-      let output = "";
+    let config = {
+      ERROR_CODES: errorcodes,
+      MAX_RETRIES: httperrorretry // default is 5
+    };
+    if (body && body !== "" && body !== '""' && body !== '" "') {
+      log.debug("writing request body");
+      config.body = body;
+    }
 
-      res.on("data", d => {
-        output += d;
-      });
-
-      res.on("end", () => {
+    new HTTPRetryRequest(config, opts)
+      .then(res => {
+        log.debug(`statusCode: ${res.statusCode}`);
+        utils.setOutputParameter("statusCode", JSON.stringify(res.statusCode));
         try {
-          log.debug(`output: ${output}`);
+          log.debug(`output: ${res.body.toString()}`);
           //make sure non-empty output is a valid JSON,
           //if not throw exception
-          if (!(output === null || output.match(/^ *$/) !== null)) {
-            JSON.parse(output);
+          if (!(res.body === null || res.body.toString().match(/^ *$/) !== null)) {
+            JSON.parse(res.body.toString());
           }
+          log.sys("Response Received:", res.body.toString());
         } catch (e) {
           log.err(e);
           process.exit(1);
         }
-        log.sys("Response Received:", output);
         if (outputFilePath && outputFilePath.length && outputFilePath !== '""' && outputFilePath !== '" "') {
-          fs.writeFileSync(outputFilePath, output, err => {
+          fs.writeFileSync(outputFilePath, res.body, err => {
             if (err) {
               log.err(err);
               throw err;
@@ -122,24 +127,16 @@ module.exports = {
             log.debug("The task output parameter successfully saved to provided file path.");
           });
         } else {
-          utils.setOutputParameter("response", output);
+          utils.setOutputParameter("response", res.body);
           log.debug("The task output parameter successfully saved to standard response file.");
         }
         log.good("Response successfully received!");
+      })
+      .catch(err => {
+        log.err("HTTP Promise error:", err);
+        process.exit(1);
       });
-    });
 
-    req.on("error", err => {
-      log.err(err);
-      process.exit(1);
-    });
-
-    if (body && body !== "" && body !== '""' && body !== '" "') {
-      log.debug("writing request body");
-      req.write(body);
-    }
-
-    req.end();
     log.debug("Finished HTTP Call File Plugin");
   }
 };
