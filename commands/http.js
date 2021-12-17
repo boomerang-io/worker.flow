@@ -17,7 +17,6 @@ module.exports = {
    */
 
   execute() {
-    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     log.debug("Started HTTP Call Plugin");
 
     //Destructure and get properties ready.
