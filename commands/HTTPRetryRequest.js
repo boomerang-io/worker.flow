@@ -22,7 +22,6 @@ function HTTPRetryRequest(config, options) {
   } else {
     _self.config.retryCount++;
   }
-  // console.log("INPUT", _self.config);
   _self.buffer = Buffer.alloc(0);
 
   return new Promise((resolve, reject) => {
@@ -30,7 +29,6 @@ function HTTPRetryRequest(config, options) {
       const innerStatusCode = response.statusCode.toString();
       const responseInstance = response
         .on("error", error => {
-          // console.log("->OnError:",_self.config.retryCount,innerStatusCode);
           responseInstance.abort();
           if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount < _self.config.MAX_RETRIES) {
             // if the status is one of the ones we want to retry, then make the same request
@@ -42,7 +40,6 @@ function HTTPRetryRequest(config, options) {
         })
         .on("data", chunk => Buffer.concat([_self.buffer, chunk]))
         .on("end", () => {
-          // console.log("->OnEnd:",_self.config.retryCount,innerStatusCode);
           if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount < _self.config.MAX_RETRIES) {
             resolve(new HTTPRetryRequest(_self.config, _self.options));
           } else {
