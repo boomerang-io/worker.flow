@@ -22,7 +22,7 @@ module.exports = {
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, errorcodes, httperrorretry } = taskProps;
+    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, errorcodes = "", httperrorretry = 5 } = taskProps;
 
     /**
      * turn header into object based upon new line delimeters
