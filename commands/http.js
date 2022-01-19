@@ -3,7 +3,7 @@ const HttpsProxyAgent = require("https-proxy-agent");
 const https = require("https");
 const URL = require("url");
 const fs = require("fs");
-const HTTPRetryRequest = require("./..libs/HTTPRetryRequest");
+const HTTPRetryRequest = require("../libs/HTTPRetryRequest");
 
 module.exports = {
   /**

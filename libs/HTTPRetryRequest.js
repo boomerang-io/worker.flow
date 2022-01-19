@@ -33,7 +33,7 @@ function HTTPRetryRequest(config, options) {
       const responseInstance = response
         .on("error", error => {
           responseInstance.abort();
-          if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount < _self.config.MAX_RETRIES) {
+          if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount <= _self.config.MAX_RETRIES) {
             if (!_self.config.IS_ERROR) {
               // Success branch and one of the status codes is found, resolve with success
               resolve({
@@ -53,7 +53,7 @@ function HTTPRetryRequest(config, options) {
         })
         .on("data", chunk => Buffer.concat([_self.buffer, chunk]))
         .on("end", () => {
-          if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount < _self.config.MAX_RETRIES) {
+          if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount <= _self.config.MAX_RETRIES) {
             if (!_self.config.IS_ERROR) {
               // Success branch and one of the status codes is found, resolve with success
               resolve({
