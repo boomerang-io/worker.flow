@@ -2,10 +2,13 @@ const https = require("https");
 
 let DEFAULTS = {
   MAX_RETRIES: 5,
-  ERROR_CODES: ""
+  ERROR_CODES: "",
+  DELAY: 200,
+  IS_ERROR: true
 };
 
 function HTTPRetryRequest(config, options) {
+  process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
   let _self = this;
   _self.options = options;
   _self.config = { ...DEFAULTS, ...config }; // overwrite defaults
@@ -31,8 +34,18 @@ function HTTPRetryRequest(config, options) {
         .on("error", error => {
           responseInstance.abort();
           if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount < _self.config.MAX_RETRIES) {
-            // if the status is one of the ones we want to retry, then make the same request
-            resolve(new HTTPRetryRequest(_self.config, _self.options));
+            if (!_self.config.IS_ERROR) {
+              // Success branch and one of the status codes is found, resolve with success
+              resolve({
+                statusCode: innerStatusCode,
+                body: Buffer.alloc(0) // empty body
+              });
+              return; // exit to avoid next call
+            }
+            setTimeout(() => {
+              // if the status is one of the ones we want to retry, then make the same request
+              resolve(new HTTPRetryRequest(_self.config, _self.options));
+            }, _self.config.DELAY);
           } else {
             // no more tries, just reject
             reject(error);
@@ -41,7 +54,17 @@ function HTTPRetryRequest(config, options) {
         .on("data", chunk => Buffer.concat([_self.buffer, chunk]))
         .on("end", () => {
           if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount < _self.config.MAX_RETRIES) {
-            resolve(new HTTPRetryRequest(_self.config, _self.options));
+            if (!_self.config.IS_ERROR) {
+              // Success branch and one of the status codes is found, resolve with success
+              resolve({
+                statusCode: innerStatusCode,
+                body: _self.buffer
+              });
+              return; // exit to avoid next call
+            }
+            setTimeout(() => {
+              resolve(new HTTPRetryRequest(_self.config, _self.options));
+            }, _self.config.DELAY);
           } else {
             resolve({
               statusCode: innerStatusCode,

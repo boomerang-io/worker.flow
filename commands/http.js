@@ -3,7 +3,7 @@ const HttpsProxyAgent = require("https-proxy-agent");
 const https = require("https");
 const URL = require("url");
 const fs = require("fs");
-const HTTPRetryRequest = require("./HTTPRetryRequest");
+const HTTPRetryRequest = require("./..libs/HTTPRetryRequest");
 
 module.exports = {
   /**
@@ -13,15 +13,19 @@ module.exports = {
    * headers [Text Area - new line delimitered list?]
    * content type [Select - Options: any, text, xml, json, html]
    * body [Text Area - optional depending on method]
+   * @param {string} errorcodes Represents a list of HTTP Status Codes, used either for error or success checks
+   * @param {boolean} isErrorCodes Represents if the `errorcodes` param is used as error (true) or success (false)
+   * @param {int} httperrorretry Represents the number of retries that will be perfomed until success is obtained or the number of retries is achived
+   * @param {int} httpRetryDelay Represents the number of miliseconds that will delay the next retry
    * Allow untrusted SSL certs [Boolean Toggle]
    */
-
   execute() {
     log.debug("Started HTTP Call Plugin");
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, errorcodes = "", httperrorretry = 5 } = taskProps;
+
+    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, errorcodes = "", isErrorCodes = true, httperrorretry = 5, httpRetryDelay = 200 } = taskProps;
 
     /**
      * turn header into object based upon new line delimeters
@@ -94,7 +98,9 @@ module.exports = {
 
     let config = {
       ERROR_CODES: errorcodes,
-      MAX_RETRIES: httperrorretry // default is 5
+      MAX_RETRIES: httperrorretry, // default is 5
+      DELAY: httpRetryDelay,
+      IS_ERROR: !!isErrorCodes
     };
     if (body && body !== "" && body !== '""' && body !== '" "') {
       log.debug("writing request body");
