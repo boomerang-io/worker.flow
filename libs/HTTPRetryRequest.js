@@ -1,4 +1,5 @@
 const https = require("https");
+const { log } = require("@boomerang-io/worker-core");
 
 let DEFAULTS = {
   MAX_RETRIES: 5,
@@ -7,13 +8,15 @@ let DEFAULTS = {
   IS_ERROR: true
 };
 
-function HTTPRetryRequest(config, options) {
+function HTTPRetryRequest(config, URL, options) {
   // TODO: only for testing with selfsigned certificate
   // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
   let _self = this;
+  _self.URL = URL;
   _self.options = options;
+  log.debug("HTTP Request Options:", _self.options);
   _self.config = { ...DEFAULTS, ...config }; // overwrite defaults
-
+  log.debug("HTTP Request Config:", _self.options);
   if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.length) {
     // create pattern of /(5\d\d|4\d\d|9\d\d)/
     // TODO: replace back with replaceAll after node version is above 15.0.0
@@ -33,7 +36,7 @@ function HTTPRetryRequest(config, options) {
   _self.buffer = Buffer.alloc(0);
 
   return new Promise((resolve, reject) => {
-    let requestInstance = https.request(options, response => {
+    let requestInstance = https.request(_self.URL, _self.options, response => {
       const innerStatusCode = response.statusCode.toString();
       const responseInstance = response
         .on("error", error => {
@@ -49,7 +52,7 @@ function HTTPRetryRequest(config, options) {
             }
             setTimeout(() => {
               // if the status is one of the ones we want to retry, then make the same request
-              resolve(new HTTPRetryRequest(_self.config, _self.options));
+              resolve(new HTTPRetryRequest(_self.URL, _self.config, _self.options));
             }, _self.config.DELAY);
           } else {
             // no more tries, just reject
@@ -68,7 +71,7 @@ function HTTPRetryRequest(config, options) {
               return; // exit to avoid next call
             }
             setTimeout(() => {
-              resolve(new HTTPRetryRequest(_self.config, _self.options));
+              resolve(new HTTPRetryRequest(_self.URL, _self.config, _self.options));
             }, _self.config.DELAY);
           } else {
             resolve({

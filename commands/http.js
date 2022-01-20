@@ -36,9 +36,12 @@ module.exports = {
       let headerSplitArr = header.split("\n");
       log.debug(headerSplitArr);
       headerSplitArr.forEach(line => {
-        let key = line.substring(0, line.indexOf(":"));
-        let value = line.substring(line.indexOf(":") + 1).trim();
-        headerObject[key] = value;
+        arrHearder = line.split(":");
+        if (arrHearder && arrHearder.length) {
+          let key = arrHearder[0].trim().replace(/("|')/g, "");
+          let value = arrHearder[1].trim().replace(/("|')/g, "");
+          headerObject[key] = value;
+        }
       });
     }
 
@@ -86,7 +89,8 @@ module.exports = {
       allowUntrustedFlag = true;
     }
 
-    const opts = new URL.URL(url);
+    const reqURL = new URL.URL(url);
+    let opts = {};
     opts.rejectUnauthorized = !allowUntrustedFlag;
     opts.agent = agent;
     opts.method = method;
@@ -94,7 +98,7 @@ module.exports = {
       ...headerObject
     };
 
-    log.sys("Commencing to execute HTTP call with", opts);
+    log.sys("Commencing to execute HTTP call with", reqURL, JSON.stringify(opts));
 
     let config = {
       ERROR_CODES: errorcodes,
@@ -107,7 +111,7 @@ module.exports = {
       config.body = body;
     }
 
-    new HTTPRetryRequest(config, opts)
+    new HTTPRetryRequest(config, reqURL, opts)
       .then(res => {
         log.debug(`statusCode: ${res.statusCode}`);
         utils.setOutputParameter("statusCode", JSON.stringify(res.statusCode));
