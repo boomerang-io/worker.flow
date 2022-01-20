@@ -305,7 +305,7 @@ module.exports = {
       MessageStream: messageStream
     };
 
-    if (templateId) {
+    if (templateId && templateId !== '""') {
       data.templateId = templateId;
     } else {
       data.templateAlias = templateAlias;
