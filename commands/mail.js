@@ -315,6 +315,8 @@ module.exports = {
       data.tag = tag;
     }
 
+    log.debug("Created Payload: ", data);
+
     // It catches itself and prints a more descriptive error message
     await client.sendEmailWithTemplate(JSON.stringify(data)).then(res => {
       utils.setOutputParameters(res);
