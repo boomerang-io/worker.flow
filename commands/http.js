@@ -132,7 +132,7 @@ module.exports = {
             log.debug("The task output parameter successfully saved to provided file path.");
           });
         } else {
-          utils.setOutputParameter("response", res.body);
+          utils.setOutputParameter("response", res.body.toString());
           log.debug("The task output parameter successfully saved to standard response file.");
         }
         log.good("Response successfully received!");

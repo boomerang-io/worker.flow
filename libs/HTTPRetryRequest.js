@@ -8,7 +8,8 @@ let DEFAULTS = {
 };
 
 function HTTPRetryRequest(config, options) {
-  process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+  // TODO: only for testing with selfsigned certificate
+  // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
   let _self = this;
   _self.options = options;
   _self.config = { ...DEFAULTS, ...config }; // overwrite defaults
@@ -55,7 +56,7 @@ function HTTPRetryRequest(config, options) {
             reject(error);
           }
         })
-        .on("data", chunk => Buffer.concat([_self.buffer, chunk]))
+        .on("data", chunk => (_self.buffer = Buffer.concat([_self.buffer, chunk])))
         .on("end", () => {
           if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount <= _self.config.MAX_RETRIES) {
             if (!_self.config.IS_ERROR) {
