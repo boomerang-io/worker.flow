@@ -81,7 +81,7 @@ function HTTPRetryRequest(config, URL, options) {
             // resolve(setTimeoutPromise(_self.config.DELAY, new HTTPRetryRequest( _self.config, _self.URL, _self.options)));
           } else {
             log.debug(`onEnd #${_self.config.retryCount} resolve.`);
-            if (/2\\d\\d/g.test(innerStatusCode)) {
+            if (/2\d\d/g.test(innerStatusCode.toString())) {
               resolve({
                 statusCode: innerStatusCode,
                 body: _self.buffer
