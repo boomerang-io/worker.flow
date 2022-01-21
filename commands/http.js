@@ -25,7 +25,7 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
 
-    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, errorcodes = "", isErrorCodes = true, httperrorretry = 5, httpRetryDelay = 200 } = taskProps;
+    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, errorcodes = "", isErrorCodes = true, httperrorretry = 3, httpRetryDelay = 200 } = taskProps;
 
     /**
      * turn header into object based upon new line delimeters
@@ -36,7 +36,7 @@ module.exports = {
       let headerSplitArr = header.split("\n");
       log.debug(headerSplitArr);
       headerSplitArr.forEach(line => {
-        arrHearder = line.split(":");
+        let arrHearder = line.split(":");
         if (arrHearder && arrHearder.length) {
           let key = arrHearder[0].trim().replace(/("|')/g, "");
           let value = arrHearder[1].trim().replace(/("|')/g, "");
@@ -102,7 +102,7 @@ module.exports = {
 
     let config = {
       ERROR_CODES: errorcodes,
-      MAX_RETRIES: httperrorretry, // default is 5
+      MAX_RETRIES: httperrorretry, // default is 3
       DELAY: httpRetryDelay,
       IS_ERROR: !!isErrorCodes
     };
@@ -128,13 +128,13 @@ module.exports = {
           process.exit(1);
         }
         if (outputFilePath && outputFilePath.length && outputFilePath !== '""' && outputFilePath !== '" "') {
-          fs.writeFileSync(outputFilePath, res.body, err => {
-            if (err) {
-              log.err(err);
-              throw err;
-            }
-            log.debug("The task output parameter successfully saved to provided file path.");
+          //https://nodejs.org/docs/latest-v14.x/api/fs.html#fs_fs_writefilesync_file_data_options
+          fs.writeFileSync(outputFilePath, res.body, {
+            encoding: "utf8",
+            mode: 666,
+            flag: "w"
           });
+          log.debug("The task output parameter successfully saved to provided file path.");
         } else {
           utils.setOutputParameter("response", res.body.toString());
           log.debug("The task output parameter successfully saved to standard response file.");

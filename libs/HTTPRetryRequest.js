@@ -40,6 +40,7 @@ function HTTPRetryRequest(config, URL, options) {
       const innerStatusCode = response.statusCode.toString();
       const responseInstance = response
         .on("error", error => {
+          log.debug(`Retry OnError #${_self.config.retryCount} HTTP Status Code: ${innerStatusCode}`);
           responseInstance.abort();
           if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount <= _self.config.MAX_RETRIES) {
             if (!_self.config.IS_ERROR) {
@@ -50,10 +51,16 @@ function HTTPRetryRequest(config, URL, options) {
               });
               return; // exit to avoid next call
             }
-            setTimeout(() => {
-              // if the status is one of the ones we want to retry, then make the same request
-              resolve(new HTTPRetryRequest(_self.URL, _self.config, _self.options));
-            }, _self.config.DELAY);
+            setTimeout(
+              (url, config, options) => {
+                // if the status is one of the ones we want to retry, then make the same request
+                resolve(new HTTPRetryRequest(url, config, options));
+              },
+              _self.config.DELAY,
+              _self.URL,
+              _self.config,
+              _self.options
+            );
           } else {
             // no more tries, just reject
             reject(error);
@@ -61,6 +68,7 @@ function HTTPRetryRequest(config, URL, options) {
         })
         .on("data", chunk => (_self.buffer = Buffer.concat([_self.buffer, chunk])))
         .on("end", () => {
+          log.debug(`Retry onEnd #${_self.config.retryCount} HTTP Status Code: ${innerStatusCode}`);
           if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount <= _self.config.MAX_RETRIES) {
             if (!_self.config.IS_ERROR) {
               // Success branch and one of the status codes is found, resolve with success
@@ -70,9 +78,15 @@ function HTTPRetryRequest(config, URL, options) {
               });
               return; // exit to avoid next call
             }
-            setTimeout(() => {
-              resolve(new HTTPRetryRequest(_self.URL, _self.config, _self.options));
-            }, _self.config.DELAY);
+            setTimeout(
+              (url, config, options) => {
+                resolve(new HTTPRetryRequest(url, config, options));
+              },
+              _self.config.DELAY,
+              _self.URL,
+              _self.config,
+              _self.options
+            );
           } else {
             resolve({
               statusCode: innerStatusCode,
