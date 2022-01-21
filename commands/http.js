@@ -14,7 +14,7 @@ module.exports = {
    * content type [Select - Options: any, text, xml, json, html]
    * body [Text Area - optional depending on method]
    * @param {string} errorcodes Represents a list of HTTP Status Codes, used either for error or success checks
-   * @param {boolean} isErrorCodes Represents if the `errorcodes` param is used as error (true) or success (false)
+   * @param {string} isErrorCodes Represents if the `errorcodes` param is used as failure (true) or success (false)
    * @param {int} httperrorretry Represents the number of retries that will be perfomed until success is obtained or the number of retries is achived
    * @param {int} httpRetryDelay Represents the number of miliseconds that will delay the next retry
    * Allow untrusted SSL certs [Boolean Toggle]
@@ -25,7 +25,7 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
 
-    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, errorcodes = "", isErrorCodes = true, httperrorretry = 3, httpRetryDelay = 200 } = taskProps;
+    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, errorcodes = "", isErrorCodes = "failure", httperrorretry = 3, httpRetryDelay = 200 } = taskProps;
 
     /**
      * turn header into object based upon new line delimeters
@@ -104,7 +104,7 @@ module.exports = {
       ERROR_CODES: errorcodes,
       MAX_RETRIES: httperrorretry, // default is 3
       DELAY: httpRetryDelay,
-      IS_ERROR: !!isErrorCodes
+      IS_ERROR: isErrorCodes.toLowerCase() === "failure"
     };
     if (body && body !== "" && body !== '""' && body !== '" "') {
       log.debug("writing request body");
