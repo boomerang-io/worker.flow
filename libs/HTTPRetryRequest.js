@@ -1,5 +1,7 @@
 const https = require("https");
 const { log } = require("@boomerang-io/worker-core");
+// TODO: replace after node version is above 15.0.0
+// const { setTimeout: setTimeoutPromise } = require('timers/promises');
 
 let DEFAULTS = {
   MAX_RETRIES: 5,
@@ -14,9 +16,9 @@ function HTTPRetryRequest(config, URL, options) {
   let _self = this;
   _self.URL = URL;
   _self.options = options;
-  log.debug("HTTP Request Options:", _self.options);
+  // log.debug("HTTP Request Options:", _self.options);
   _self.config = { ...DEFAULTS, ...config }; // overwrite defaults
-  log.debug("HTTP Request Config:", _self.options);
+  // log.debug("HTTP Request Config:", _self.config);
   if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.length) {
     // create pattern of /(5\d\d|4\d\d|9\d\d)/
     // TODO: replace back with replaceAll after node version is above 15.0.0
@@ -51,17 +53,10 @@ function HTTPRetryRequest(config, URL, options) {
               });
               return; // exit to avoid next call
             }
-            setTimeout(
-              (url, config, options) => {
-                log.debug(`Retry onError #${_self.config.retryCount} next call.`);
-                // if the status is one of the ones we want to retry, then make the same request
-                resolve(new HTTPRetryRequest(url, config, options));
-              },
-              _self.config.DELAY,
-              _self.URL,
-              _self.config,
-              _self.options
-            );
+            setTimeout(timeOutRetry, _self.config.DELAY, _self.config, _self.URL, _self.options, resolve);
+            // TODO: replace after node version is above 15.0.0
+            // log.debug(`Retry onError #${_self.config.retryCount} next call.`);
+            // resolve(setTimeoutPromise(_self.config.DELAY, new HTTPRetryRequest( _self.config, _self.URL, _self.options)));
           } else {
             log.debug(`onError #${_self.config.retryCount} reject.`);
             // no more tries, just reject
@@ -80,16 +75,10 @@ function HTTPRetryRequest(config, URL, options) {
               });
               return; // exit to avoid next call
             }
-            setTimeout(
-              (url, config, options) => {
-                log.debug(`Retry OnError #${_self.config.retryCount} next call.`);
-                resolve(new HTTPRetryRequest(url, config, options));
-              },
-              _self.config.DELAY,
-              _self.URL,
-              _self.config,
-              _self.options
-            );
+            setTimeout(timeOutRetry, _self.config.DELAY, _self.config, _self.URL, _self.options, resolve);
+            // TODO: replace after node version is above 15.0.0
+            // log.debug(`Retry onEnd #${_self.config.retryCount} next call.`);
+            // resolve(setTimeoutPromise(_self.config.DELAY, new HTTPRetryRequest( _self.config, _self.URL, _self.options)));
           } else {
             log.debug(`onEnd #${_self.config.retryCount} resolve.`);
             resolve({
@@ -109,6 +98,11 @@ function HTTPRetryRequest(config, URL, options) {
     }
     requestInstance.end();
   });
+}
+
+function timeOutRetry(config, url, options, newResolve) {
+  log.debug(`Retry #${config.retryCount} next call.`);
+  newResolve(new HTTPRetryRequest(config, url, options));
 }
 
 module.exports = HTTPRetryRequest;
