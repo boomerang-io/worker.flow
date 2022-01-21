@@ -40,7 +40,7 @@ function HTTPRetryRequest(config, URL, options) {
       const innerStatusCode = response.statusCode.toString();
       const responseInstance = response
         .on("error", error => {
-          log.debug(`Retry OnError #${_self.config.retryCount} HTTP Status Code: ${innerStatusCode}`);
+          log.debug(`Retry onError #${_self.config.retryCount} HTTP Status Code: ${innerStatusCode}`);
           responseInstance.abort();
           if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount <= _self.config.MAX_RETRIES) {
             if (!_self.config.IS_ERROR) {
@@ -53,6 +53,7 @@ function HTTPRetryRequest(config, URL, options) {
             }
             setTimeout(
               (url, config, options) => {
+                log.debug(`Retry onError #${_self.config.retryCount} next call.`);
                 // if the status is one of the ones we want to retry, then make the same request
                 resolve(new HTTPRetryRequest(url, config, options));
               },
@@ -62,6 +63,7 @@ function HTTPRetryRequest(config, URL, options) {
               _self.options
             );
           } else {
+            log.debug(`onError #${_self.config.retryCount} reject.`);
             // no more tries, just reject
             reject(error);
           }
@@ -80,6 +82,7 @@ function HTTPRetryRequest(config, URL, options) {
             }
             setTimeout(
               (url, config, options) => {
+                log.debug(`Retry OnError #${_self.config.retryCount} next call.`);
                 resolve(new HTTPRetryRequest(url, config, options));
               },
               _self.config.DELAY,
@@ -88,6 +91,7 @@ function HTTPRetryRequest(config, URL, options) {
               _self.options
             );
           } else {
+            log.debug(`onEnd #${_self.config.retryCount} resolve.`);
             resolve({
               statusCode: innerStatusCode,
               body: _self.buffer
@@ -96,6 +100,7 @@ function HTTPRetryRequest(config, URL, options) {
         });
     });
     requestInstance.on("error", err => {
+      log.debug(`requestInstance onEnd #${_self.config.retryCount} reject.`);
       // other type of error prior to response
       reject(err);
     });
