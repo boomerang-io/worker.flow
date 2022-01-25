@@ -27,6 +27,32 @@ module.exports = {
 
     const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, errorcodes = "", isErrorCodes = "failure", httperrorretry = 3, httpRetryDelay = 200 } = taskProps;
 
+    // Input validations
+    if (httperrorretry) {
+      // parse test
+      let tmphttperrorretry = parseInt(httperrorretry, 10);
+      if (isNaN(tmphttperrorretry)) {
+        log.err("Invalid input for: httperrorretry");
+        process.exit(1);
+      }
+      if (tmphttperrorretry < 0 || tmphttperrorretry > 10) {
+        log.err("Invalid input for: httperrorretry [0,10]");
+        process.exit(1);
+      }
+    }
+    if (httpRetryDelay) {
+      // parse test
+      let tmphttpRetryDelay = parseInt(httpRetryDelay, 10);
+      if (isNaN(tmphttpRetryDelay)) {
+        log.err("Invalid input for: httpRetryDelay");
+        process.exit(1);
+      }
+      if (tmphttperrorretry < 100 || tmphttperrorretry > 30000) {
+        log.err("Invalid input for: httpRetryDelay [100,30000]");
+        process.exit(1);
+      }
+    }
+
     /**
      * turn header into object based upon new line delimeters
      */
