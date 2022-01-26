@@ -47,7 +47,7 @@ module.exports = {
         log.err("Invalid input for: httpRetryDelay");
         process.exit(1);
       }
-      if (tmphttperrorretry < 100 || tmphttperrorretry > 30000) {
+      if (tmphttpRetryDelay < 100 || tmphttpRetryDelay > 30000) {
         log.err("Invalid input for: httpRetryDelay [100,30000]");
         process.exit(1);
       }
