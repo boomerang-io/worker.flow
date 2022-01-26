@@ -25,29 +25,36 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
 
-    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, errorcodes = "", isErrorCodes = "failure", httperrorretry = 3, httpRetryDelay = 200 } = taskProps;
+    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, errorcodes = "", isErrorCodes = "failure", httperrorretry = 0, httpRetryDelay = 200 } = taskProps;
 
-    // Input validations
-    if (httperrorretry) {
-      // parse test
-      let tmphttperrorretry = parseInt(httperrorretry, 10);
-      if (isNaN(tmphttperrorretry)) {
+    // Input force defaults
+    let newisErrorCodes = "failure";
+    let newhttperrorretry = 0;
+    let newhttpRetryDelay = 200;
+    // Input not "empty", set value
+    if (typeof isErrorCodes === "string" && isErrorCodes !== '""' && isErrorCodes !== '" "' && isErrorCodes !== "") {
+      newisErrorCodes = isErrorCodes.trim().toLowerCase(); // Input normalization
+    }
+    if (httperrorretry !== '""' && httperrorretry !== '" "' && httperrorretry !== "") {
+      newhttperrorretry = parseInt(httperrorretry, 10);
+      if (isNaN(newhttperrorretry)) {
         log.err("Invalid input for: httperrorretry");
         process.exit(1);
       }
-      if (tmphttperrorretry < 0 || tmphttperrorretry > 10) {
+      if (newhttperrorretry < 0 || newhttperrorretry > 10) {
         log.err("Invalid input for: httperrorretry [0,10]");
         process.exit(1);
       }
     }
-    if (httpRetryDelay) {
+    if (httpRetryDelay !== '""' && httpRetryDelay !== '" "' && httpRetryDelay !== "") {
+      newhttpRetryDelay = parseInt(httpRetryDelay, 10);
       // parse test
-      let tmphttpRetryDelay = parseInt(httpRetryDelay, 10);
-      if (isNaN(tmphttpRetryDelay)) {
+      if (isNaN(newhttpRetryDelay)) {
         log.err("Invalid input for: httpRetryDelay");
         process.exit(1);
       }
-      if (tmphttpRetryDelay < 100 || tmphttpRetryDelay > 30000) {
+      // bounds exceeded
+      if (newhttpRetryDelay < 100 || newhttpRetryDelay > 30000) {
         log.err("Invalid input for: httpRetryDelay [100,30000]");
         process.exit(1);
       }
@@ -128,9 +135,9 @@ module.exports = {
 
     let config = {
       ERROR_CODES: errorcodes,
-      MAX_RETRIES: httperrorretry, // default is 3
-      DELAY: httpRetryDelay,
-      IS_ERROR: isErrorCodes.toLowerCase() === "failure"
+      MAX_RETRIES: newhttperrorretry,
+      DELAY: newhttpRetryDelay,
+      IS_ERROR: newisErrorCodes === "failure"
     };
     if (body && body !== "" && body !== '""' && body !== '" "') {
       log.debug("writing request body");
