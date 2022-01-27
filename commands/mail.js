@@ -122,6 +122,7 @@ function createAttachment(attachments) {
 
 module.exports = {
   async sendEmailWithSendgrid() {
+    // https://github.com/sendgrid/sendgrid-nodejs/blob/main/packages/client/USAGE.md#v3-mail-send
     log.debug("Started send Email With Sendgrid");
 
     //Destructure and get properties ready.
@@ -181,11 +182,27 @@ module.exports = {
     request.method = "POST";
     request.url = "/v3/mail/send";
 
-    log.sys(`stringify request made by client: ${JSON.stringify(client.createRequest(request))}`);
+    // TODO: check what createRequest returns
+    // log.sys(`stringify request made by client: ${JSON.stringify(client.createRequest(request))}`);
 
     try {
-      await client.request(request);
-      log.good("Email with Sendgrid successfully sent");
+      const clientResponse = await client
+        .request(request)
+        .then(([response, body]) => {
+          log.debug(`response.statusCode: ${response.statusCode} \n response.body: ${response.body} \n ${body}`);
+          return response;
+        })
+        .catch(err => {
+          log.err(err);
+          throw err;
+        });
+      // https://docs.sendgrid.com/api-reference/how-to-use-the-sendgrid-v3-api/responses#status-codes
+      if (/2\d\d/g.test(clientResponse.statusCode)) {
+        log.good("Email with Sendgrid successfully sent");
+      } else {
+        log.debug(`statusCode: ${clientResponse.statusCode} \n message: ${clientResponse}`);
+        process.exit(1);
+      }
     } catch (err) {
       log.err(err);
       process.exit(1);
