@@ -7,8 +7,38 @@ const postmark = require("postmark");
 const { UpdateMessageStreamRequest } = require("postmark/dist/client/models");
 
 /**
+ * Check if param is set or not, in case of mandatory inputs
+ * @param {*} input - if the string is empty, we want to pass it as undefined to the api
  *
- * @param {} input - if the string is empty, we want to pass it as undefined to the api
+ */
+function checkIfEmpty(input) {
+  if (!input || (typeof input === "string" && (input === '""' || input === '" "'))) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Removes every property from object, with the name 'fieldName'
+ * @param {object} object
+ * @param {string} fieldName
+ */
+function unsetField(object, fieldName) {
+  Object.keys(object).forEach(key => {
+    // recursive call
+    if (object[key] && object[key] instanceof Object && Object.keys(object[key]).length) {
+      unsetField(object[key], fieldName);
+    } else {
+      if (key === fieldName) {
+        delete object[key];
+      }
+    }
+  });
+}
+
+/**
+ *
+ * @param {*} input - if the string is empty, we want to pass it as undefined to the api
  *
  */
 function protectAgainstEmpty(input) {
@@ -121,6 +151,18 @@ function createAttachment(attachments) {
 }
 
 module.exports = {
+  /**
+   * @param {string} to  / mandatory
+   * @param {string} [cc] -
+   * @param {string} [bcc]
+   * @param {string} from [mandatory]
+   * @param {string} [replyTo]
+   * @param {string} [subject]
+   * @param {string} contentType [mandatory]
+   * @param {string} [bodyContent]
+   * @param {string} apiKey [mandatory]
+   * @param {string} [attachments]
+   */
   async sendEmailWithSendgrid() {
     // https://github.com/sendgrid/sendgrid-nodejs/blob/main/packages/client/USAGE.md#v3-mail-send
     log.debug("Started send Email With Sendgrid");
@@ -128,6 +170,14 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
     const { to, cc, bcc, from, replyTo, subject, contentType, bodyContent, apiKey, attachments } = taskProps;
+
+    if (!checkIfEmpty(to) || !checkIfEmpty(from) || !checkIfEmpty(contentType) || !checkIfEmpty(apiKey)) {
+      log.err(`One of these input fields are not set: to, from, contentType, apiKey`);
+      process.exit(1);
+    }
+    if (!checkIfEmpty(cc) || !checkIfEmpty(bcc) || !checkIfEmpty(replyTo) || !checkIfEmpty(subject) || !checkIfEmpty(bodyContent) || !checkIfEmpty(attachments)) {
+      log.warn(`One of these input fields are not set: cc, bcc, replyTo, subject, bodyContent, attachments`);
+    }
 
     client.setApiKey(apiKey);
 
@@ -182,28 +232,37 @@ module.exports = {
     request.method = "POST";
     request.url = "/v3/mail/send";
 
-    // TODO: check what createRequest returns
-    // log.sys(`stringify request made by client: ${JSON.stringify(client.createRequest(request))}`);
+    const clientRequest = { ...client.createRequest(request) }; // Shallow copy
+    // remove every "Authorization"
+    unsetField(clientRequest, "Authorization");
+    log.sys(`stringify request made by client: ${JSON.stringify(clientRequest)}`);
 
     try {
       const clientResponse = await client
         .request(request)
         .then(([response, body]) => {
-          log.debug(`response.statusCode: ${response.statusCode} \n response.body: ${response.body} \n ${body}`);
+          // log.debug(`response.statusCode: ${response.statusCode} \n response.body: ${response.body} \n ${body}`);
+          log.debug(`response.statusCode: ${response.statusCode}`); // for success body is empty
           return response;
         })
         .catch(err => {
-          log.err(err);
-          throw err;
+          log.debug(`code:${err.code}`);
+          log.debug(`message:${err.message}`);
+          log.debug(`response.headers:${JSON.stringify(err.response.headers)}`);
+          log.debug(`response.body:${JSON.stringify(err.response.body)}`);
+          return err;
+          // throw err; // We do not want to go to the catch (:262) we want to process this one (:258)
         });
       // https://docs.sendgrid.com/api-reference/how-to-use-the-sendgrid-v3-api/responses#status-codes
       if (/2\d\d/g.test(clientResponse.statusCode)) {
         log.good("Email with Sendgrid successfully sent");
       } else {
-        log.debug(`statusCode: ${clientResponse.statusCode} \n message: ${clientResponse}`);
+        log.err("Email with Sendgrid was NOT sent");
+        log.debug(`statusCode: ${clientResponse.code} \n message: ${clientResponse.message} \n ${clientResponse.toString()}`);
         process.exit(1);
       }
     } catch (err) {
+      log.err("Email with Sendgrid was NOT sent");
       log.err(err);
       process.exit(1);
     }
