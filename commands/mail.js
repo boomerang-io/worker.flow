@@ -5,6 +5,11 @@ const fs = require("fs");
 const client = require("@sendgrid/client");
 const postmark = require("postmark");
 const { UpdateMessageStreamRequest } = require("postmark/dist/client/models");
+/**
+ * checkIfEmpty - Check if param is set or not, in case of mandatory inputs
+ * unsetField - Removes every property from object, with the name 'fieldName'
+ * checkParameters - Validates all attributes of the supplied object. Returns true if all parameters are valid.
+ */
 const { checkIfEmpty, unsetField, checkParameters } = require("./../libs/utilities");
 
 function splitStrToObjects(str) {
@@ -16,11 +21,12 @@ function splitStrToObjects(str) {
       return { email: strEmail };
     });
   }
-  if (str.includes(";")) {
-    return str.split(";").map(strEmail => {
-      return { email: strEmail };
-    });
-  }
+  // TODO: functionality could be used in the future.
+  // if (str.includes(";")) {
+  //   return str.split(";").map(strEmail => {
+  //     return { email: strEmail };
+  //   });
+  // }
   return [{ email: str }];
 }
 /**
@@ -203,8 +209,8 @@ module.exports = {
       if (/2\d\d/g.test(clientResponse.statusCode)) {
         log.good("Email with Sendgrid successfully sent");
       } else {
-        log.err("Email with Sendgrid was NOT sent");
-        log.debug(`statusCode: ${clientResponse.code} \n message: ${clientResponse.message} \n ${clientResponse.toString()}`);
+        log.err(`Email with Sendgrid was NOT sent. StatusCode: ${clientResponse.code}`);
+        log.debug(`message: ${clientResponse.message} \n ${clientResponse.toString()}`);
         process.exit(1);
       }
     } catch (err) {
@@ -301,7 +307,7 @@ module.exports = {
     // create a shallow copy of the request for logging
     const clientRequest = { ...client.createRequest(request) }; // Shallow copy
     unsetField(clientRequest, "Authorization"); // remove sensitive fileds ("Authorization")
-    log.sys(`stringify request made by client: ${JSON.stringify(clientRequest)}`);
+    log.debug(`stringify request made by client: ${JSON.stringify(clientRequest)}`);
     try {
       const clientResponse = await client
         .request(request)
@@ -321,8 +327,8 @@ module.exports = {
       if (/2\d\d/g.test(clientResponse.statusCode)) {
         log.good("Email with Sendgrid Template successfully sent");
       } else {
-        log.err("Email with Sendgrid Template was NOT sent");
-        log.debug(`statusCode: ${clientResponse.code} \n message: ${clientResponse.message} \n ${clientResponse.toString()}`);
+        log.err(`Email with Sendgrid Template was NOT sent. StatusCode: ${clientResponse.code}`);
+        log.debug(`message: ${clientResponse.message} \n ${clientResponse.toString()}`);
         process.exit(1);
       }
     } catch (err) {

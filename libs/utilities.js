@@ -43,6 +43,8 @@ module.exports = (function() {
     },
 
     /**
+     * Try to check if valid JSON and convert it to JS Object.
+     * Attention: hard exit on failure.
      *
      * @param {string} input - check to see if the parameter is not empty, then parse before sending to API
      *
