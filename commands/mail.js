@@ -5,77 +5,21 @@ const fs = require("fs");
 const client = require("@sendgrid/client");
 const postmark = require("postmark");
 const { UpdateMessageStreamRequest } = require("postmark/dist/client/models");
-
-/**
- * Check if param is set or not, in case of mandatory inputs
- * @param {*} input - if the string is empty, we want to pass it as undefined to the api
- *
- */
-function checkIfEmpty(input) {
-  if (!input || (typeof input === "string" && (input === '""' || input === '" "'))) {
-    return false;
-  }
-  return true;
-}
-
-/**
- * Removes every property from object, with the name 'fieldName'
- * @param {object} object
- * @param {string} fieldName
- */
-function unsetField(object, fieldName) {
-  Object.keys(object).forEach(key => {
-    // recursive call
-    if (object[key] && object[key] instanceof Object && Object.keys(object[key]).length) {
-      unsetField(object[key], fieldName);
-    } else {
-      if (key === fieldName) {
-        delete object[key];
-      }
-    }
-  });
-}
-
-/**
- *
- * @param {*} input - if the string is empty, we want to pass it as undefined to the api
- *
- */
-function protectAgainstEmpty(input) {
-  if (input && typeof input === "string" && input === '""') {
-    return undefined;
-  }
-  return input;
-}
-
-/**
- *
- * @param {} input - check to see if the parameter is not empty, then parse before sending to API
- *
- */
-function checkForJson(input) {
-  if (input && typeof input === "string" && input !== '""') {
-    try {
-      return JSON.parse(input);
-    } catch (err) {
-      log.err("JSON was unable to be parsed");
-      process.exit(1);
-    }
-  }
-  return undefined;
-}
+const { checkIfEmpty, unsetField, checkParameters } = require("./../libs/utilities");
 
 function splitStrToObjects(str) {
-  if (!str || typeof str !== "string" || str === '""') {
-    return undefined;
+  if (checkIfEmpty(str)) {
+    return;
   }
-
-  if (str && typeof str === "string" && str.includes(",")) {
-    let strArr = str.split(",");
-    let temp = strArr.map(strEmail => {
+  if (str.includes(",")) {
+    return str.split(",").map(strEmail => {
       return { email: strEmail };
     });
-    return temp;
+  }
+  if (str.includes(";")) {
+    return str.split(";").map(strEmail => {
+      return { email: strEmail };
+    });
   }
   return [{ email: str }];
 }
@@ -87,7 +31,7 @@ function splitStrToObjects(str) {
  * @param {*} bodyContent
  */
 function createContent(contentType, bodyContent) {
-  if (!protectAgainstEmpty(contentType) && !protectAgainstEmpty(bodyContent)) {
+  if (checkIfEmpty(contentType) || checkIfEmpty(bodyContent)) {
     return null;
   }
 
@@ -106,7 +50,7 @@ function createContent(contentType, bodyContent) {
       });
       break;
   }
-  if (output.length > 0) {
+  if (output.length) {
     return output;
   } else return null;
 }
@@ -117,7 +61,7 @@ function createContent(contentType, bodyContent) {
  * @param {*} attachments
  */
 function createAttachment(attachments) {
-  if (!protectAgainstEmpty(attachments)) {
+  if (checkIfEmpty(attachments)) {
     return null;
   }
   let output = [];
@@ -129,7 +73,7 @@ function createAttachment(attachments) {
 
   fileArray.forEach(attachment => {
     try {
-      if (protectAgainstEmpty(attachment)) {
+      if (!checkIfEmpty(attachment)) {
         const file = fs.readFileSync(attachment, "binary");
         output.push({
           content: Buffer.from(file, "binary").toString("base64"),
@@ -145,38 +89,40 @@ function createAttachment(attachments) {
     }
   });
 
-  if (output.length > 0) {
+  if (output.length) {
     return output;
   } else return null;
 }
 
 module.exports = {
   /**
-   * @param {string} to  / mandatory
-   * @param {string} [cc] -
+   * @param {string} to  - mandatory
+   * @param {string} [cc]
    * @param {string} [bcc]
-   * @param {string} from [mandatory]
+   * @param {string} from  - mandatory
    * @param {string} [replyTo]
    * @param {string} [subject]
-   * @param {string} contentType [mandatory]
+   * @param {string} contentType  - mandatory
    * @param {string} [bodyContent]
-   * @param {string} apiKey [mandatory]
+   * @param {string} apiKey  - mandatory
    * @param {string} [attachments]
    */
   async sendEmailWithSendgrid() {
     // https://github.com/sendgrid/sendgrid-nodejs/blob/main/packages/client/USAGE.md#v3-mail-send
     log.debug("Started send Email With Sendgrid");
 
-    //Destructure and get properties ready.
+    // Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
     const { to, cc, bcc, from, replyTo, subject, contentType, bodyContent, apiKey, attachments } = taskProps;
 
-    if (!checkIfEmpty(to) || !checkIfEmpty(from) || !checkIfEmpty(contentType) || !checkIfEmpty(apiKey)) {
-      log.err(`One of these input fields are not set: to, from, contentType, apiKey`);
+    // Validate mandatory parameters
+    if (checkParameters({ to, from, contentType, apiKey })) {
+      log.err(`Invalid mandatory parameters. Check log for details`);
       process.exit(1);
     }
-    if (!checkIfEmpty(cc) || !checkIfEmpty(bcc) || !checkIfEmpty(replyTo) || !checkIfEmpty(subject) || !checkIfEmpty(bodyContent) || !checkIfEmpty(attachments)) {
-      log.warn(`One of these input fields are not set: cc, bcc, replyTo, subject, bodyContent, attachments`);
+
+    if (checkParameters({ cc, bcc, replyTo, subject, bodyContent, attachments })) {
+      log.warn(`These input fields are not set.`);
     }
 
     client.setApiKey(apiKey);
@@ -188,7 +134,7 @@ module.exports = {
       personalizations: []
     };
 
-    if (protectAgainstEmpty(replyTo)) {
+    if (!checkIfEmpty(replyTo)) {
       data["reply_to"] = {
         email: replyTo
       };
@@ -198,7 +144,7 @@ module.exports = {
       data["personalizations"].push({ to: splitStrToObjects(to) });
     }
 
-    if (protectAgainstEmpty(subject)) {
+    if (!checkIfEmpty(subject)) {
       data["subject"] = subject;
     }
 
@@ -214,7 +160,7 @@ module.exports = {
       data["content"] = createContent(contentType, bodyContent);
     }
 
-    if (protectAgainstEmpty(attachments)) {
+    if (!checkIfEmpty(attachments)) {
       data["attachments"] = createAttachment(attachments);
     }
 
@@ -268,12 +214,31 @@ module.exports = {
     }
     log.debug("Finished Send Email With Sendgrid");
   },
+  /**
+   * @param {string} to  - mandatory
+   * @param {string} [cc]
+   * @param {string} [bcc]
+   * @param {string} from  - mandatory
+   * @param {string} [replyTo]
+   * @param {string} [subject]
+   * @param {string} apiKey  - mandatory
+   * @param {string} templateId  - mandatory
+   * @param {string} [dynamicTemplateData]
+   * @param {string} [attachments]
+   */
   async sendEmailWithSendgridTemplate() {
+    // Documentation on send mail API: https://docs.sendgrid.com/api-reference/mail-send/mail-send
     log.debug("Started Send Email With Sendgrid Template");
 
-    //Destructure and get properties ready.
+    // Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
     const { to, cc, bcc, from, replyTo, subject, apiKey, templateId, dynamicTemplateData, attachments } = taskProps;
+
+    // Validate mandatory parameters
+    if (checkParameters({ to, from, templateId, apiKey })) {
+      log.err(`Invalid mandatory parameters. Check log for details`);
+      process.exit(1);
+    }
 
     client.setApiKey(apiKey);
 
@@ -284,13 +249,13 @@ module.exports = {
       personalizations: []
     };
 
-    if (protectAgainstEmpty(replyTo)) {
+    if (!checkIfEmpty(replyTo)) {
       data["reply_to"] = {
         email: replyTo
       };
     }
 
-    if (protectAgainstEmpty(templateId)) {
+    if (!checkIfEmpty(templateId)) {
       data["template_id"] = templateId;
     }
 
@@ -298,7 +263,7 @@ module.exports = {
       data["personalizations"].push({ to: splitStrToObjects(to) });
     }
 
-    if (protectAgainstEmpty(subject)) {
+    if (!checkIfEmpty(subject)) {
       data["subject"] = subject;
     }
 
@@ -310,16 +275,17 @@ module.exports = {
       data["personalizations"][0]["bcc"] = splitStrToObjects(bcc);
     }
 
-    if (checkForJson(dynamicTemplateData)) {
-      data["personalizations"][0]["dynamic_template_data"] = checkForJson(dynamicTemplateData);
+    let newdynamicTemplateData = checkForJson(dynamicTemplateData);
+    if (newdynamicTemplateData) {
+      data["personalizations"][0]["dynamic_template_data"] = newdynamicTemplateData;
     }
 
-    if (protectAgainstEmpty(attachments)) {
+    if (!checkIfEmpty(attachments)) {
       data["attachments"] = createAttachment(attachments);
     }
 
     if (process.env.HTTP_PROXY) {
-      log.debug(`Setting Proxy`);
+      log.debug(`Setting Proxy: ${process.env.HTTP_PROXY}`);
       let agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
       client.setDefaultRequest("httpsAgent", agent);
       client.setDefaultRequest("proxy", false);
@@ -332,28 +298,57 @@ module.exports = {
     request.method = "POST";
     request.url = "/v3/mail/send";
 
-    log.sys(`stringify request made by client: ${JSON.stringify(client.createRequest(request))}`);
-
+    // create a shallow copy of the request for logging
+    const clientRequest = { ...client.createRequest(request) }; // Shallow copy
+    unsetField(clientRequest, "Authorization"); // remove sensitive fileds ("Authorization")
+    log.sys(`stringify request made by client: ${JSON.stringify(clientRequest)}`);
     try {
-      await client.request(request);
-      log.good("Email with Sendgrid Template successfully sent");
+      const clientResponse = await client
+        .request(request)
+        .then(([response, body]) => {
+          log.debug(`response.statusCode: ${response.statusCode}`); // for success body is empty
+          return response;
+        })
+        .catch(err => {
+          log.debug(`code:${err.code}`);
+          log.debug(`message:${err.message}`);
+          log.debug(`response.headers:${JSON.stringify(err.response.headers)}`);
+          log.debug(`response.body:${JSON.stringify(err.response.body)}`);
+          return err;
+        });
+
+      // https://docs.sendgrid.com/api-reference/how-to-use-the-sendgrid-v3-api/responses#status-codes
+      if (/2\d\d/g.test(clientResponse.statusCode)) {
+        log.good("Email with Sendgrid Template successfully sent");
+      } else {
+        log.err("Email with Sendgrid Template was NOT sent");
+        log.debug(`statusCode: ${clientResponse.code} \n message: ${clientResponse.message} \n ${clientResponse.toString()}`);
+        process.exit(1);
+      }
     } catch (err) {
+      log.err("Email with Sendgrid Template was NOT sent");
       log.err(err);
       process.exit(1);
     }
     log.debug("Finished Send Email With Sendgrid Template");
   },
+  /**
+   *
+   */
   async sendPostmarkEmailWithTemplate() {
     log.debug("Started Send Email with Template");
 
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
-    // const { to, cc, bcc, from, replyTo, subject, contentType, bodyContent, apiKey, attachments } = taskProps;
     const { token, from, to, templateId, templateAlias, templateModel, tag, messageStream } = taskProps;
 
-    // Validate input
-    if (!token || !from || !to) {
-      log.err("A required parameter has not been provided. Please check your parameters and try again.", "\nToken: " + token, "\nFrom: " + from, "\nTo: " + to);
+    if (checkParameters({ token, from, to })) {
+      log.err(`A required parameter has not been provided. Please check your parameters and try again.`);
+      process.exit(1);
+    }
+
+    if (checkIfEmpty(templateId) || checkIfEmpty(templateAlias)) {
+      log.err("Either Template ID or Template Alias needs to be provided. Please check your parameters and try again.", "\nTemplate ID: " + templateId, "\nTemplate Alias: " + templateAlias);
       process.exit(1);
     }
 
@@ -362,12 +357,7 @@ module.exports = {
       templateModelPayload = checkForJson(templateModel);
     }
 
-    if (!templateId && !templateAlias) {
-      log.err("Either Template ID or Template Alias needs to be provided. Please check your parameters and try again.", "\nTemplate ID: " + templateId, "\nTemplate Alias: " + templateAlias);
-      process.exit(1);
-    }
-
-    if (!messageStream) {
+    if (checkIfEmpty(messageStream)) {
       log.warn("Message Stream not provided. Defaulting to 'outbound'.");
       messageStream = "outbound";
     }
@@ -381,7 +371,7 @@ module.exports = {
       MessageStream: messageStream
     };
 
-    if (templateId && templateId !== '""') {
+    if (!checkIfEmpty(templateId)) {
       data.templateId = templateId;
     } else {
       data.templateAlias = templateAlias;
@@ -393,10 +383,21 @@ module.exports = {
 
     log.debug("Created Payload: ", data);
 
-    // It catches itself and prints a more descriptive error message
-    await client.sendEmailWithTemplate(JSON.stringify(data)).then(res => {
-      utils.setOutputParameters(res);
-      log.good("The task completed successfully with response saved as result parameter.", "\nTo: " + res.To, "\nSubmitted At: " + res.SubmittedAt, "\nMessage: " + res.Message, "\nID: " + res.MessageID);
-    });
+    try {
+      // It catches itself and prints a more descriptive error message
+      let clientResponse = await client.sendEmailWithTemplate(JSON.stringify(data));
+      utils.setOutputParameters(clientResponse);
+      // https://postmarkapp.com/developer/api/overview#error-codes
+      if (/2\d\d/g.test(clientResponse.ErrorCode)) {
+        log.good("The task completed successfully with response saved as result parameter.", "\nTo: " + clientResponse.To, "\nSubmitted At: " + clientResponse.SubmittedAt, "\nMessage: " + clientResponse.Message, "\nID: " + clientResponse.MessageID);
+      } else {
+        log.err("The task failed with response saved as result parameter.", "\nTo: " + clientResponse.To, "\nSubmitted At: " + clientResponse.SubmittedAt, "\nMessage: " + clientResponse.Message, "\nID: " + clientResponse.MessageID);
+        process.exit(1);
+      }
+    } catch (err) {
+      log.err("EmailWithTemplate with Postmark was NOT sent");
+      log.err(err);
+      process.exit(1);
+    }
   }
 };
