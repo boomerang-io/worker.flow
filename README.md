@@ -46,6 +46,18 @@ Under the `props` folder, you can set input variables:
 
 These files are designed to replicate the properties that would be mounted in confimaps by the controller service.
 
+### Development guide
+
+#### **Utilities file / functions** [libs/utilities.js](./libs/utilities.js)
+
+**_Descriptions_**: This file contains utility functions that are to be used/reused in other tasks to offer the developer a faster way to check for missing parameters, display missing parameters, unset parameters, removal of specific properties from objects, etc.
+**_Functions_**
+
+- _checkIfEmpty_: Check if param is set or not, in case of mandatory inputs;
+- _unsetField_: Removes every property from object, with the name 'fieldName';
+- _checkParameters_: Validates all attributes of the supplied object. Returns true if all parameters are valid;
+- _checkForJson_: Try to check if valid JSON and convert it to JS Object.
+
 ## Packaging
 
 ### Automatic
