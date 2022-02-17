@@ -71,8 +71,14 @@ module.exports = {
       headerSplitArr.forEach(line => {
         let arrHearder = line.split(":");
         if (arrHearder && arrHearder.length) {
-          let key = arrHearder[0].trim().replace(/("|')/g, "");
-          let value = arrHearder[1].trim().replace(/("|')/g, "");
+          let key = arrHearder
+            .shift()
+            .trim()
+            .replace(/("|')/g, ""); //take first string, the header
+          let value = arrHearder
+            .join(":")
+            .trim()
+            .replace(/("|')/g, ""); //rejoin all strings
           headerObject[key] = value;
         }
       });
