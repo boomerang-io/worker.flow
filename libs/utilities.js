@@ -50,7 +50,7 @@ module.exports = (function() {
      *
      */
     checkForJson: function(input) {
-      if (module.exports.checkIfEmpty(input)) {
+      if (!module.exports.checkIfEmpty(input)) {
         try {
           return JSON.parse(input);
         } catch (err) {
