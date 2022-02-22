@@ -4,6 +4,7 @@ const https = require("https");
 const URL = require("url");
 const fs = require("fs");
 const HTTPRetryRequest = require("../libs/HTTPRetryRequest");
+const { checkForJson, checkIfEmpty } = require("../libs/utilities");
 
 module.exports = {
   /**
@@ -31,11 +32,12 @@ module.exports = {
     let newisErrorCodes = "failure";
     let newhttperrorretry = 0;
     let newhttpRetryDelay = 200;
+    let newbody = "";
     // Input not "empty", set value
-    if (typeof isErrorCodes === "string" && isErrorCodes !== '""' && isErrorCodes !== '" "' && isErrorCodes !== "") {
+    if (!checkIfEmpty(isErrorCodes)) {
       newisErrorCodes = isErrorCodes.trim().toLowerCase(); // Input normalization
     }
-    if (httperrorretry !== '""' && httperrorretry !== '" "' && httperrorretry !== "") {
+    if (!checkIfEmpty(httperrorretry)) {
       newhttperrorretry = parseInt(httperrorretry, 10);
       if (isNaN(newhttperrorretry)) {
         log.err("Invalid input for: httperrorretry");
@@ -46,7 +48,7 @@ module.exports = {
         process.exit(1);
       }
     }
-    if (httpRetryDelay !== '""' && httpRetryDelay !== '" "' && httpRetryDelay !== "") {
+    if (!checkIfEmpty(httpRetryDelay)) {
       newhttpRetryDelay = parseInt(httpRetryDelay, 10);
       // parse test
       if (isNaN(newhttpRetryDelay)) {
@@ -59,13 +61,17 @@ module.exports = {
         process.exit(1);
       }
     }
+    if (!checkIfEmpty(body)) {
+      newbody = body.replace(/(\n|\r)/gm, "");
+      checkForJson(newbody);
+    }
 
     /**
      * turn header into object based upon new line delimeters
      */
 
     const headerObject = {};
-    if (typeof header === "string" && header !== '""' && header !== '" "') {
+    if (!checkIfEmpty(header)) {
       let headerSplitArr = header.split("\n");
       log.debug(headerSplitArr);
       headerSplitArr.forEach(line => {
@@ -79,7 +85,10 @@ module.exports = {
             .join(":")
             .trim()
             .replace(/("|')/g, ""); //rejoin all strings
-          headerObject[key] = value;
+          if (key) {
+            // as per RFC 2616 Sec4.2 - value is optional https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
+            headerObject[key] = value;
+          }
         }
       });
     }
@@ -88,8 +97,8 @@ module.exports = {
       headerObject["Content-Type"] = contentType;
     }
 
-    if (body && body.length && body !== '""' && body !== '" "') {
-      headerObject["Content-Length"] = ~-encodeURI(body).split(/%..|./).length;
+    if (!checkIfEmpty(newbody)) {
+      headerObject["Content-Length"] = ~-encodeURI(newbody).split(/%..|./).length;
     }
 
     log.debug(headerObject);
@@ -145,9 +154,9 @@ module.exports = {
       DELAY: newhttpRetryDelay,
       IS_ERROR: newisErrorCodes === "failure"
     };
-    if (body && body !== "" && body !== '""' && body !== '" "') {
+    if (!checkIfEmpty(newbody)) {
       log.debug("writing request body");
-      config.body = body;
+      config.body = newbody;
     }
 
     new HTTPRetryRequest(config, reqURL, opts)

@@ -1,7 +1,9 @@
 const https = require("https");
 const { log } = require("@boomerang-io/worker-core");
+const utilities = require("./utilities");
 // TODO: replace after node version is above 15.0.0
 // const { setTimeout: setTimeoutPromise } = require('timers/promises');
+const { checkForJson } = require("./../libs/utilities");
 
 let DEFAULTS = {
   MAX_RETRIES: 5,
