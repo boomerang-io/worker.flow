@@ -58,7 +58,24 @@ module.exports = (function() {
           process.exit(1);
         }
       }
-      return undefined;
+      return false;
+    },
+
+    /**
+     * Try to check if valid JSON and convert it to JS Object.
+     *
+     * @param {string} input - check to see if the parameter is not empty, then parse before sending to API
+     *
+     */
+    isValidJson: function(input) {
+      if (!module.exports.checkIfEmpty(input)) {
+        try {
+          return JSON.parse(input);
+        } catch (err) {
+          return false;
+        }
+      }
+      return false;
     }
   };
 })();
