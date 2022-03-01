@@ -90,7 +90,8 @@ function HTTPRetryRequest(config, URL, options) {
               });
             } else {
               // no more tries, just reject
-              reject(new Error(innerStatusCode));
+              log.debug(`onEnd reject \n ${response.statusMessage.toString()}.`);
+              reject(new Error(innerStatusCode, { cause: response.statusMessage.toString() }));
             }
           }
         });

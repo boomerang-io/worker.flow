@@ -189,7 +189,7 @@ module.exports = {
         log.good("Response successfully received!");
       })
       .catch(err => {
-        log.err("HTTP Promise error:", err);
+        log.err("HTTP Promise error:", err, "Cause: ", err.cause);
         process.exit(1);
       });
 
