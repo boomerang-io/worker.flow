@@ -63,7 +63,6 @@ module.exports = {
     }
     if (!checkIfEmpty(body)) {
       newbody = body.replace(/(\n|\r)/gm, "");
-      checkForJson(newbody);
     }
 
     /**
