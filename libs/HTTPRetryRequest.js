@@ -44,7 +44,7 @@ function HTTPRetryRequest(config, URL, options) {
       const innerStatusCode = response.statusCode.toString();
       const responseInstance = response
         .on("error", error => {
-          log.debug(`Retry onError #${_self.config.retryCount} HTTP Status Code: ${innerStatusCode}`);
+          log.debug(`Retry onError #${_self.config.retryCount} HTTP Status Code: ${innerStatusCode} \n Status Message: ${response.statusMessage.toString()} \n Response ${_self.buffer.toString()}.`);
           responseInstance.abort();
           if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount <= _self.config.MAX_RETRIES) {
             if (!_self.config.IS_ERROR) {
@@ -67,7 +67,7 @@ function HTTPRetryRequest(config, URL, options) {
         })
         .on("data", chunk => (_self.buffer = Buffer.concat([_self.buffer, chunk])))
         .on("end", () => {
-          log.debug(`Retry onEnd #${_self.config.retryCount} HTTP Status Code: ${innerStatusCode}`);
+          log.debug(`Retry onEnd #${_self.config.retryCount} HTTP Status Code: ${innerStatusCode} \n Status Message: ${response.statusMessage.toString()} \n Response ${_self.buffer.toString()}.`);
           if (_self.config.ERROR_CODES && _self.config.ERROR_CODES.test(innerStatusCode) && _self.config.retryCount <= _self.config.MAX_RETRIES) {
             if (!_self.config.IS_ERROR) {
               // Success branch and one of the status codes is found, resolve with success
@@ -90,8 +90,13 @@ function HTTPRetryRequest(config, URL, options) {
               });
             } else {
               // no more tries, just reject
-              log.debug(`onEnd reject \n ${response.statusMessage.toString()}.`);
-              reject(new Error(innerStatusCode, { cause: response.statusMessage.toString() }));
+              log.debug(`onEnd reject \n StatusMessage: ${response.statusMessage.toString()} \n Response ${_self.buffer.toString()}.`);
+              // reject(new Error(innerStatusCode, { cause: `StatusMessage: ${response.statusMessage.toString()} \n Response ${_self.buffer.toString()}.`}));
+              reject({
+                statusCode: innerStatusCode,
+                statusMessage: response.statusMessage,
+                body: _self.buffer
+              });
             }
           }
         });
