@@ -154,7 +154,7 @@ module.exports = {
       IS_ERROR: newisErrorCodes === "failure"
     };
     if (!checkIfEmpty(newbody)) {
-      log.debug("writing request body");
+      log.debug("writing request body: \n ", newbody);
       config.body = newbody;
     }
 
