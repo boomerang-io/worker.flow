@@ -2,16 +2,7 @@ const { log, utils } = require("@boomerang-io/worker-core");
 const systemSleep = require("system-sleep");
 const fs = require("fs");
 const jp = require("jsonpath");
-
-// Borrowed from https://stackoverflow.com/questions/3710204/how-to-check-if-a-string-is-a-valid-json-string-in-javascript-without-using-try
-function isValidJSON(jsonString) {
-  try {
-    const obj = JSON.parse(jsonString);
-    return typeof obj === "object";
-  } catch (e) {
-    return false;
-  }
-}
+const { checkParameters, isValidJson } = require("../libs/utilities");
 
 module.exports = {
   sleep() {
@@ -21,16 +12,16 @@ module.exports = {
     const taskProps = utils.resolveInputParameters();
     const { duration } = taskProps;
 
-    if (!duration || duration === '""') {
-      log.err("No duration has been specified or was 0");
-      return process.exit(1);
+    if (checkParameters({ duration })) {
+      log.err(`Invalid mandatory parameters. No duration has been specified or was 0. Check log for details`);
+      process.exit(1);
     }
 
-    log.sys("Commencing sleep for", duration, "milliseconds.");
+    log.sys(`Commencing sleep for ${duration} milliseconds.`);
 
     systemSleep(duration);
 
-    log.good("Finished sleeping for", duration, "milliseconds.");
+    log.good(`Finished sleeping for ${duration} milliseconds.`);
 
     log.debug("Finished Sleep Plugin");
   },
@@ -40,15 +31,21 @@ module.exports = {
     //Destructure and get properties ready.
     const { json, query } = utils.resolveInputParameters();
 
-    if (!isValidJSON(json)) {
+    // Validate mandatory parameters
+    if (checkParameters({ json, query })) {
+      log.err(`Invalid mandatory parameters. Check log for details`);
+      process.exit(1);
+    }
+    let newJSON = isValidJson(json);
+    if (!newJSON) {
       log.err("Invalid JSON string passed to task");
-      return process.exit(1);
+      process.exit(1);
     }
 
-    log.debug("Json:", json);
+    log.debug("Json:", newJSON);
     log.debug("Json Query:", query);
     log.sys("Commencing json parsing of", query, "query.");
-    const propertyValue = jp.value(JSON.parse(json), query);
+    const propertyValue = jp.value(newJSON, query);
     log.sys("Finished parsing, value from query:", propertyValue);
 
     utils.setOutputParameter("evaluation", propertyValue);
@@ -62,19 +59,26 @@ module.exports = {
     //Destructure and get properties ready.
     const { filePath, query } = utils.resolveInputParameters();
 
+    // Validate mandatory parameters
+    if (checkParameters({ filePath, query })) {
+      log.err(`Invalid mandatory parameters. Check log for details`);
+      process.exit(1);
+    }
+
     try {
       const fileContent = fs.readFileSync(filePath, "utf8");
       log.good("The file was succesfully read!");
-      if (!isValidJSON(fileContent)) {
+      let newJSON = isValidJson(fileContent);
+      if (!newJSON) {
         log.err("Invalid JSON content in the file passed to task");
         return process.exit(1);
       }
       log.good("Valid JSON content in the file!");
 
-      log.debug("Json:", JSON.parse(fileContent));
+      log.debug("Json:", newJSON);
       log.debug("Json Query:", query);
       log.sys("Commencing json parsing of", query, "query.");
-      const propertyValue = jp.value(JSON.parse(fileContent), query);
+      const propertyValue = jp.value(newJSON, query);
       log.sys("Finished parsing, value from query:", propertyValue);
 
       utils.setOutputParameter("evaluation", propertyValue);
