@@ -4,7 +4,7 @@ const https = require("https");
 const URL = require("url");
 const fs = require("fs");
 const HTTPRetryRequest = require("../libs/HTTPRetryRequest");
-const { checkForJson, checkIfEmpty } = require("../libs/utilities");
+const { checkIfEmpty } = require("../libs/utilities");
 
 module.exports = {
   /**
@@ -148,13 +148,13 @@ module.exports = {
     log.sys("Commencing to execute HTTP call with", reqURL, JSON.stringify(opts));
 
     let config = {
-      ERROR_CODES: errorcodes,
+      ERROR_CODES: errorcodes.toString(), // Force string
       MAX_RETRIES: newhttperrorretry,
       DELAY: newhttpRetryDelay,
       IS_ERROR: newisErrorCodes === "failure"
     };
     if (!checkIfEmpty(newbody)) {
-      log.debug("writing request body");
+      log.debug("writing request body: \n ", newbody);
       config.body = newbody;
     }
 
@@ -189,8 +189,15 @@ module.exports = {
         log.good("Response successfully received!");
       })
       .catch(err => {
-        log.err("HTTP Promise error:", err);
-        process.exit(1);
+        // log.err("HTTP Promise error:", err, "Cause: ", err.cause);
+        log.err(`HTTP Promise error: \n Status Code: ${err.statusCode} \n Status Message: ${err.statusMessage} \n Response: ${err.body.toString()}`);
+        (async () => {
+          await (async function(msg) {
+            utils.setOutputParameter("statusCode", msg.statusCode);
+            utils.setOutputParameter("response", msg.body.toString());
+          })(err);
+          process.exit(1);
+        })();
       });
 
     log.debug("Finished HTTP Call File Plugin");
