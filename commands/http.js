@@ -160,6 +160,8 @@ module.exports = {
 
     new HTTPRetryRequest(config, reqURL, opts)
       .then(res => {
+        log.debug("res");
+        log.debug(res);
         log.debug(`statusCode: ${res.statusCode}`);
         utils.setOutputParameter("statusCode", JSON.stringify(res.statusCode));
         try {
@@ -190,11 +192,18 @@ module.exports = {
       })
       .catch(err => {
         // log.err("HTTP Promise error:", err, "Cause: ", err.cause);
-        log.err(`HTTP Promise error: \n Status Code: ${err.statusCode} \n Status Message: ${err.statusMessage} \n Response: ${err.body.toString()}`);
+        if (err.statusCode || err.statusMessage || err.body) {
+          log.err(`HTTP Promise error:`);
+          log.err(` \n Status Code: ${err.statusCode}`);
+          log.err(` \n Status Message: ${err.statusMessage}`);
+          log.err(` \n Response: ${err.body?.toString()}`);
+        } else {
+          log.err(`HTTP Promise error:`, err);
+        }
         (async () => {
           await (async function(msg) {
             utils.setOutputParameter("statusCode", msg.statusCode);
-            utils.setOutputParameter("response", msg.body.toString());
+            utils.setOutputParameter("response", msg.body?.toString());
           })(err);
           process.exit(1);
         })();
