@@ -353,7 +353,7 @@ module.exports = {
       process.exit(1);
     }
 
-    if (checkIfEmpty(templateId) || checkIfEmpty(templateAlias)) {
+    if (checkIfEmpty(templateId) && checkIfEmpty(templateAlias)) {
       log.err("Either Template ID or Template Alias needs to be provided. Please check your parameters and try again.", "\nTemplate ID: " + templateId, "\nTemplate Alias: " + templateAlias);
       process.exit(1);
     }
