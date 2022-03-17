@@ -200,7 +200,7 @@ module.exports = {
         }
         (async () => {
           await (async function(msg) {
-            utils.setOutputParameter("statusCode", msg?.statusCode ?? Buffer(0));
+            utils.setOutputParameter("statusCode", msg?.statusCode ?? "");
             utils.setOutputParameter("response", msg?.body?.toString() ?? msg.message);
           })(err);
           process.exit(1);
