@@ -160,8 +160,6 @@ module.exports = {
 
     new HTTPRetryRequest(config, reqURL, opts)
       .then(res => {
-        log.debug("res");
-        log.debug(res);
         log.debug(`statusCode: ${res.statusCode}`);
         utils.setOutputParameter("statusCode", JSON.stringify(res.statusCode));
         try {
@@ -202,8 +200,8 @@ module.exports = {
         }
         (async () => {
           await (async function(msg) {
-            utils.setOutputParameter("statusCode", msg.statusCode);
-            utils.setOutputParameter("response", msg.body?.toString());
+            utils.setOutputParameter("statusCode", msg?.statusCode ?? Buffer(0));
+            utils.setOutputParameter("response", msg?.body?.toString() ?? msg.message);
           })(err);
           process.exit(1);
         })();
