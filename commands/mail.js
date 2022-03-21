@@ -9,8 +9,9 @@ const { UpdateMessageStreamRequest } = require("postmark/dist/client/models");
  * checkIfEmpty - Check if param is set or not, in case of mandatory inputs
  * unsetField - Removes every property from object, with the name 'fieldName'
  * checkParameters - Validates all attributes of the supplied object. Returns true if all parameters are valid.
+ * checkForJson - Validates the payload is JSON
  */
-const { checkIfEmpty, unsetField, checkParameters } = require("./../libs/utilities");
+const { checkIfEmpty, unsetField, checkParameters, checkForJson } = require("./../libs/utilities");
 
 function splitStrToObjects(str) {
   if (checkIfEmpty(str)) {
