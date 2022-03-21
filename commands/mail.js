@@ -395,7 +395,7 @@ module.exports = {
       let clientResponse = await client.sendEmailWithTemplate(JSON.stringify(data));
       utils.setOutputParameters(clientResponse);
       // https://postmarkapp.com/developer/api/overview#error-codes
-      if (/2\d\d/g.test(clientResponse.ErrorCode)) {
+      if (/2\d\d/g.test(clientResponse.ErrorCode) || /0/g.test(clientResponse.ErrorCode)) {
         log.good("The task completed successfully with response saved as result parameter.", "\nTo: " + clientResponse.To, "\nSubmitted At: " + clientResponse.SubmittedAt, "\nMessage: " + clientResponse.Message, "\nID: " + clientResponse.MessageID);
       } else {
         log.err("The task failed with response saved as result parameter.", "\nTo: " + clientResponse.To, "\nSubmitted At: " + clientResponse.SubmittedAt, "\nMessage: " + clientResponse.Message, "\nID: " + clientResponse.MessageID);
