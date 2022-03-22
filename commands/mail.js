@@ -9,8 +9,9 @@ const { UpdateMessageStreamRequest } = require("postmark/dist/client/models");
  * checkIfEmpty - Check if param is set or not, in case of mandatory inputs
  * unsetField - Removes every property from object, with the name 'fieldName'
  * checkParameters - Validates all attributes of the supplied object. Returns true if all parameters are valid.
+ * checkForJson - Validates the payload is JSON
  */
-const { checkIfEmpty, unsetField, checkParameters } = require("./../libs/utilities");
+const { checkIfEmpty, unsetField, checkParameters, checkForJson } = require("./../libs/utilities");
 
 function splitStrToObjects(str) {
   if (checkIfEmpty(str)) {
@@ -353,7 +354,7 @@ module.exports = {
       process.exit(1);
     }
 
-    if (checkIfEmpty(templateId) || checkIfEmpty(templateAlias)) {
+    if (checkIfEmpty(templateId) && checkIfEmpty(templateAlias)) {
       log.err("Either Template ID or Template Alias needs to be provided. Please check your parameters and try again.", "\nTemplate ID: " + templateId, "\nTemplate Alias: " + templateAlias);
       process.exit(1);
     }
@@ -394,7 +395,7 @@ module.exports = {
       let clientResponse = await client.sendEmailWithTemplate(JSON.stringify(data));
       utils.setOutputParameters(clientResponse);
       // https://postmarkapp.com/developer/api/overview#error-codes
-      if (/2\d\d/g.test(clientResponse.ErrorCode)) {
+      if (/2\d\d/g.test(clientResponse.ErrorCode) || /0/g.test(clientResponse.ErrorCode)) {
         log.good("The task completed successfully with response saved as result parameter.", "\nTo: " + clientResponse.To, "\nSubmitted At: " + clientResponse.SubmittedAt, "\nMessage: " + clientResponse.Message, "\nID: " + clientResponse.MessageID);
       } else {
         log.err("The task failed with response saved as result parameter.", "\nTo: " + clientResponse.To, "\nSubmitted At: " + clientResponse.SubmittedAt, "\nMessage: " + clientResponse.Message, "\nID: " + clientResponse.MessageID);
