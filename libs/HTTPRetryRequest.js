@@ -1,4 +1,5 @@
 const https = require("https");
+const http = require("http");
 const { log } = require("@boomerang-io/worker-core");
 const utilities = require("./utilities");
 // TODO: replace after node version is above 15.0.0
@@ -17,6 +18,7 @@ function HTTPRetryRequest(config, URL, options) {
   // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
   let _self = this;
   _self.URL = URL;
+  _self.client = /^https:\/\//g.test(_self.URL) ? https : http;
   _self.options = options;
   // log.debug("HTTP Request Options:", _self.options);
   _self.config = { ...DEFAULTS, ...config }; // overwrite defaults
@@ -40,7 +42,7 @@ function HTTPRetryRequest(config, URL, options) {
   _self.buffer = Buffer.alloc(0);
 
   return new Promise((resolve, reject) => {
-    let requestInstance = https.request(_self.URL, _self.options, response => {
+    let requestInstance = _self.client.request(_self.URL, _self.options, response => {
       const innerStatusCode = response.statusCode.toString();
       const responseInstance = response
         .on("error", error => {
