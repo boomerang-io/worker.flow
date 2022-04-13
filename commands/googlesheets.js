@@ -1,13 +1,6 @@
 const { log, utils } = require("@boomerang-io/worker-core");
 const { google } = require("googleapis");
 
-const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
-const CREDENTIAL_TYPE = "service_account";
-const AUTH_URI = "https://accounts.google.com/o/oauth2/auth";
-const TOKEN_URI = "https://oauth2.googleapis.com/token";
-const AUTH_PROVIDER_CERT_URL = "https://www.googleapis.com/oauth2/v1/certs";
-const X_509_CERT_URL = "https://www.googleapis.com/robot/v1/metadata/x509/";
-
 //Internal helper function
 function assertExists(value, message) {
   if (value !== 0 && !value) {
@@ -17,76 +10,24 @@ function assertExists(value, message) {
 }
 
 // get service account auth credentials
-function getCredentials(taskProps) {
-  const { projectId, privateKeyId, privateKey, clientEmail, clientId } = taskProps;
-  assertExists(projectId, "Project Id must be provided");
-  assertExists(privateKeyId, "Private Key Id must be provided");
-  assertExists(privateKey, "Private Key must be provided");
-  assertExists(clientEmail, "Client email must be provided");
-  assertExists(clientId, "Client Id must be provided");
-
-  const certURL = X_509_CERT_URL + encodeURIComponent(clientEmail);
-
-  const creds = {
-    type: CREDENTIAL_TYPE,
-    project_id: projectId,
-    private_key_id: privateKeyId,
-    private_key: privateKey,
-    client_email: clientEmail,
-    client_id: clientId,
-    auth_uri: AUTH_URI,
-    token_uri: TOKEN_URI,
-    auth_provider_x509_cert_url: AUTH_PROVIDER_CERT_URL,
-    client_x509_cert_url: certURL
-  };
-
-  return creds;
-}
-
 function getJwtClient(taskProps) {
   const { privateKey, clientEmail } = taskProps;
   assertExists(privateKey, "Private Key must be provided");
   assertExists(clientEmail, "Client email must be provided");
 
   const jwtClient = new google.auth.JWT({
-    emai: clientEmail,
+    email: clientEmail,
     key: privateKey.replace(new RegExp("\\\\n", "g"), "\n"),
     scopes: ["https://www.googleapis.com/auth/spreadsheets"]
   });
-
-  //authenticate request
-  // log.debug("Attempting authorization...");
-  // jwtClient.authorize(function (err, tokens) {
-  //   if (err) {
-  //     log.err(err);
-  //     process.exit(1);
-  //   } else {
-  //     log.good("Successfully authorized!");
-  //   }
-  // });
-
   return jwtClient;
-}
-
-function getClient(creds) {
-  const client = google.auth.fromJSON(creds);
-  client.scopes = SCOPES;
-
-  return client;
 }
 
 async function create() {
   log.debug("Starting create Google Sheet task");
 
   const taskProps = utils.resolveInputParameters();
-  const { privateKey, clientEmail } = taskProps;
-  const jwtClient = new google.auth.JWT({
-    emai: clientEmail,
-    key: privateKey.replace(new RegExp("\\\\n", "g"), "\n"),
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"]
-  });
-  // const creds = getCredentials(taskProps);
-  const sheets = google.sheets({ version: "v4", auth: jwtClient });
+  const sheets = google.sheets({ version: "v4", auth: getJwtClient(taskProps) });
   const { title } = taskProps;
   assertExists(title, "Title must be provided");
 
@@ -118,8 +59,7 @@ async function addSheet() {
   log.debug("Starting addSheet Google Sheets task");
 
   const taskProps = utils.resolveInputParameters();
-  const creds = getCredentials(taskProps);
-  const sheets = google.sheets({ version: "v4", auth: getClient(creds) });
+  const sheets = google.sheets({ version: "v4", auth: getJwtClient(taskProps) });
   const { spreadsheetId, title } = taskProps;
   assertExists(spreadsheetId, "Spreadsheet Id must be provided");
   assertExists(title, "Title must be provided");
@@ -158,8 +98,7 @@ async function deleteSheet() {
   log.debug("Starting deleteSheet Google Sheets task");
 
   const taskProps = utils.resolveInputParameters();
-  const creds = getCredentials(taskProps);
-  const sheets = google.sheets({ version: "v4", auth: getClient(creds) });
+  const sheets = google.sheets({ version: "v4", auth: getJwtClient(taskProps) });
   const { spreadsheetId, sheetId } = taskProps;
   assertExists(spreadsheetId, "Spreadsheet Id must be provided");
   assertExists(sheetId, "Sheet Id must be provided");
@@ -196,8 +135,7 @@ async function copySheetTo() {
   log.debug("Starting copySheetTo Google Sheets task");
 
   const taskProps = utils.resolveInputParameters();
-  const creds = getCredentials(taskProps);
-  const sheets = google.sheets({ version: "v4", auth: getClient(creds) });
+  const sheets = google.sheets({ version: "v4", auth: getJwtClient(taskProps) });
   const { fromSpreadsheetId, sheetId, toSpreadsheetId } = taskProps;
   assertExists(fromSpreadsheetId, "The source spreadsheet Id must be provided");
   assertExists(toSpreadsheetId, "The destination spreadsheet Id must be provided");
@@ -228,8 +166,7 @@ async function getData() {
   log.debug("Starting getData Google Sheets task");
 
   const taskProps = utils.resolveInputParameters();
-  const creds = getCredentials(taskProps);
-  const sheets = google.sheets({ version: "v4", auth: getClient(creds) });
+  const sheets = google.sheets({ version: "v4", auth: getJwtClient(taskProps) });
   const { spreadsheetId, ranges } = taskProps;
   assertExists(spreadsheetId, "Spreadsheet Id must be provided");
   assertExists(ranges, "Ranges must be provided");
@@ -257,8 +194,7 @@ async function clearData() {
   log.debug("Starting clearData Google Sheets task");
 
   const taskProps = utils.resolveInputParameters();
-  const creds = getCredentials(taskProps);
-  const sheets = google.sheets({ version: "v4", auth: getClient(creds) });
+  const sheets = google.sheets({ version: "v4", auth: getJwtClient(taskProps) });
   const { spreadsheetId, ranges } = taskProps;
   assertExists(spreadsheetId, "Spreadsheet Id must be provided");
   assertExists(ranges, "Ranges must be provided");
@@ -286,8 +222,7 @@ async function append() {
   log.debug("Starting append Google Sheets data task");
 
   const taskProps = utils.resolveInputParameters();
-  const creds = getCredentials(taskProps);
-  const sheets = google.sheets({ version: "v4", auth: getClient(creds) });
+  const sheets = google.sheets({ version: "v4", auth: getJwtClient(taskProps) });
   const { spreadsheetId, range, values } = taskProps;
   assertExists(spreadsheetId, "Spreadsheet Id must be provided");
   assertExists(range, "Range must be provided");
@@ -320,8 +255,7 @@ async function update() {
   log.debug("Starting update Google Sheets data task");
 
   const taskProps = utils.resolveInputParameters();
-  const creds = getCredentials(taskProps);
-  const sheets = google.sheets({ version: "v4", auth: getClient(creds) });
+  const sheets = google.sheets({ version: "v4", auth: getJwtClient(taskProps) });
   const { spreadsheetId, range, values } = taskProps;
   assertExists(spreadsheetId, "Spreadsheet Id must be provided");
   assertExists(range, "Range must be provided");
