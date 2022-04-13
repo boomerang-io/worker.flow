@@ -48,7 +48,7 @@ function getJwtClient(taskProps) {
   assertExists(privateKey, "Private Key must be provided");
   assertExists(clientEmail, "Client email must be provided");
 
-  return new google.auth.JWT(client_email, null, private_key, ["https://www.googleapis.com/auth/spreadsheets"]);
+  return new google.auth.JWT(clientEmail, null, privateKey, ["https://www.googleapis.com/auth/spreadsheets"]);
 }
 
 function getClient(creds) {
