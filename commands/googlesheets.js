@@ -54,6 +54,16 @@ function getJwtClient(taskProps) {
     scopes: ["https://www.googleapis.com/auth/spreadsheets"]
   });
 
+  //authenticate request
+  jwtClient.authorize(function(err, tokens) {
+    if (err) {
+      log.err(err);
+      process.exit(1);
+    } else {
+      log.good("Successfully authorized!");
+    }
+  });
+
   return jwtClient;
 }
 
