@@ -55,14 +55,15 @@ function getJwtClient(taskProps) {
   });
 
   //authenticate request
-  jwtClient.authorize(function(err, tokens) {
-    if (err) {
-      log.err(err);
-      process.exit(1);
-    } else {
-      log.good("Successfully authorized!");
-    }
-  });
+  // log.debug("Attempting authorization...");
+  // jwtClient.authorize(function (err, tokens) {
+  //   if (err) {
+  //     log.err(err);
+  //     process.exit(1);
+  //   } else {
+  //     log.good("Successfully authorized!");
+  //   }
+  // });
 
   return jwtClient;
 }
@@ -78,8 +79,14 @@ async function create() {
   log.debug("Starting create Google Sheet task");
 
   const taskProps = utils.resolveInputParameters();
+  const { privateKey, clientEmail } = taskProps;
+  const jwtClient = new google.auth.JWT({
+    emai: clientEmail,
+    key: privateKey.replace(new RegExp("\\\\n", "g"), "\n"),
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"]
+  });
   // const creds = getCredentials(taskProps);
-  const sheets = google.sheets({ version: "v4", auth: getJwtClient(taskProps) });
+  const sheets = google.sheets({ version: "v4", auth: jwtClient });
   const { title } = taskProps;
   assertExists(title, "Title must be provided");
 
