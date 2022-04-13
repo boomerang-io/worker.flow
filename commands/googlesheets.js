@@ -43,6 +43,14 @@ function getCredentials(taskProps) {
   return creds;
 }
 
+function getJwtClient(taskProps) {
+  const { privateKey, clientEmail } = taskProps;
+  assertExists(privateKey, "Private Key must be provided");
+  assertExists(clientEmail, "Client email must be provided");
+
+  return new google.auth.JWT(client_email, null, private_key, ["https://www.googleapis.com/auth/spreadsheets"]);
+}
+
 function getClient(creds) {
   const client = google.auth.fromJSON(creds);
   client.scopes = SCOPES;
@@ -54,8 +62,8 @@ async function create() {
   log.debug("Starting create Google Sheet task");
 
   const taskProps = utils.resolveInputParameters();
-  const creds = getCredentials(taskProps);
-  const sheets = google.sheets({ version: "v4", auth: getClient(creds) });
+  // const creds = getCredentials(taskProps);
+  const sheets = google.sheets({ version: "v4", auth: getJwtClient(taskProps) });
   const { title } = taskProps;
   assertExists(title, "Title must be provided");
 
