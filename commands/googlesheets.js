@@ -50,7 +50,7 @@ function getJwtClient(taskProps) {
 
   const jwtClient = new google.auth.JWT({
     emai: clientEmail,
-    key: privateKey,
+    key: privateKey.replace(new RegExp("\\\\n", "g"), "\n"),
     scopes: ["https://www.googleapis.com/auth/spreadsheets"]
   });
 
