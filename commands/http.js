@@ -13,10 +13,11 @@ module.exports = {
    * headers [Text Area - new line delimitered list?]
    * content type [Select - Options: any, text, xml, json, html]
    * body [Text Area - optional depending on method]
-   * @param {string} errorcodes Represents a list of HTTP Status Codes, used either for error or success checks
-   * @param {string} isErrorCodes Represents if the `errorcodes` param is used as failure (true) or success (false)
-   * @param {int} httperrorretry Represents the number of retries that will be perfomed until success is obtained or the number of retries is achived
-   * @param {int} httpRetryDelay Represents the number of miliseconds that will delay the next retry
+   * @param {string} successcodes Represents a list of HTTP Status Codes, used for success checks
+   * @param {string} retrycodes Represents a list of HTTP Status Codes, used for retry checks
+   * @param {string} errorcodes Represents a list of HTTP Status Codes, used for error checks
+   * @param {int} retrynumber Represents the number of retries that will be perfomed until success is obtained or the number of retries is achived
+   * @param {int} retrydelay Represents the number of miliseconds that will delay the next retry
    * Allow untrusted SSL certs [Boolean Toggle]
    */
   execute() {
@@ -25,38 +26,52 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
 
-    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, errorcodes = "", isErrorCodes = "failure", httperrorretry = 0, httpRetryDelay = 200 } = taskProps;
+    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, successcodes = "1xx,2xx", retrycodes = "502,503", errorcodes = "", retrynumber = 0, retrydelay = 200 } = taskProps;
 
     // Input force defaults
-    let newisErrorCodes = "failure";
-    let newhttperrorretry = 0;
-    let newhttpRetryDelay = 200;
+    let newretrynumber = 0;
+    let newretrydelay = 200;
     let newbody = "";
     // Input not "empty", set value
-    if (!checkIfEmpty(isErrorCodes)) {
-      newisErrorCodes = isErrorCodes.trim().toLowerCase(); // Input normalization
+    if (!checkIfEmpty(successcodes)) {
+      newsuccesscodes = successcodes
+        .toString()
+        .trim()
+        .toLowerCase(); // Input normalization
     }
-    if (!checkIfEmpty(httperrorretry)) {
-      newhttperrorretry = parseInt(httperrorretry, 10);
-      if (isNaN(newhttperrorretry)) {
-        log.err("Invalid input for: httperrorretry");
+    if (!checkIfEmpty(retrycodes)) {
+      newretrycodes = retrycodes
+        .toString()
+        .trim()
+        .toLowerCase(); // Input normalization
+    }
+    if (!checkIfEmpty(errorcodes)) {
+      newerrorcodes = errorcodes
+        .toString()
+        .trim()
+        .toLowerCase(); // Input normalization
+    }
+    if (!checkIfEmpty(retrynumber)) {
+      newretrynumber = parseInt(retrynumber, 10);
+      if (isNaN(newretrynumber)) {
+        log.err("Invalid input for: retrynumber");
         process.exit(1);
       }
-      if (newhttperrorretry < 0 || newhttperrorretry > 10) {
-        log.err("Invalid input for: httperrorretry [0,10]");
+      if (newretrynumber < 1 || newretrynumber > 9) {
+        log.err("Invalid input for: retrynumber [1,9]");
         process.exit(1);
       }
     }
-    if (!checkIfEmpty(httpRetryDelay)) {
-      newhttpRetryDelay = parseInt(httpRetryDelay, 10);
+    if (!checkIfEmpty(retrydelay)) {
+      newretrydelay = parseInt(retrydelay, 10);
       // parse test
-      if (isNaN(newhttpRetryDelay)) {
-        log.err("Invalid input for: httpRetryDelay");
+      if (isNaN(newretrydelay)) {
+        log.err("Invalid input for: retrydelay");
         process.exit(1);
       }
       // bounds exceeded
-      if (newhttpRetryDelay < 100 || newhttpRetryDelay > 30000) {
-        log.err("Invalid input for: httpRetryDelay [100,30000]");
+      if (newretrydelay < 100 || newretrydelay > 300000) {
+        log.err("Invalid input for: retrydelay [100,300000]");
         process.exit(1);
       }
     }
@@ -147,10 +162,11 @@ module.exports = {
     log.sys("Commencing to execute HTTP call with", reqURL, JSON.stringify(opts));
 
     let config = {
+      SUCCESS_CODES: successcodes.toString(), // Force string
+      RETRY_CODES: retrycodes.toString(), // Force string
       ERROR_CODES: errorcodes.toString(), // Force string
-      MAX_RETRIES: newhttperrorretry,
-      DELAY: newhttpRetryDelay,
-      IS_ERROR: newisErrorCodes === "failure"
+      MAX_RETRIES: newretrynumber,
+      DELAY: newretrydelay
     };
     if (!checkIfEmpty(newbody)) {
       log.debug("writing request body: \n ", newbody);
