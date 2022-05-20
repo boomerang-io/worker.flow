@@ -177,17 +177,8 @@ module.exports = {
       .then(res => {
         log.debug(`statusCode: ${res.statusCode}`);
         utils.setOutputParameter("statusCode", JSON.stringify(res.statusCode));
-        try {
-          log.debug(`output: ${res.body.toString()}`);
-          //make sure non-empty output is a valid JSON,
-          //if not throw exception
-          if (!(res.body === null || res.body.toString().match(/^ *$/) !== null)) {
-            JSON.parse(res.body.toString());
-          }
+        if (!(res.body === null || res.body.toString().match(/^ *$/) !== null)) {
           log.sys("Response Received:", res.body.toString());
-        } catch (e) {
-          log.err(e);
-          process.exit(1);
         }
         if (outputFilePath && outputFilePath.length && outputFilePath !== '""' && outputFilePath !== '" "') {
           //https://nodejs.org/docs/latest-v14.x/api/fs.html#fs_fs_writefilesync_file_data_options
