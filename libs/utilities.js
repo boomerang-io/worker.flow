@@ -2,6 +2,17 @@ const { log } = require("@boomerang-io/worker-core");
 
 module.exports = (function() {
   return {
+    HEADERS: {
+      CONTENTTYPE: "Content-Type",
+      CONTENTLENGTH: "Content-Length"
+    },
+
+    HEADERVALUES: {
+      APPLICATIONJSON: "application/json",
+      APPLICATIONXML: "application/xml",
+      TEXTHTML: "text/html"
+    },
+
     /**
      * Check if param is set or not, in case of mandatory inputs
      * @param {*} input - if the string is empty, we want to pass it as undefined to the api
