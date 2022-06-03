@@ -3,7 +3,7 @@ const HttpsProxyAgent = require("https-proxy-agent");
 const URL = require("url");
 const fs = require("fs");
 const HTTPRetryRequest = require("../libs/HTTPRetryRequest");
-const { checkIfEmpty } = require("../libs/utilities");
+const { checkIfEmpty, HEADERS, HEADERVALUES } = require("../libs/utilities");
 
 module.exports = {
   /**
@@ -107,11 +107,11 @@ module.exports = {
     }
 
     if (contentType && contentType !== '""' && contentType !== '" "') {
-      headerObject["Content-Type"] = contentType;
+      headerObject[HEADERS.CONTENTTYPE] = contentType;
     }
 
     if (!checkIfEmpty(newbody)) {
-      headerObject["Content-Length"] = ~-encodeURI(newbody).split(/%..|./).length;
+      headerObject[HEADERS.CONTENTLENGTH] = ~-encodeURI(newbody).split(/%..|./).length;
     }
 
     log.debug(headerObject);
@@ -176,18 +176,31 @@ module.exports = {
     new HTTPRetryRequest(config, reqURL, opts)
       .then(res => {
         log.debug(`statusCode: ${res.statusCode}`);
-        utils.setOutputParameter("statusCode", JSON.stringify(res.statusCode));
-        try {
-          log.debug(`output: ${res.body.toString()}`);
-          //make sure non-empty output is a valid JSON,
-          //if not throw exception
-          if (!(res.body === null || res.body.toString().match(/^ *$/) !== null)) {
-            JSON.parse(res.body.toString());
+        if (headerObject[HEADERS.CONTENTTYPE]) {
+          if (headerObject[HEADERS.CONTENTTYPE] === HEADERVALUES.APPLICATIONJSON) {
+            try {
+              log.debug(`output: ${res.body.toString()}`);
+              //make sure non-empty output is a valid JSON,
+              //if not throw exception
+              if (!(res.body === null || res.body.toString().match(/^ *$/) !== null)) {
+                JSON.parse(res.body.toString());
+              }
+            } catch (e) {
+              log.err(e);
+              process.exit(1);
+            }
           }
+          if (headerObject[HEADERS.CONTENTTYPE] === HEADERVALUES.APPLICATIONXML) {
+            // TODO: implement JSDOM or DOMParser(i.e. not yet in nodejs)
+          }
+          if (headerObject[HEADERS.CONTENTTYPE] === HEADERVALUES.TEXTHTML) {
+            // TODO: implement JSDOM or DOMParser(i.e. not yet in nodejs)
+          }
+        }
+
+        utils.setOutputParameter("statusCode", JSON.stringify(res.statusCode));
+        if (!(res.body === null || res.body.toString().match(/^ *$/) !== null)) {
           log.sys("Response Received:", res.body.toString());
-        } catch (e) {
-          log.err(e);
-          process.exit(1);
         }
         if (outputFilePath && outputFilePath.length && outputFilePath !== '""' && outputFilePath !== '" "') {
           //https://nodejs.org/docs/latest-v14.x/api/fs.html#fs_fs_writefilesync_file_data_options
