@@ -18,6 +18,8 @@ module.exports = {
    * @param {string} errorcodes Represents a list of HTTP Status Codes, used for error checks
    * @param {int} retrynumber Represents the number of retries that will be perfomed until success is obtained or the number of retries is achived
    * @param {int} retrydelay Represents the number of miliseconds that will delay the next retry
+   * @param {int} systemretrynumber @readonly Represents the number of retries that will be perfomed until success is obtained or the number of retries is achived, in case of special case of exceptions, defauls to 3
+   * @param {int} systemretrydelay @readonly Represents the number of miliseconds that will delay the next retry, in case of special case of exceptions, defaults to 5 seconds
    * Allow untrusted SSL certs [Boolean Toggle]
    */
   execute() {
@@ -26,11 +28,13 @@ module.exports = {
     //Destructure and get properties ready.
     const taskProps = utils.resolveInputParameters();
 
-    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, successcodes = "1xx,2xx", retrycodes = "502,503", errorcodes = "", retrynumber = 0, retrydelay = 200 } = taskProps;
+    const { url, method, header, contentType, body, allowUntrustedCerts, outputFilePath, successcodes = "1xx,2xx", retrycodes = "502,503", errorcodes = "", retrynumber = 0, retrydelay = 200, systemretrynumber = 3, systemretrydelay = 5000 } = taskProps;
 
     // Input force defaults
     let newretrynumber = 0;
     let newretrydelay = 200;
+    let newsystemretrynumber = 3;
+    let newsystemretrydelay = 5000;
     let newbody = "";
     // Input not "empty", set value
     if (!checkIfEmpty(successcodes)) {
@@ -73,6 +77,26 @@ module.exports = {
       if (newretrydelay < 100 || newretrydelay > 300000) {
         log.err("Invalid input for: retrydelay [100,300000]");
         process.exit(1);
+      }
+    }
+    if (!checkIfEmpty(systemretrynumber)) {
+      newsystemretrynumber = parseInt(systemretrynumber, 10);
+      if (isNaN(newsystemretrynumber)) {
+        newsystemretrynumber = 3;
+      }
+      if (newsystemretrynumber < 1 || newsystemretrynumber > 9) {
+        newsystemretrynumber = 3;
+      }
+    }
+    if (!checkIfEmpty(systemretrydelay)) {
+      newsystemretrydelay = parseInt(systemretrydelay, 10);
+      // parse test
+      if (isNaN(newsystemretrydelay)) {
+        newsystemretrydelay = 5000;
+      }
+      // bounds exceeded
+      if (newsystemretrydelay < 100 || newsystemretrydelay > 300000) {
+        newsystemretrydelay = 5000;
       }
     }
     if (!checkIfEmpty(body)) {
@@ -166,7 +190,9 @@ module.exports = {
       RETRY_CODES: retrycodes.toString(), // Force string
       ERROR_CODES: errorcodes.toString(), // Force string
       MAX_RETRIES: newretrynumber,
-      DELAY: newretrydelay
+      DELAY: newretrydelay,
+      SYSTEM_MAX_RETRIES: newsystemretrynumber,
+      SYSTEM_DELAY: newsystemretrydelay
     };
     if (!checkIfEmpty(newbody)) {
       log.debug("writing request body: \n ", newbody);
