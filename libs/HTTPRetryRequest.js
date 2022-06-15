@@ -5,6 +5,7 @@ const utilities = require("./utilities");
 // TODO: replace after node version is above 15.0.0
 // const { setTimeout: setTimeoutPromise } = require('timers/promises');
 const { checkForJson } = require("./../libs/utilities");
+const dns = require("dns");
 
 let DEFAULTS = {
   SUCCESS_CODES: "",
@@ -12,6 +13,8 @@ let DEFAULTS = {
   ERROR_CODES: "",
   MAX_RETRIES: 5,
   DELAY: 200,
+  SYSTEM_MAX_RETRIES: 3,
+  SYSTEM_DELAY: 5000,
   IS_ERROR: true
 };
 
@@ -63,6 +66,12 @@ function HTTPRetryRequest(config, URL, options) {
   } else {
     _self.config.retryCount++;
   }
+  if (!_self.config.systemretryCount) {
+    _self.config.systemretryCount = 1;
+  } // avoid double counting
+  // else {
+  //   _self.config.systemretryCount++;
+  // }
   _self.buffer = Buffer.alloc(0);
 
   return new Promise((resolve, reject) => {
@@ -133,7 +142,25 @@ function HTTPRetryRequest(config, URL, options) {
         });
     });
     requestInstance.on("error", err => {
-      log.debug(`requestInstance onEnd #${_self.config.retryCount} reject.`);
+      if (
+        err.code === dns.CONNREFUSED || // Could not contact DNS servers.
+        err.code === dns.TIMEOUT || // Timeout while contacting DNS servers.
+        err.code === "EAI_AGAIN" || // A temporary failure in name resolution occurred.
+        err.code === "ETIMEDOUT" // Common system errors - Operation timed out
+      ) {
+        // TODO: task retry (task template value) properties
+        if (_self.config.systemretryCount <= _self.config.SYSTEM_MAX_RETRIES) {
+          log.debug(`Retry requestInstance onEnd #${_self.config.systemretryCount} reject  ERR Code ${err.code} ERR No ${err.errno}.`);
+          // system counting the retries
+          _self.config.systemretryCount++;
+          setTimeout(timeOutRetry, _self.config.SYSTEM_DELAY, _self.config, _self.URL, _self.options, resolve);
+          // TODO: replace after node version is above 15.0.0
+          // log.debug(`Retry onError #${_self.config.systemretryCount} next call.`);
+          // resolve(setTimeoutPromise(_self.config.DELAY, new HTTPRetryRequest( _self.config, _self.URL, _self.options)));
+          return;
+        }
+      }
+      log.debug(`requestInstance onEnd #${_self.config.systemretryCount} reject.`);
       // other type of error prior to response
       reject(err);
     });
