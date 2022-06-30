@@ -1,5 +1,5 @@
 #Import the base Alpine image
-FROM alpine:3.13.5
+FROM alpine:3.15.4
 
 WORKDIR /opt/bin
 
