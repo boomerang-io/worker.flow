@@ -7,8 +7,8 @@
   "author": "Tyson Lawrie <tyson@lawrie.com.au>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@boomerang-io/worker-cli": "^0.9.2",
-    "@boomerang-io/worker-core": "1.3.9",
+    "@boomerang-io/worker-cli": "^0.9.4",
+    "@boomerang-io/worker-core": "1.3.11",
     "@octokit/graphql": "^4.8.0",
     "@octokit/rest": "^17.3.0",
     "@sendgrid/client": "^7.6.0",

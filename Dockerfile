@@ -1,10 +1,10 @@
 #Import the base Alpine image
-FROM alpine:3.15.4
+FROM node:alpine3.16
 
 WORKDIR /opt/bin
 
 #Add Packages
-RUN apk add --no-cache bash sed grep curl coreutils nodejs npm
+RUN apk add --no-cache bash sed grep curl coreutils python3 make g++
 
 WORKDIR /cli
 ADD ./package.json ./package-lock.json ./
