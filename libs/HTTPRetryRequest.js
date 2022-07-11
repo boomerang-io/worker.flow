@@ -24,6 +24,8 @@ function HTTPRetryRequest(config, URL, options) {
   let _self = this;
   _self.URL = URL;
   _self.client = /^https:\/\//g.test(_self.URL) ? https : http;
+  // _self.client = https;
+  log.debug("Protocol for URL:", URL.protocol, "\n - ", /^https:\/\//g.test(_self.URL), " vs. ", /^https:/g.test(_self.URL.protocol));
   _self.options = options;
   // log.debug("HTTP Request Options:", _self.options);
   _self.config = { ...DEFAULTS, ...config }; // overwrite defaults
