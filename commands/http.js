@@ -224,7 +224,12 @@ module.exports = {
           }
         }
 
-        utils.setOutputParameter("statusCode", JSON.stringify(res.statusCode));
+        try {
+          resultstatusCode = parseInt(res.statusCode, 10);
+        } catch (e) {
+          resultstatusCode = res.statusCode;
+        }
+        utils.setOutputParameter("statusCode", resultstatusCode);
         if (!(res.body === null || res.body.toString().match(/^ *$/) !== null)) {
           log.sys("Response Received:", res.body.toString());
         }
