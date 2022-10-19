@@ -100,7 +100,7 @@ module.exports = {
       }
     }
     if (!checkIfEmpty(body)) {
-      newbody = body.replace(/(\n|\r)/gm, "");
+      newbody = body.replace(/(\n|\r|\t)/gm, "");
     }
 
     /**
@@ -132,6 +132,15 @@ module.exports = {
 
     if (contentType && contentType !== '""' && contentType !== '" "') {
       headerObject[HEADERS.CONTENTTYPE] = contentType;
+    }
+    if (headerObject[HEADERS.CONTENTTYPE] === HEADERVALUES.APPLICATIONJSON) {
+      // force "body" to JSON parse and convert back to string, to avoid special characters.
+      try {
+        newbody = JSON.stringify(JSON.parse(newbody));
+      } catch (e) {
+        log.err(`Invalid input for: body, JSON parse failed for content type: ${contentType} \n ${e}`);
+        process.exit(1);
+      }
     }
 
     if (!checkIfEmpty(newbody)) {
@@ -224,7 +233,12 @@ module.exports = {
           }
         }
 
-        utils.setOutputParameter("statusCode", JSON.stringify(res.statusCode));
+        try {
+          resultstatusCode = parseInt(res.statusCode, 10);
+        } catch (e) {
+          resultstatusCode = res.statusCode;
+        }
+        utils.setOutputParameter("statusCode", resultstatusCode);
         if (!(res.body === null || res.body.toString().match(/^ *$/) !== null)) {
           log.sys("Response Received:", res.body.toString());
         }
