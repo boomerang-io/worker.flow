@@ -256,7 +256,7 @@ module.exports = {
       strict: true,
       reviver: function(key, value) {
         if (key != null && value == null) {
-          return '""';
+          return ""; 
         } else {
           //Returns all the lines
           return this.assert();
