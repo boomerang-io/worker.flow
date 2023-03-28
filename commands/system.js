@@ -1,30 +1,9 @@
 const { log, utils } = require("@boomerang-io/worker-core");
-const systemSleep = require("system-sleep");
 const fs = require("fs");
 const jp = require("jsonpath");
 const { checkParameters, isValidJson } = require("../libs/utilities");
 
 module.exports = {
-  sleep() {
-    log.debug("Inside Sleep Plugin");
-
-    //Destructure and get properties ready.
-    const taskProps = utils.resolveInputParameters();
-    const { duration } = taskProps;
-
-    if (checkParameters({ duration })) {
-      log.err(`Invalid mandatory parameters. No duration has been specified or was 0. Check log for details`);
-      process.exit(1);
-    }
-
-    log.sys(`Commencing sleep for ${duration} milliseconds.`);
-
-    systemSleep(duration);
-
-    log.good(`Finished sleeping for ${duration} milliseconds.`);
-
-    log.debug("Finished Sleep Plugin");
-  },
   jsonPathToProperty() {
     log.debug("Inside Json Path To Property Plugin");
 
