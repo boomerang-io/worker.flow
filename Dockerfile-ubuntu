@@ -23,9 +23,9 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | b
     nvm run system --version
 
 WORKDIR /cli
-ADD ./package.json ./package-lock.json ./.npmrc ./
-ADD ./scripts ./scripts
+ADD ./package.json ./package-lock.json ./
 ADD ./commands ./commands
+ADD ./libs ./libs
 RUN npm install --production
 
 ENTRYPOINT [ "npm", "start" ]
