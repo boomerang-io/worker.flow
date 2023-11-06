@@ -1,5 +1,5 @@
 #Import the base docker image built
-FROM ubuntu:22.10
+FROM ubuntu:22.04
 
 # Set the SHELL to bash with pipefail option
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
