@@ -4,7 +4,7 @@ const URL = require("url");
 const fs = require("fs");
 const HTTPRetryRequest = require("../libs/HTTPRetryRequest");
 const { checkIfEmpty, HEADERS, HEADERVALUES } = require("../libs/utilities");
-const CacheableLookup = require("cacheable-lookup");
+import CacheableLookup from "cacheable-lookup";
 
 module.exports = {
   /**
