@@ -31,7 +31,7 @@
     "twilio": "^3.73.0",
     "url": "^0.11.0",
     "wait-on": "^4.0.2",
-    "cacheable-lookup": "^7.0.0"
+    "cacheable-lookup": "^6.1.0"
   },
   "scripts": {
     "test": "cross-env NODE_ENV=test mocha tests/**/*.spec.js",
