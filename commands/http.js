@@ -4,6 +4,7 @@ const URL = require("url");
 const fs = require("fs");
 const HTTPRetryRequest = require("../libs/HTTPRetryRequest");
 const { checkIfEmpty, HEADERS, HEADERVALUES } = require("../libs/utilities");
+const CacheableLookup = require("cacheable-lookup");
 
 module.exports = {
   /**
@@ -191,6 +192,8 @@ module.exports = {
     opts.headers = {
       ...headerObject
     };
+    const cacheable = new CacheableLookup();
+    opts.lookup = cacheable.lookup;
 
     log.sys("Commencing to execute HTTP call with", reqURL, JSON.stringify(opts));
 
