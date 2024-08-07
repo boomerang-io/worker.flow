@@ -46,11 +46,6 @@
     "nodemon": "^3.1.4",
     "prettier": "^3.3.3"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
     "*.{js,json,css,md}": [
       "prettier --print-width 300 --write",
