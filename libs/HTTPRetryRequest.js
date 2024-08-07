@@ -1,7 +1,7 @@
 import https from "https";
 import http from "http";
 import { log } from "@boomerang-io/task-core";
-import * as utilities from "./utilities";
+import * as utilities from "./utilities.js";
 import dns from "dns";
 
 let DEFAULTS = {

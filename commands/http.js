@@ -2,8 +2,8 @@ import { log, params } from "@boomerang-io/task-core";
 import HttpsProxyAgent from "https-proxy-agent";
 import URL from "url";
 import fs from "fs";
-import HTTPRetryRequest from "../libs/HTTPRetryRequest";
-import { checkIfEmpty, HEADERS, HEADERVALUES } from "../libs/utilities";
+import HTTPRetryRequest from "../libs/HTTPRetryRequest.js";
+import { checkIfEmpty, HEADERS, HEADERVALUES } from "../libs/utilities.js";
 import CacheableLookup from "cacheable-lookup";
 
 /**

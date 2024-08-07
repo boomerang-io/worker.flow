@@ -3,6 +3,7 @@ import shelljs from "shelljs";
 
 export function execute() {
   log.debug("Inside Shell Plugin");
+  log.debug("Params: ", JSON.stringify(params, null, 2));
   const { path, shell, script } = params;
 
   let dir;
