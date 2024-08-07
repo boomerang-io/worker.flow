@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@boomerang-io/task-cli':
-        specifier: ^1.0.0-alpha.31
-        version: 1.0.0-alpha.31
+        specifier: ^1.0.0-alpha.32
+        version: 1.0.0-alpha.32
       '@boomerang-io/task-core':
-        specifier: ^2.0.0-alpha.14
-        version: 2.0.0-alpha.14
+        specifier: ^2.0.0-alpha.15
+        version: 2.0.0-alpha.15
       '@octokit/graphql':
         specifier: ^8.1.1
         version: 8.1.1
@@ -102,13 +102,13 @@ importers:
 
 packages:
 
-  '@boomerang-io/task-cli@1.0.0-alpha.31':
-    resolution: {integrity: sha512-+2X8rtki4QNfguGRPPGEAQSjsE95QQN1vUQy5acaKqQGpOkhNxB+ZMk/VtH8spqYh2ETq0cP2+bu/zZqtBMgxg==}
+  '@boomerang-io/task-cli@1.0.0-alpha.32':
+    resolution: {integrity: sha512-tx7mAbuaR6IQrd8qk/qqjPsh6ZIJnyoXqfB3veNqopAwmLhA+GuxVEBT36J68X3rGtkkUn1Wuy6nJzujoDrY1w==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  '@boomerang-io/task-core@2.0.0-alpha.14':
-    resolution: {integrity: sha512-PckdMD6ScAuUu6n4KGM8tDMTXEQduFYePFyFQHjgcL051pUBGXmg0qkBeqk/FqEfMmP31h3VsZliBbJXW5DOcw==}
+  '@boomerang-io/task-core@2.0.0-alpha.15':
+    resolution: {integrity: sha512-Y/N8Q7q+6sH6va9Te3JVwEgeXESRodywqTWmED69VHp9/FDJmc/uW8EJEY9Qs/UTMmrqxaKF5KaLXruxXbBB0Q==}
     engines: {node: '>=18'}
 
   '@hapi/hoek@9.3.0':
@@ -1403,9 +1403,9 @@ packages:
 
 snapshots:
 
-  '@boomerang-io/task-cli@1.0.0-alpha.31':
+  '@boomerang-io/task-cli@1.0.0-alpha.32':
     dependencies:
-      '@boomerang-io/task-core': 2.0.0-alpha.14
+      '@boomerang-io/task-core': 2.0.0-alpha.15
       commander: 12.1.0
       cross-spawn: 7.0.3
       dotenv: 16.4.5
@@ -1414,7 +1414,7 @@ snapshots:
       shelljs: 0.8.5
       url: 0.11.4
 
-  '@boomerang-io/task-core@2.0.0-alpha.14':
+  '@boomerang-io/task-core@2.0.0-alpha.15':
     dependencies:
       app-root-path: 3.1.0
       chalk: 5.3.0
