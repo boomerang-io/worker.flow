@@ -1,51 +1,50 @@
 {
-  "name": "boomerang-worker-flow",
-  "version": "2.5.23",
-  "description": "Boomerang Flow Worker",
+  "name": "boomerang-task-flow",
+  "version": "3.0.0",
+  "description": "Default Boomerang Flow Task encapsulated all the out of the box Tasks",
   "main": "cli.js",
   "repository": "git@github.com:boomerang-io/worker.flow.git",
-  "author": "Tyson Lawrie <tyson@lawrie.com.au>",
   "license": "Apache-2.0",
+  "type": "module",
   "dependencies": {
-    "@boomerang-io/worker-cli": "^0.9.4",
-    "@boomerang-io/worker-core": "1.3.11",
-    "@octokit/graphql": "^4.8.0",
-    "@octokit/rest": "^17.3.0",
-    "@sendgrid/client": "^7.6.0",
-    "@slack/web-api": "^5.8.0",
-    "@slack/webhook": "^5.0.3",
-    "axios": "^0.25.0",
-    "cloudevents": "^5.3.0",
-    "googleapis": "^89.0.0",
+    "@boomerang-io/task-cli": "^1.0.0-alpha.24",
+    "@boomerang-io/task-core": "^2.0.0-alpha.6",
+    "@octokit/graphql": "^8.1.1",
+    "@octokit/rest": "^21.0.1",
+    "@sendgrid/client": "^8.1.3",
+    "@slack/web-api": "^7.3.2",
+    "@slack/webhook": "^7.0.2",
+    "axios": "^1.7.3",
+    "cloudevents": "^8.0.2",
+    "googleapis": "^140.0.1",
     "https": "^1.0.0",
-    "https-proxy-agent": "^5.0.0",
+    "https-proxy-agent": "^7.0.5",
     "jsonpath": "^1.1.1",
-    "moment": "^2.29.0",
+    "moment": "^2.30.0",
     "node-datetime": "^2.1.2",
-    "node-fetch": "^2.6.7",
     "path": "^0.12.7",
-    "postmark": "^2.9.5",
+    "postmark": "^4.0.4",
     "properties": "^1.2.1",
     "shelljs": "^0.8.5",
-    "twilio": "^3.73.0",
+    "twilio": "^5.2.2",
     "url": "^0.11.0",
-    "wait-on": "^4.0.2"
+    "wait-on": "^7.2.0"
   },
   "scripts": {
     "test": "cross-env NODE_ENV=test mocha tests/**/*.spec.js",
     "test:watch": "nodemon --exec npm test",
-    "dev": "cross-env NODE_ENV=local DEBUG=true boomerang-worker-cli",
-    "start": "boomerang-worker-cli"
+    "dev": "cross-env NODE_ENV=local DEBUG=true boomerang-task-cli",
+    "start": "boomerang-task-cli"
   },
   "preferGlobal": true,
   "devDependencies": {
-    "chai": "^4.3.6",
-    "cross-env": "^5.2.1",
-    "husky": "^1.3.1",
-    "lint-staged": "^12.3.2",
-    "mocha": "^9.2.0",
-    "nodemon": "^2.0.15",
-    "prettier": "^1.16.4"
+    "chai": "^5.1.1",
+    "cross-env": "^7.0.3",
+    "husky": "^9.1.4",
+    "lint-staged": "^15.2.8",
+    "mocha": "^10.7.0",
+    "nodemon": "^3.1.4",
+    "prettier": "^3.3.3"
   },
   "husky": {
     "hooks": {
@@ -57,5 +56,8 @@
       "prettier --print-width 300 --write",
       "git add"
     ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

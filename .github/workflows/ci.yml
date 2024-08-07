@@ -40,7 +40,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: boomerangio/worker-flow:latest,boomerangio/worker-flow:${{ steps.get_version.outputs.VERSION }}
+          tags: boomerangio/task-flow:latest,boomerangio/task-flow:${{ steps.get_version.outputs.VERSION }}
       - name: Slack
         uses: 8398a7/action-slack@v3
         if: ${{ always() }}
