@@ -3,13 +3,12 @@ import shelljs from "shelljs";
 
 export function execute() {
   log.debug("Inside Shell Plugin");
-
   const { path, shell, script } = params;
 
   let dir;
   if (!path || path === '""') {
-    dir = "/flow/data";
-    log.debug("No directory specified. Defaulting...");
+    log.debug("No directory specified. Defaulting to /data...");
+    dir = "/data";
   } else {
     dir = path;
   }
@@ -23,7 +22,7 @@ export function execute() {
   shelljs.config.silent = false;
 
   let config = {
-    verbose: false
+    verbose: false,
   };
   if (!shell || shell === '""') {
     log.debug("No shell interpreter specified. Defaulting...");
@@ -31,7 +30,7 @@ export function execute() {
     config.shell = shell;
   }
   log.debug("Script to execute:", script);
-  shelljs.exec(script, config, function(code, stdout, stderr) {
+  shelljs.exec(script, config, function (code, stdout, stderr) {
     if (code != 0) {
       log.err("  Exit code:", code);
       log.err("  Program stderr:", stderr);
