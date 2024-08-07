@@ -28,7 +28,8 @@
     "shelljs": "^0.8.5",
     "twilio": "^5.2.2",
     "url": "^0.11.0",
-    "wait-on": "^7.2.0"
+    "wait-on": "^7.2.0",
+    "cacheable-lookup": "^7.0.0"
   },
   "scripts": {
     "test": "cross-env NODE_ENV=test mocha tests/**/*.spec.js",

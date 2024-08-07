@@ -4,6 +4,7 @@ import URL from "url";
 import fs from "fs";
 import HTTPRetryRequest from "../libs/HTTPRetryRequest";
 import { checkIfEmpty, HEADERS, HEADERVALUES } from "../libs/utilities";
+import CacheableLookup from "cacheable-lookup";
 
 /**
  * @todo implement a fetch that takes in;
@@ -195,6 +196,8 @@ export function execute() {
   opts.headers = {
     ...headerObject,
   };
+  const cacheable = new CacheableLookup();
+  opts.lookup = cacheable.lookup;
 
   log.sys("Commencing to execute HTTP call with", reqURL, JSON.stringify(opts));
 
