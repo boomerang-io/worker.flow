@@ -23,7 +23,6 @@ jobs:
           cache: "pnpm"
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - run: pnpm run build --if-present
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         if: ${{ success() && startsWith(github.ref, 'refs/tags/')}}
