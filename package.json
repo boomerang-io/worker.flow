@@ -1,14 +1,14 @@
 {
   "name": "boomerang-task-flow",
   "version": "3.0.0",
-  "description": "Default Boomerang Flow Task encapsulated all the out of the box Tasks",
+  "description": "Default Boomerang Flow Task encapsulating all the out of the box Tasks",
   "main": "cli.js",
   "repository": "git@github.com:boomerang-io/worker.flow.git",
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {
     "@boomerang-io/task-cli": "^1.0.0-alpha.24",
-    "@boomerang-io/task-core": "^2.0.0-alpha.6",
+    "@boomerang-io/task-core": "^2.0.0-alpha.8",
     "@octokit/graphql": "^8.1.1",
     "@octokit/rest": "^21.0.1",
     "@sendgrid/client": "^8.1.3",
