@@ -32,6 +32,9 @@ importers:
       axios:
         specifier: ^1.7.3
         version: 1.7.3
+      cacheable-lookup:
+        specifier: ^7.0.0
+        version: 7.0.0
       cloudevents:
         specifier: ^8.0.2
         version: 8.0.2
@@ -370,6 +373,10 @@ packages:
 
   buffer-equal-constant-time@1.0.1:
     resolution: {integrity: sha512-zRpUiDwd/xk6ADqPMATG8vc9VPrkck7T07OIx0gnjmJAnHnTVXNQG3vfvWNuiZIkwu9KrKdA1iJKfsfTVxE6NA==}
+
+  cacheable-lookup@7.0.0:
+    resolution: {integrity: sha512-+qJyx4xiKra8mZrcwhjMRMUhD5NR1R8esPkzIYxX96JiecFoxAXFuz/GpR3+ev4PE1WamHip78wV0vcmPQtp8w==}
+    engines: {node: '>=14.16'}
 
   call-bind@1.0.7:
     resolution: {integrity: sha512-GHTSNSYICQ7scH7sZ+M2rFopRoLh8t2bLSW6BbgrtLsahOIB5iyAVJf9GjWK3cYTDaMj4XdBpM1cA6pIS0Kv2w==}
@@ -1734,6 +1741,8 @@ snapshots:
   browser-stdout@1.3.1: {}
 
   buffer-equal-constant-time@1.0.1: {}
+
+  cacheable-lookup@7.0.0: {}
 
   call-bind@1.0.7:
     dependencies:
