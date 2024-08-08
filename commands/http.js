@@ -1,4 +1,4 @@
-import { log, params } from "@boomerang-io/task-core";
+import { log, params, result } from "@boomerang-io/task-core";
 import HttpsProxyAgent from "https-proxy-agent";
 import URL from "url";
 import fs from "fs";
@@ -216,7 +216,7 @@ export function execute() {
   }
 
   new HTTPRetryRequest(config, reqURL, opts)
-    .then((res) => {
+    .then(async (res) => {
       log.debug(`statusCode: ${res.statusCode}`);
       if (headerObject[HEADERS.CONTENTTYPE]) {
         if (
@@ -249,7 +249,7 @@ export function execute() {
       } catch (e) {
         resultstatusCode = res.statusCode;
       }
-      utils.setOutputParameter("statusCode", resultstatusCode);
+      await result("statusCode", resultstatusCode);
       if (!(res.body === null || res.body.toString().match(/^ *$/) !== null)) {
         log.sys("Response Received:", res.body.toString());
       }
@@ -269,7 +269,7 @@ export function execute() {
           "The task output parameter successfully saved to provided file path."
         );
       } else {
-        utils.setOutputParameter("response", res.body.toString());
+        await result("response", res.body.toString());
         log.debug(
           "The task output parameter successfully saved to standard response file."
         );
@@ -288,11 +288,8 @@ export function execute() {
       }
       (async () => {
         await (async function (msg) {
-          utils.setOutputParameter("statusCode", msg?.statusCode ?? "");
-          utils.setOutputParameter(
-            "response",
-            msg?.body?.toString() ?? msg.message
-          );
+          await result("statusCode", msg?.statusCode ?? "");
+          await result("response", msg?.body?.toString() ?? msg.message);
         })(err);
         process.exit(1);
       })();

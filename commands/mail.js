@@ -1,410 +1,479 @@
-// const { log, utils } = require("@boomerang-io/worker-core");
-// const HttpsProxyAgent = require("https-proxy-agent");
-// const filePath = require("path");
-// const fs = require("fs");
-// const client = require("@sendgrid/client");
-// const postmark = require("postmark");
-// const { UpdateMessageStreamRequest } = require("postmark/dist/client/models");
-// /**
-//  * checkIfEmpty - Check if param is set or not, in case of mandatory inputs
-//  * unsetField - Removes every property from object, with the name 'fieldName'
-//  * checkParameters - Validates all attributes of the supplied object. Returns true if all parameters are valid.
-//  * checkForJson - Validates the payload is JSON
-//  */
-// const { checkIfEmpty, unsetField, checkParameters, checkForJson } = require("./../libs/utilities");
+import { log, params, results } from "@boomerang-io/task-core";
+import HttpsProxyAgent from "https-proxy-agent";
+import filePath from "path";
+import fs from "fs";
+import client from "@sendgrid/client";
+import postmark from "postmark";
 
-// function splitStrToObjects(str) {
-//   if (checkIfEmpty(str)) {
-//     return;
-//   }
-//   if (str.includes(",")) {
-//     return str.split(",").map(strEmail => {
-//       return { email: strEmail };
-//     });
-//   }
-//   // TODO: functionality could be used in the future.
-//   // if (str.includes(";")) {
-//   //   return str.split(";").map(strEmail => {
-//   //     return { email: strEmail };
-//   //   });
-//   // }
-//   return [{ email: str }];
-// }
-// /**
-//  * -create content for the data body of the sendgrid mail client API call
-//  * takes in html and/or text content to be sent in the email
-//  * contentType, bodyContent
-//  * @param {"Text", "HTML"} contentType
-//  * @param {*} bodyContent
-//  */
-// function createContent(contentType, bodyContent) {
-//   if (checkIfEmpty(contentType) || checkIfEmpty(bodyContent)) {
-//     return null;
-//   }
+/**
+ * checkIfEmpty - Check if param is set or not, in case of mandatory inputs
+ * unsetField - Removes every property from object, with the name 'fieldName'
+ * checkParameters - Validates all attributes of the supplied object. Returns true if all parameters are valid.
+ * checkForJson - Validates the payload is JSON
+ */
+import {
+  checkIfEmpty,
+  unsetField,
+  checkParameters,
+  checkForJson,
+} from "./../libs/utilities.js";
 
-//   let output = [];
-//   switch (contentType) {
-//     case "Text":
-//       output.push({
-//         type: "text",
-//         value: bodyContent
-//       });
-//       break;
-//     case "HTML":
-//       output.push({
-//         type: "text/html",
-//         value: bodyContent
-//       });
-//       break;
-//   }
-//   if (output.length) {
-//     return output;
-//   } else return null;
-// }
+function splitStrToObjects(str) {
+  if (checkIfEmpty(str)) {
+    return;
+  }
+  if (str.includes(",")) {
+    return str.split(",").map((strEmail) => {
+      return { email: strEmail };
+    });
+  }
+  // TODO: functionality could be used in the future.
+  // if (str.includes(";")) {
+  //   return str.split(";").map(strEmail => {
+  //     return { email: strEmail };
+  //   });
+  // }
+  return [{ email: str }];
+}
 
-// /**
-//  * -create attachments for the data body of the sendgrid mail client API call
-//  * takes in a list file paths to be attached in the email, new line separated
-//  * @param {*} attachments
-//  */
-// function createAttachment(attachments) {
-//   if (checkIfEmpty(attachments)) {
-//     return null;
-//   }
-//   let output = [];
+/**
+ * -create content for the data body of the sendgrid mail client API call
+ * takes in html and/or text content to be sent in the email
+ * contentType, bodyContent
+ * @param {"Text", "HTML"} contentType
+ * @param {*} bodyContent
+ */
+function createContent(contentType, bodyContent) {
+  if (checkIfEmpty(contentType) || checkIfEmpty(bodyContent)) {
+    return null;
+  }
 
-//   let fileArray = attachments.split("\n");
-//   if (attachments.includes("\r\n")) {
-//     fileArray = attachments.split("\r\n");
-//   }
+  let output = [];
+  switch (contentType) {
+    case "Text":
+      output.push({
+        type: "text",
+        value: bodyContent,
+      });
+      break;
+    case "HTML":
+      output.push({
+        type: "text/html",
+        value: bodyContent,
+      });
+      break;
+  }
+  if (output.length) {
+    return output;
+  } else return null;
+}
 
-//   fileArray.forEach(attachment => {
-//     try {
-//       if (!checkIfEmpty(attachment)) {
-//         const file = fs.readFileSync(attachment, "binary");
-//         output.push({
-//           content: Buffer.from(file, "binary").toString("base64"),
-//           filename: filePath.basename(attachment),
-//           disposition: "attachment"
-//         });
-//         log.debug(`Attachment file ${attachment} was added.`);
-//       } else {
-//         log.debug(`Ignoring empty line fo attachment.`);
-//       }
-//     } catch (e) {
-//       log.err(e);
-//     }
-//   });
+/**
+ * -create attachments for the data body of the sendgrid mail client API call
+ * takes in a list file paths to be attached in the email, new line separated
+ * @param {*} attachments
+ */
+function createAttachment(attachments) {
+  if (checkIfEmpty(attachments)) {
+    return null;
+  }
+  let output = [];
 
-//   if (output.length) {
-//     return output;
-//   } else return null;
-// }
+  let fileArray = attachments.split("\n");
+  if (attachments.includes("\r\n")) {
+    fileArray = attachments.split("\r\n");
+  }
 
-// module.exports = {
-//   /**
-//    * @param {string} to  - mandatory
-//    * @param {string} [cc]
-//    * @param {string} [bcc]
-//    * @param {string} from  - mandatory
-//    * @param {string} [replyTo]
-//    * @param {string} [subject]
-//    * @param {string} contentType  - mandatory
-//    * @param {string} [bodyContent]
-//    * @param {string} apiKey  - mandatory
-//    * @param {string} [attachments]
-//    */
-//   async sendEmailWithSendgrid() {
-//     // https://github.com/sendgrid/sendgrid-nodejs/blob/main/packages/client/USAGE.md#v3-mail-send
-//     log.debug("Started send Email With Sendgrid");
+  fileArray.forEach((attachment) => {
+    try {
+      if (!checkIfEmpty(attachment)) {
+        const file = fs.readFileSync(attachment, "binary");
+        output.push({
+          content: Buffer.from(file, "binary").toString("base64"),
+          filename: filePath.basename(attachment),
+          disposition: "attachment",
+        });
+        log.debug(`Attachment file ${attachment} was added.`);
+      } else {
+        log.debug(`Ignoring empty line fo attachment.`);
+      }
+    } catch (e) {
+      log.err(e);
+    }
+  });
 
-//     // Destructure and get properties ready.
-//     const taskProps = utils.resolveInputParameters();
-//     const { to, cc, bcc, from, replyTo, subject, contentType, bodyContent, apiKey, attachments } = taskProps;
+  if (output.length) {
+    return output;
+  } else return null;
+}
 
-//     // Validate mandatory parameters
-//     if (checkParameters({ to, from, contentType, apiKey })) {
-//       log.err(`Invalid mandatory parameters. Check log for details`);
-//       process.exit(1);
-//     }
+/**
+ * @param {string} to  - mandatory
+ * @param {string} [cc]
+ * @param {string} [bcc]
+ * @param {string} from  - mandatory
+ * @param {string} [replyTo]
+ * @param {string} [subject]
+ * @param {string} contentType  - mandatory
+ * @param {string} [bodyContent]
+ * @param {string} apiKey  - mandatory
+ * @param {string} [attachments]
+ */
+export async function sendEmailWithSendgrid() {
+  // https://github.com/sendgrid/sendgrid-nodejs/blob/main/packages/client/USAGE.md#v3-mail-send
+  log.debug("Started send Email With Sendgrid");
 
-//     if (checkParameters({ cc, bcc, replyTo, subject, bodyContent, attachments })) {
-//       log.warn(`These input fields are not set.`);
-//     }
+  // Destructure and get properties ready.
+  const {
+    to,
+    cc,
+    bcc,
+    from,
+    replyTo,
+    subject,
+    contentType,
+    bodyContent,
+    apiKey,
+    attachments,
+  } = params;
 
-//     client.setApiKey(apiKey);
+  // Validate mandatory parameters
+  if (checkParameters({ to, from, contentType, apiKey })) {
+    log.err(`Invalid mandatory parameters. Check log for details`);
+    process.exit(1);
+  }
 
-//     let data = {
-//       from: {
-//         email: from
-//       },
-//       personalizations: []
-//     };
+  if (
+    checkParameters({ cc, bcc, replyTo, subject, bodyContent, attachments })
+  ) {
+    log.warn(`These input fields are not set.`);
+  }
 
-//     if (!checkIfEmpty(replyTo)) {
-//       data["reply_to"] = {
-//         email: replyTo
-//       };
-//     }
+  client.setApiKey(apiKey);
 
-//     if (splitStrToObjects(to)) {
-//       data["personalizations"].push({ to: splitStrToObjects(to) });
-//     }
+  let data = {
+    from: {
+      email: from,
+    },
+    personalizations: [],
+  };
 
-//     if (!checkIfEmpty(subject)) {
-//       data["subject"] = subject;
-//     }
+  if (!checkIfEmpty(replyTo)) {
+    data["reply_to"] = {
+      email: replyTo,
+    };
+  }
 
-//     if (splitStrToObjects(cc)) {
-//       data["personalizations"][0]["cc"] = splitStrToObjects(cc);
-//     }
+  if (splitStrToObjects(to)) {
+    data["personalizations"].push({ to: splitStrToObjects(to) });
+  }
 
-//     if (splitStrToObjects(bcc)) {
-//       data["personalizations"][0]["bcc"] = splitStrToObjects(bcc);
-//     }
+  if (!checkIfEmpty(subject)) {
+    data["subject"] = subject;
+  }
 
-//     if (createContent(contentType, bodyContent)) {
-//       data["content"] = createContent(contentType, bodyContent);
-//     }
+  if (splitStrToObjects(cc)) {
+    data["personalizations"][0]["cc"] = splitStrToObjects(cc);
+  }
 
-//     if (!checkIfEmpty(attachments)) {
-//       data["attachments"] = createAttachment(attachments);
-//     }
+  if (splitStrToObjects(bcc)) {
+    data["personalizations"][0]["bcc"] = splitStrToObjects(bcc);
+  }
 
-//     if (process.env.HTTP_PROXY) {
-//       log.debug(`Setting Proxy`);
-//       let agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-//       client.setDefaultRequest("httpsAgent", agent);
-//       client.setDefaultRequest("proxy", false);
-//     }
+  if (createContent(contentType, bodyContent)) {
+    data["content"] = createContent(contentType, bodyContent);
+  }
 
-//     log.debug(`JSON body: ${JSON.stringify(data)}`);
+  if (!checkIfEmpty(attachments)) {
+    data["attachments"] = createAttachment(attachments);
+  }
 
-//     let request = {};
-//     request.body = JSON.stringify(data);
-//     request.method = "POST";
-//     request.url = "/v3/mail/send";
+  if (process.env.HTTP_PROXY) {
+    log.debug(`Setting Proxy`);
+    let agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+    client.setDefaultRequest("httpsAgent", agent);
+    client.setDefaultRequest("proxy", false);
+  }
 
-//     const clientRequest = { ...client.createRequest(request) }; // Shallow copy
-//     // remove every "Authorization"
-//     unsetField(clientRequest, "Authorization");
-//     log.sys(`stringify request made by client: ${JSON.stringify(clientRequest)}`);
+  log.debug(`JSON body: ${JSON.stringify(data)}`);
 
-//     try {
-//       const clientResponse = await client
-//         .request(request)
-//         .then(([response, body]) => {
-//           // log.debug(`response.statusCode: ${response.statusCode} \n response.body: ${response.body} \n ${body}`);
-//           log.debug(`response.statusCode: ${response.statusCode}`); // for success body is empty
-//           return response;
-//         })
-//         .catch(err => {
-//           log.debug(`code:${err.code}`);
-//           log.debug(`message:${err.message}`);
-//           log.debug(`response.headers:${JSON.stringify(err.response.headers)}`);
-//           log.debug(`response.body:${JSON.stringify(err.response.body)}`);
-//           return err;
-//           // throw err; // We do not want to go to the catch (:262) we want to process this one (:258)
-//         });
-//       // https://docs.sendgrid.com/api-reference/how-to-use-the-sendgrid-v3-api/responses#status-codes
-//       if (/2\d\d/g.test(clientResponse.statusCode)) {
-//         log.good("Email with Sendgrid successfully sent");
-//       } else {
-//         log.err(`Email with Sendgrid was NOT sent. StatusCode: ${clientResponse.code}`);
-//         log.debug(`message: ${clientResponse.message} \n ${clientResponse.toString()}`);
-//         process.exit(1);
-//       }
-//     } catch (err) {
-//       log.err("Email with Sendgrid was NOT sent");
-//       log.err(err);
-//       process.exit(1);
-//     }
-//     log.debug("Finished Send Email With Sendgrid");
-//   },
-//   /**
-//    * @param {string} to  - mandatory
-//    * @param {string} [cc]
-//    * @param {string} [bcc]
-//    * @param {string} from  - mandatory
-//    * @param {string} [replyTo]
-//    * @param {string} [subject]
-//    * @param {string} apiKey  - mandatory
-//    * @param {string} templateId  - mandatory
-//    * @param {string} [dynamicTemplateData]
-//    * @param {string} [attachments]
-//    */
-//   async sendEmailWithSendgridTemplate() {
-//     // Documentation on send mail API: https://docs.sendgrid.com/api-reference/mail-send/mail-send
-//     log.debug("Started Send Email With Sendgrid Template");
+  let request = {};
+  request.body = JSON.stringify(data);
+  request.method = "POST";
+  request.url = "/v3/mail/send";
 
-//     // Destructure and get properties ready.
-//     const taskProps = utils.resolveInputParameters();
-//     const { to, cc, bcc, from, replyTo, subject, apiKey, templateId, dynamicTemplateData, attachments } = taskProps;
+  const clientRequest = { ...client.createRequest(request) }; // Shallow copy
+  // remove every "Authorization"
+  unsetField(clientRequest, "Authorization");
+  log.sys(`stringify request made by client: ${JSON.stringify(clientRequest)}`);
 
-//     // Validate mandatory parameters
-//     if (checkParameters({ to, from, templateId, apiKey })) {
-//       log.err(`Invalid mandatory parameters. Check log for details`);
-//       process.exit(1);
-//     }
+  try {
+    const clientResponse = await client
+      .request(request)
+      .then(([response, body]) => {
+        // log.debug(`response.statusCode: ${response.statusCode} \n response.body: ${response.body} \n ${body}`);
+        log.debug(`response.statusCode: ${response.statusCode}`); // for success body is empty
+        return response;
+      })
+      .catch((err) => {
+        log.debug(`code:${err.code}`);
+        log.debug(`message:${err.message}`);
+        log.debug(`response.headers:${JSON.stringify(err.response.headers)}`);
+        log.debug(`response.body:${JSON.stringify(err.response.body)}`);
+        return err;
+        // throw err; // We do not want to go to the catch (:262) we want to process this one (:258)
+      });
+    // https://docs.sendgrid.com/api-reference/how-to-use-the-sendgrid-v3-api/responses#status-codes
+    if (/2\d\d/g.test(clientResponse.statusCode)) {
+      log.good("Email with Sendgrid successfully sent");
+    } else {
+      log.err(
+        `Email with Sendgrid was NOT sent. StatusCode: ${clientResponse.code}`
+      );
+      log.debug(
+        `message: ${clientResponse.message} \n ${clientResponse.toString()}`
+      );
+      process.exit(1);
+    }
+  } catch (err) {
+    log.err("Email with Sendgrid was NOT sent");
+    log.err(err);
+    process.exit(1);
+  }
+  log.debug("Finished Send Email With Sendgrid");
+}
 
-//     client.setApiKey(apiKey);
+/**
+ * @param {string} to  - mandatory
+ * @param {string} [cc]
+ * @param {string} [bcc]
+ * @param {string} from  - mandatory
+ * @param {string} [replyTo]
+ * @param {string} [subject]
+ * @param {string} apiKey  - mandatory
+ * @param {string} templateId  - mandatory
+ * @param {string} [dynamicTemplateData]
+ * @param {string} [attachments]
+ */
+export async function sendEmailWithSendgridTemplate() {
+  // Documentation on send mail API: https://docs.sendgrid.com/api-reference/mail-send/mail-send
+  log.debug("Started Send Email With Sendgrid Template");
 
-//     let data = {
-//       from: {
-//         email: from
-//       },
-//       personalizations: []
-//     };
+  // Destructure and get properties ready.
+  const {
+    to,
+    cc,
+    bcc,
+    from,
+    replyTo,
+    subject,
+    apiKey,
+    templateId,
+    dynamicTemplateData,
+    attachments,
+  } = params;
 
-//     if (!checkIfEmpty(replyTo)) {
-//       data["reply_to"] = {
-//         email: replyTo
-//       };
-//     }
+  // Validate mandatory parameters
+  if (checkParameters({ to, from, templateId, apiKey })) {
+    log.err(`Invalid mandatory parameters. Check log for details`);
+    process.exit(1);
+  }
 
-//     if (!checkIfEmpty(templateId)) {
-//       data["template_id"] = templateId;
-//     }
+  client.setApiKey(apiKey);
 
-//     if (splitStrToObjects(to)) {
-//       data["personalizations"].push({ to: splitStrToObjects(to) });
-//     }
+  let data = {
+    from: {
+      email: from,
+    },
+    personalizations: [],
+  };
 
-//     if (!checkIfEmpty(subject)) {
-//       data["subject"] = subject;
-//     }
+  if (!checkIfEmpty(replyTo)) {
+    data["reply_to"] = {
+      email: replyTo,
+    };
+  }
 
-//     if (splitStrToObjects(cc)) {
-//       data["personalizations"][0]["cc"] = splitStrToObjects(cc);
-//     }
+  if (!checkIfEmpty(templateId)) {
+    data["template_id"] = templateId;
+  }
 
-//     if (splitStrToObjects(bcc)) {
-//       data["personalizations"][0]["bcc"] = splitStrToObjects(bcc);
-//     }
+  if (splitStrToObjects(to)) {
+    data["personalizations"].push({ to: splitStrToObjects(to) });
+  }
 
-//     let newdynamicTemplateData = checkForJson(dynamicTemplateData);
-//     if (newdynamicTemplateData) {
-//       data["personalizations"][0]["dynamic_template_data"] = newdynamicTemplateData;
-//     }
+  if (!checkIfEmpty(subject)) {
+    data["subject"] = subject;
+  }
 
-//     if (!checkIfEmpty(attachments)) {
-//       data["attachments"] = createAttachment(attachments);
-//     }
+  if (splitStrToObjects(cc)) {
+    data["personalizations"][0]["cc"] = splitStrToObjects(cc);
+  }
 
-//     if (process.env.HTTP_PROXY) {
-//       log.debug(`Setting Proxy: ${process.env.HTTP_PROXY}`);
-//       let agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-//       client.setDefaultRequest("httpsAgent", agent);
-//       client.setDefaultRequest("proxy", false);
-//     }
+  if (splitStrToObjects(bcc)) {
+    data["personalizations"][0]["bcc"] = splitStrToObjects(bcc);
+  }
 
-//     log.debug(`JSON body: ${JSON.stringify(data)}`);
+  let newdynamicTemplateData = checkForJson(dynamicTemplateData);
+  if (newdynamicTemplateData) {
+    data["personalizations"][0]["dynamic_template_data"] =
+      newdynamicTemplateData;
+  }
 
-//     let request = {};
-//     request.body = JSON.stringify(data);
-//     request.method = "POST";
-//     request.url = "/v3/mail/send";
+  if (!checkIfEmpty(attachments)) {
+    data["attachments"] = createAttachment(attachments);
+  }
 
-//     // create a shallow copy of the request for logging
-//     const clientRequest = { ...client.createRequest(request) }; // Shallow copy
-//     unsetField(clientRequest, "Authorization"); // remove sensitive fileds ("Authorization")
-//     log.debug(`stringify request made by client: ${JSON.stringify(clientRequest)}`);
-//     try {
-//       const clientResponse = await client
-//         .request(request)
-//         .then(([response, body]) => {
-//           log.debug(`response.statusCode: ${response.statusCode}`); // for success body is empty
-//           return response;
-//         })
-//         .catch(err => {
-//           log.debug(`code:${err.code}`);
-//           log.debug(`message:${err.message}`);
-//           log.debug(`response.headers:${JSON.stringify(err.response.headers)}`);
-//           log.debug(`response.body:${JSON.stringify(err.response.body)}`);
-//           return err;
-//         });
+  if (process.env.HTTP_PROXY) {
+    log.debug(`Setting Proxy: ${process.env.HTTP_PROXY}`);
+    let agent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+    client.setDefaultRequest("httpsAgent", agent);
+    client.setDefaultRequest("proxy", false);
+  }
 
-//       // https://docs.sendgrid.com/api-reference/how-to-use-the-sendgrid-v3-api/responses#status-codes
-//       if (/2\d\d/g.test(clientResponse.statusCode)) {
-//         log.good("Email with Sendgrid Template successfully sent");
-//       } else {
-//         log.err(`Email with Sendgrid Template was NOT sent. StatusCode: ${clientResponse.code}`);
-//         log.debug(`message: ${clientResponse.message} \n ${clientResponse.toString()}`);
-//         process.exit(1);
-//       }
-//     } catch (err) {
-//       log.err("Email with Sendgrid Template was NOT sent");
-//       log.err(err);
-//       process.exit(1);
-//     }
-//     log.debug("Finished Send Email With Sendgrid Template");
-//   },
-//   /**
-//    *
-//    */
-//   async sendPostmarkEmailWithTemplate() {
-//     log.debug("Started Send Email with Template");
+  log.debug(`JSON body: ${JSON.stringify(data)}`);
 
-//     //Destructure and get properties ready.
-//     const taskProps = utils.resolveInputParameters();
-//     const { token, from, to, templateId, templateAlias, templateModel, tag, messageStream } = taskProps;
+  let request = {};
+  request.body = JSON.stringify(data);
+  request.method = "POST";
+  request.url = "/v3/mail/send";
 
-//     if (checkParameters({ token, from, to })) {
-//       log.err(`A required parameter has not been provided. Please check your parameters and try again.`);
-//       process.exit(1);
-//     }
+  // create a shallow copy of the request for logging
+  const clientRequest = { ...client.createRequest(request) }; // Shallow copy
+  unsetField(clientRequest, "Authorization"); // remove sensitive fileds ("Authorization")
+  log.debug(
+    `stringify request made by client: ${JSON.stringify(clientRequest)}`
+  );
+  try {
+    const clientResponse = await client
+      .request(request)
+      .then(([response, body]) => {
+        log.debug(`response.statusCode: ${response.statusCode}`); // for success body is empty
+        return response;
+      })
+      .catch((err) => {
+        log.debug(`code:${err.code}`);
+        log.debug(`message:${err.message}`);
+        log.debug(`response.headers:${JSON.stringify(err.response.headers)}`);
+        log.debug(`response.body:${JSON.stringify(err.response.body)}`);
+        return err;
+      });
 
-//     if (checkIfEmpty(templateId) && checkIfEmpty(templateAlias)) {
-//       log.err("Either Template ID or Template Alias needs to be provided. Please check your parameters and try again.", "\nTemplate ID: " + templateId, "\nTemplate Alias: " + templateAlias);
-//       process.exit(1);
-//     }
+    // https://docs.sendgrid.com/api-reference/how-to-use-the-sendgrid-v3-api/responses#status-codes
+    if (/2\d\d/g.test(clientResponse.statusCode)) {
+      log.good("Email with Sendgrid Template successfully sent");
+    } else {
+      log.err(
+        `Email with Sendgrid Template was NOT sent. StatusCode: ${clientResponse.code}`
+      );
+      log.debug(
+        `message: ${clientResponse.message} \n ${clientResponse.toString()}`
+      );
+      process.exit(1);
+    }
+  } catch (err) {
+    log.err("Email with Sendgrid Template was NOT sent");
+    log.err(err);
+    process.exit(1);
+  }
+  log.debug("Finished Send Email With Sendgrid Template");
+}
+/**
+ *
+ */
+export async function sendPostmarkEmailWithTemplate() {
+  log.debug("Started Send Email with Template");
 
-//     var templateModelPayload = {};
-//     if (templateModel) {
-//       templateModelPayload = checkForJson(templateModel);
-//     }
+  //Destructure and get properties ready.
+  const {
+    token,
+    from,
+    to,
+    templateId,
+    templateAlias,
+    templateModel,
+    tag,
+    messageStream,
+  } = params;
 
-//     if (checkIfEmpty(messageStream)) {
-//       log.warn("Message Stream not provided. Defaulting to 'outbound'.");
-//       messageStream = "outbound";
-//     }
+  if (checkParameters({ token, from, to })) {
+    log.err(
+      `A required parameter has not been provided. Please check your parameters and try again.`
+    );
+    process.exit(1);
+  }
 
-//     var client = new postmark.ServerClient(token);
+  if (checkIfEmpty(templateId) && checkIfEmpty(templateAlias)) {
+    log.err(
+      "Either Template ID or Template Alias needs to be provided. Please check your parameters and try again.",
+      "\nTemplate ID: " + templateId,
+      "\nTemplate Alias: " + templateAlias
+    );
+    process.exit(1);
+  }
 
-//     let data = {
-//       From: from,
-//       To: to,
-//       TemplateModel: templateModelPayload,
-//       MessageStream: messageStream
-//     };
+  var templateModelPayload = {};
+  if (templateModel) {
+    templateModelPayload = checkForJson(templateModel);
+  }
 
-//     if (!checkIfEmpty(templateId)) {
-//       data.templateId = templateId;
-//     } else {
-//       data.templateAlias = templateAlias;
-//     }
+  if (checkIfEmpty(messageStream)) {
+    log.warn("Message Stream not provided. Defaulting to 'outbound'.");
+    messageStream = "outbound";
+  }
 
-//     if (tag) {
-//       data.tag = tag;
-//     }
+  var client = new postmark.ServerClient(token);
 
-//     log.debug("Created Payload: ", data);
+  let data = {
+    From: from,
+    To: to,
+    TemplateModel: templateModelPayload,
+    MessageStream: messageStream,
+  };
 
-//     try {
-//       // It catches itself and prints a more descriptive error message
-//       let clientResponse = await client.sendEmailWithTemplate(JSON.stringify(data));
-//       utils.setOutputParameters(clientResponse);
-//       // https://postmarkapp.com/developer/api/overview#error-codes
-//       if (/2\d\d/g.test(clientResponse.ErrorCode) || /0/g.test(clientResponse.ErrorCode)) {
-//         log.good("The task completed successfully with response saved as result parameter.", "\nTo: " + clientResponse.To, "\nSubmitted At: " + clientResponse.SubmittedAt, "\nMessage: " + clientResponse.Message, "\nID: " + clientResponse.MessageID);
-//       } else {
-//         log.err("The task failed with response saved as result parameter.", "\nTo: " + clientResponse.To, "\nSubmitted At: " + clientResponse.SubmittedAt, "\nMessage: " + clientResponse.Message, "\nID: " + clientResponse.MessageID);
-//         process.exit(1);
-//       }
-//     } catch (err) {
-//       log.err("EmailWithTemplate with Postmark was NOT sent");
-//       log.err(err);
-//       process.exit(1);
-//     }
-//   }
-// };
+  if (!checkIfEmpty(templateId)) {
+    data.templateId = templateId;
+  } else {
+    data.templateAlias = templateAlias;
+  }
+
+  if (tag) {
+    data.tag = tag;
+  }
+
+  log.debug("Created Payload: ", data);
+
+  try {
+    // It catches itself and prints a more descriptive error message
+    let clientResponse = await client.sendEmailWithTemplate(
+      JSON.stringify(data)
+    );
+    await results(clientResponse);
+    // https://postmarkapp.com/developer/api/overview#error-codes
+    if (
+      /2\d\d/g.test(clientResponse.ErrorCode) ||
+      /0/g.test(clientResponse.ErrorCode)
+    ) {
+      log.good(
+        "The task completed successfully with response saved as result parameter.",
+        "\nTo: " + clientResponse.To,
+        "\nSubmitted At: " + clientResponse.SubmittedAt,
+        "\nMessage: " + clientResponse.Message,
+        "\nID: " + clientResponse.MessageID
+      );
+    } else {
+      log.err(
+        "The task failed with response saved as result parameter.",
+        "\nTo: " + clientResponse.To,
+        "\nSubmitted At: " + clientResponse.SubmittedAt,
+        "\nMessage: " + clientResponse.Message,
+        "\nID: " + clientResponse.MessageID
+      );
+      process.exit(1);
+    }
+  } catch (err) {
+    log.err("EmailWithTemplate with Postmark was NOT sent");
+    log.err(err);
+    process.exit(1);
+  }
+}
