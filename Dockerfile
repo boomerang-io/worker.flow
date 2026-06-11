@@ -1,5 +1,5 @@
-#Import the base Node LTS Alpine image
-FROM node:20-alpine3.22
+#Import the base Alpine image
+FROM node:alpine3.19
 
 WORKDIR /opt/bin
 
