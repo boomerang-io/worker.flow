@@ -37,7 +37,6 @@
   },
   "overrides": {
     "axios": "^0.32.0",
-    "brace-expansion": "^2.0.3",
     "@slack/web-api": {
       "form-data": "^2.5.5"
     },
