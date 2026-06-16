@@ -14,7 +14,7 @@
     "@sendgrid/client": "^7.6.0",
     "@slack/web-api": "^5.8.0",
     "@slack/webhook": "^5.0.3",
-    "axios": "0.32.0",
+    "axios": "^0.32.0",
     "cloudevents": "^5.3.0",
     "googleapis": "^89.0.0",
     "https": "^1.0.0",
@@ -31,11 +31,18 @@
     "twilio": "^3.73.0",
     "url": "^0.11.0",
     "wait-on": "^4.0.2",
-    "cacheable-lookup": "^6.1.0"
+    "cacheable-lookup": "^6.1.0",
+    "tar": "^7.5.8"
   },
   "overrides": {
-    "axios": "0.32.0",
-    "tar": "7.5.8"
+    "axios": {
+      "version": "^0.32.0",
+      "form-data": "4.0.6"
+    },
+    "@slack/web-api": {
+      "form-data": "2.5.5"
+    },
+    "form-data": "2.5.4"
   },
   "scripts": {
     "test": "cross-env NODE_ENV=test mocha tests/**/*.spec.js",
