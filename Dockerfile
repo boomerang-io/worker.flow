@@ -4,7 +4,7 @@ FROM node:22.22.0-alpine
 WORKDIR /opt/bin
 
 #Add Packages
-RUN apk add --no-cache bash sed grep curl coreutils python3 make g++
+RUN apk add --no-cache bash sed grep curl coreutils python3 make g++ 'openssl>=3.5.6-r0'
 
 WORKDIR /cli
 ADD ./package.json ./package-lock.json ./
