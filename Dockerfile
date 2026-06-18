@@ -9,6 +9,8 @@ RUN apk add --no-cache bash sed grep coreutils python3 make g++ \
 	'sqlite>=3.53.2-r0' \
 	'openssl>=3.5.6-r0'
 
+RUN npm install -g npm@11.17.0
+
 WORKDIR /cli
 ADD ./package.json ./package-lock.json ./
 ADD ./commands ./commands
