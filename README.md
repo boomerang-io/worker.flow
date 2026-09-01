@@ -1,3 +1,14 @@
+> [!IMPORTANT]
+> ## 🔧 v3 maintenance only
+> This repository is the default task worker of **Boomerang Flow v3**. It is kept for v3 security and compatibility fixes —
+> IBM maintains that line on the `essentials_v3_stable` and `cve_fix` branches. v4 development here has ended.
+>
+> **Boomerang Flow v5 is a monorepo**: tasks live in [`boomerang-io/tasks`](https://github.com/boomerang-io/tasks) (`@boomerang-io/task-core`, `task-flow` images); the v5 migration repoints old worker.flow images to their replacements.
+> New bugs and features go to [boomerang-io/flow issues](https://github.com/boomerang-io/flow/issues/new/choose);
+> only v3-line fixes belong here.
+
+---
+
 # Boomerang Flow Worker
 
 This is the Boomerang Flow Worker that runs the out of the box tasks and map to the task_templates in Flow.
