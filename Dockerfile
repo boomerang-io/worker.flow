@@ -1,10 +1,25 @@
 #Import the base Alpine image
-FROM node:alpine3.17
+FROM node:22-alpine3.24
 
 WORKDIR /opt/bin
 
+# Ensure npm's bundled dependencies include fixed brace-expansion versions.
+RUN npm install -g npm@11.17.0
+
+# Patch npm's internal undici copy to a fixed release for CVE-2026-12151.
+RUN TMPDIR=$(mktemp -d) \
+	&& cd "$TMPDIR" \
+	&& TGZ=$(npm pack undici@6.27.0 --silent) \
+	&& tar -xzf "$TGZ" \
+	&& rm -rf /usr/local/lib/node_modules/npm/node_modules/undici \
+	&& mv package /usr/local/lib/node_modules/npm/node_modules/undici \
+	&& rm -rf "$TMPDIR"
+
 #Add Packages
-RUN apk add --no-cache bash sed grep curl coreutils python3 make g++
+RUN apk add --no-cache bash sed grep coreutils python3 make g++ \
+	'curl>=8.20.0-r0' \
+	'sqlite>=3.53.2-r0' \
+	'openssl>=3.5.6-r0'
 
 WORKDIR /cli
 ADD ./package.json ./package-lock.json ./
