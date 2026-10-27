@@ -38,7 +38,7 @@
   },
   "overrides": {
     "axios": "^0.34.0",
-    "brace-expansion": "^2.0.3",
+    "brace-expansion": "^2.1.7",
     "jsonwebtoken": "^9.0.2",
     "tmp": "^0.2.4",
     "tough-cookie": "^4.1.3",
